@@ -1,6 +1,6 @@
 <div align="center">
-  <a href="https://arco.design" target="_blank">
-    <img alt="Arco Design Logo" width="200" src="https://imgur.com/ZEmf07N.png"/>
+  <a href="https://github.com/LIjiAngChen8/datepicker-pro-vue" target="_blank">
+    <img alt="DatepickerPpro Logo" width="200" src="https://imgur.com/ZEmf07N.png"/>
   </a>
 </div>
 
@@ -12,7 +12,7 @@
 
 一个轻量、界面简洁、直观、功能齐全的日期选择器。支持多语言、农历展示和各种日期格式。
 
-[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/LIjiAngChen8/vue-datepicker-pro/blob/main/LICENSE)
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/LIjiAngChen8/datepicker-pro-vue/blob/main/LICENSE)
 
 </div>
 
