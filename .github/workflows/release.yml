@@ -1,0 +1,55 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ChangeLog
+        uses: GoogleCloudPlatform/release-please-action@v3
+        id: release
+        with:
+          token: ${{ secrets.RELEASE_TOKEN }}
+          release-type: node
+          package-name: pro
+          labels: autorelease
+          pull-request-header: ':robot: I have created a release 🏷'
+          changelog-types: '[{"type": "feat", "section": "✨新功能", "hidden": false},{"type": "fix", "section": "🐛问题修复", "hidden": false},{"type": "perf", "section":"💡性能优化", "hidden": false},{"type": "refactor", "section":"✨代码重构", "hidden": false},{"type": "docs", "section":"📄文档", "hidden": false},{"type": "style", "section":"🧵代码格式", "hidden": false},{"type": "test", "section":"📋测试", "hidden": false},{"type": "build", "section":"📦项目构建/依赖", "hidden": false},{"type": "revert", "section":"🩹版本回滚", "hidden": false},{"type": "ci", "section":"🪛CI持续集成", "hidden":false},{"type": "workflow", "section":"🔖工作流", "hidden": false},{"type": "chore", "section": "🖇️其他", "hidden": false}]'
+      
+      - name: Checkout
+        uses: actions/checkout@v3 # git 克隆到当前机器上
+        if: ${{ steps.release.outputs.release_created }}
+        
+      - name: Node
+        if: ${{ steps.release.outputs.release_created }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          registry-url: https://registry.npmjs.org/
+          cache: 'yarn'
+          
+      - name: Cache
+        if: ${{ steps.release.outputs.release_created }}
+        id: cache-dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            **/node_modules
+          key: ${{runner.OS}}-${{hashFiles('**/yarn.lock')}}
+          
+      - name: Yarn
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
+        run: yarn
+
+      - name: Build
+        if: ${{ steps.release.outputs.release_created }}
+        run: yarn build
+        
+      - name: Publish
+        if: ${{ steps.release.outputs.release_created }}
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}

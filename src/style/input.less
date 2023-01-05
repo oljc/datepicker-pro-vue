@@ -1,0 +1,549 @@
+@import './global.less';
+
+// 不同尺寸
+@input-size-mini-height: @size-mini;
+@input-size-small-height: @size-small;
+@input-size-large-height: @size-large;
+
+// 不同尺寸文字大小
+@input-size-small-font-size: 14px;
+@input-size-large-font-size: 14px;
+@input-size-mini-font-size: 12px;
+
+// 不同尺寸的 suffix，addon 尺寸。
+@input-size-mini-icon-suffix-size: 12px;
+@input-size-small-icon-suffix-size: 14px;
+@input-size-default-icon-suffix-size: 14px;
+@input-size-large-icon-suffix-size: 14px;
+
+@input-size-mini-icon-addon-size: 12px;
+@input-size-small-icon-addon-size: 14px;
+@input-size-default-icon-addon-size: 14px;
+@input-size-large-icon-addon-size: 14px;
+
+// 布局
+@input-margin-left-clear-btn: 12px;
+@input-spacing-clear-icon-right: 8px;
+@input-padding-word-limit-left: 8px;
+
+// input.group
+@input-group-border-radius_compact: @radius-small;
+@input-group-border-separator-width: @border-1;
+@input-group-color-separator-border: rgb(229, 230, 235);
+
+/******** 高级配置项 end *******/
+
+// vue覆盖变量
+@input-size-medium-height: @size-default;
+@input-size-medium-font-size: 14px;
+@input-size-mini-line-height: 1.667;
+@input-size-small-line-height: @line-height-base;
+@input-size-medium-line-height: @line-height-base;
+@input-size-large-line-height: @line-height-base;
+
+@input-feedback-icon-color_success: @color-success-6;
+@input-feedback-icon-color_error: @color-danger-6;
+@input-feedback-icon-color_warning: @color-warning-6;
+@input-feedback-icon-color_validating: @color-primary-6;
+
+.fixed-width(@width) {
+  width: @width;
+  min-width: @width;
+  max-width: @width;
+}
+.input-wrapper-style(@cls) {
+  display: inline-flex;
+  box-sizing: border-box;
+  width: 100%;
+  padding-right: 12px;
+  padding-left: 12px;
+  color: @color-text-1;
+  font-size: 14px;
+  background-color: @color-fill-2;
+  border: @border-1 solid @color-transparent;
+  border-radius: @radius-small;
+  cursor: text;
+  transition: color @transition-duration-1 @transition-timing-function-linear,
+    border-color @transition-duration-1 @transition-timing-function-linear,
+    background-color @transition-duration-1 @transition-timing-function-linear;
+
+  &:hover {
+    background-color: @color-fill-3;
+    border-color: @color-transparent;
+  }
+
+  &:focus-within,
+  &.@{cls}-focus {
+    background-color: #fff;
+    border-color: @color-primary-6;
+    box-shadow: 0 0 0 0 rgb(190, 218, 255);
+  }
+
+  // 禁用状态样式
+  &.@{cls}-disabled {
+    color: @color-text-4;
+    background-color: @color-fill-2;
+    border-color: @color-transparent;
+    cursor: not-allowed;
+
+    &:hover {
+      color: @color-text-4;
+      background-color: @color-fill-2;
+      border-color: @color-transparent;
+    }
+
+    .@{cls}-prefix,
+    .@{cls}-suffix {
+      color: inherit;
+    }
+  }
+
+  // 错误状态样式
+  &.@{cls}-error {
+    background-color: rgb(255, 236, 232);
+    border-color: @color-transparent;
+
+    &:hover {
+      background-color: rgb(253, 205, 197);
+      border-color: @color-transparent;
+    }
+  }
+
+  &.@{cls}-error:focus-within,
+  &.@{cls}-error&-focus {
+    background-color: #fff;
+    border-color: @color-danger-6;
+    box-shadow: 0 0 0 0 rgb(253, 205, 197);
+  }
+
+  // 前后缀样式
+  .@{cls}-prefix,
+  .@{cls}-suffix {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    white-space: nowrap;
+    -webkit-user-select: none;
+    user-select: none;
+
+    > svg {
+      font-size: @input-size-default-icon-suffix-size;
+    }
+  }
+
+  .@{cls}-prefix {
+    padding-right: 12px;
+    color: @color-text-2;
+  }
+
+  .@{cls}-suffix {
+    padding-left: 12px;
+    color: @color-text-2;
+
+    .@{prefix}-feedback-icon {
+      display: inline-flex;
+
+      &-status-validating {
+        color: @input-feedback-icon-color_validating;
+      }
+
+      &-status-success {
+        color: @input-feedback-icon-color_success;
+      }
+
+      &-status-warning {
+        color: @input-feedback-icon-color_warning;
+      }
+
+      &-status-error {
+        color: @input-feedback-icon-color_error;
+      }
+    }
+  }
+
+  // 清除按钮样式
+  .@{cls}-clear-btn {
+    align-self: center;
+    color: @color-text-2;
+    font-size: 12px;
+    visibility: hidden;
+    cursor: pointer;
+
+    > svg {
+      position: relative;
+      transition: color @transition-duration-1
+        @transition-timing-function-linear;
+    }
+  }
+
+  &:hover .@{cls}-clear-btn {
+    visibility: visible;
+  }
+
+  // 没有选中情况下显示深色
+  &:not(.@{cls}-focus) .@{cls}-icon-hover:hover::before {
+    background-color: @color-fill-4;
+  }
+}
+
+.input-style() {
+  width: 100%;
+  padding-right: 0;
+  padding-left: 0;
+  color: inherit;
+  line-height: @line-height-base;
+  background: none;
+  border: none;
+  border-radius: 0;
+  outline: none;
+  cursor: inherit;
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+
+  &::placeholder {
+    color: @color-text-3;
+  }
+
+  &[disabled]::placeholder {
+    color: @color-text-4;
+  }
+
+  // fix color error under disabled status in safari
+  &[disabled] {
+    -webkit-text-fill-color: @color-text-4;
+  }
+}
+
+.input-size(@size) {
+  @height: ~'input-size-@{size}-height';
+  @font-size: ~'input-size-@{size}-font-size';
+  @line-height: ~'input-size-@{size}-line-height';
+
+  /* prettier-ignore */
+  padding-top: (round(@@height - @border-1 * 2 - $line-height * $font-size) / 2);
+
+  /* prettier-ignore */
+  padding-bottom: (round(@@height - @border-1 * 2 - $line-height * $font-size) / 2);
+  font-size: @@font-size;
+  line-height: @@line-height;
+}
+
+.text-ellipsis() {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+@input-prefix-cls: ~'@{prefix}-input';
+
+.get-padding(@input-size-height, @input-font-size) {
+  /* prettier-ignore */
+  padding-top: (round(@input-size-height - @border-1 * 2 - @line-height-base * @input-font-size) / 2);
+
+  /* prettier-ignore */
+  padding-bottom: (round(@input-size-height - @border-1 * 2 - @line-height-base * @input-font-size) / 2);
+}
+
+.disabled-style() {
+  color: @color-text-4;
+  background-color: @color-fill-2;
+  border-color: @color-transparent;
+  cursor: not-allowed;
+
+  &:hover {
+    color: @color-text-4;
+    background-color: @color-fill-2;
+    border-color: @color-transparent;
+  }
+
+  &::placeholder {
+    color: @color-text-4;
+  }
+}
+
+.@{input-prefix-cls}-wrapper {
+  .input-wrapper-style(@input-prefix-cls);
+
+  .@{input-prefix-cls} {
+    .input-style();
+
+    &.@{input-prefix-cls}-size-mini {
+      .input-size(mini);
+    }
+
+    &.@{input-prefix-cls}-size-small {
+      .input-size(small);
+    }
+
+    &.@{input-prefix-cls}-size-medium {
+      .input-size(medium);
+    }
+
+    &.@{input-prefix-cls}-size-large {
+      .input-size(large);
+    }
+  }
+
+  .@{input-prefix-cls}-word-limit {
+    color: @color-text-3;
+    font-size: 12px;
+  }
+}
+
+.@{input-prefix-cls}-outer {
+  display: inline-flex;
+  width: 100%;
+
+  > .@{input-prefix-cls}-wrapper {
+    border-radius: 0;
+  }
+
+  > :first-child {
+    border-top-left-radius: @radius-small;
+    border-bottom-left-radius: @radius-small;
+  }
+
+  > :last-child {
+    border-top-right-radius: @radius-small;
+    border-bottom-right-radius: @radius-small;
+  }
+  .outer-size();
+
+  &-disabled {
+    cursor: not-allowed;
+  }
+}
+
+.@{input-prefix-cls}-prepend,
+.@{input-prefix-cls}-append {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 0 12px;
+  color: @color-text-1;
+  white-space: nowrap;
+  background-color: @color-fill-2;
+  border: 1px solid @color-transparent;
+
+  > svg {
+    font-size: @input-size-default-icon-addon-size;
+  }
+}
+
+.@{input-prefix-cls}-prepend {
+  border-right: @border-1 solid rgb(229, 230, 235);
+
+  .addon(before, @size-default, 14px);
+}
+
+.@{input-prefix-cls}-append {
+  border-left: @border-1 solid rgb(229, 230, 235);
+
+  .addon(after, @size-default, 14px);
+}
+
+/***** group ******/
+.@{input-prefix-cls}-group {
+  display: inline-flex;
+  align-items: center;
+
+  > * {
+    border-radius: 0;
+
+    &.@{input-prefix-cls}-outer > :last-child,
+    &.@{input-prefix-cls}-outer > :first-child {
+      border-radius: 0;
+    }
+
+    &:not(:last-child) {
+      position: relative;
+      box-sizing: border-box;
+    }
+
+    &:first-child,
+    &:first-child .@{input-prefix-cls}-group > *:first-child {
+      border-top-left-radius: @input-group-border-radius_compact;
+      border-bottom-left-radius: @input-group-border-radius_compact;
+
+      .@{prefix}-select-view {
+        border-top-left-radius: @input-group-border-radius_compact;
+        border-bottom-left-radius: @input-group-border-radius_compact;
+      }
+    }
+
+    &:last-child,
+    &:last-child .@{input-prefix-cls}-outer > *:last-child {
+      border-top-right-radius: @input-group-border-radius_compact;
+      border-bottom-right-radius: @input-group-border-radius_compact;
+
+      .@{prefix}-select-view {
+        border-top-right-radius: @input-group-border-radius_compact;
+        border-bottom-right-radius: @input-group-border-radius_compact;
+      }
+    }
+  }
+
+  // 针对input边框颜色处理
+  > .@{input-prefix-cls}-wrapper:not(:last-child),
+  > .@{input-prefix-cls}-outer:not(:last-child),
+  > .@{prefix}-input-tag:not(:last-child),
+  > .@{prefix}-select-view:not(:last-child) {
+    border-right: @input-group-border-separator-width solid
+      @input-group-color-separator-border;
+
+    &:focus-within {
+      border-right-color: @color-primary-6;
+    }
+  }
+}
+
+/******* size ********/
+
+// 前置后置标签
+.addon(@position, @size-height, @size-font-size) {
+  .item-style() {
+    width: auto;
+    height: 100%;
+    margin-top: -1px;
+    margin-bottom: -1px;
+
+    & when (@position = before) {
+      margin-right: -@input-padding-horizontal;
+      margin-left: -@input-padding-horizontal - 1px;
+    }
+
+    & when (@position = after) {
+      margin-right: -@input-padding-horizontal - 1px;
+      margin-left: -@input-padding-horizontal;
+    }
+  }
+
+  // select,input 的边角和边框
+  .border-radius() {
+    & when (@position = before) {
+      border-color: transparent;
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+
+    & when (@position = after) {
+      border-color: transparent;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+  }
+
+  .@{prefix}-input {
+    .item-style();
+    .border-radius();
+  }
+
+  // 作为前置/后置标签时，重写一些select的样式
+  .@{prefix}-select {
+    .item-style();
+
+    .@{prefix}-select-view {
+      background-color: inherit;
+      border-color: transparent;
+      border-radius: 0;
+    }
+
+    &.@{prefix}-select-single {
+      .@{prefix}-select-view {
+        height: 100%;
+      }
+    }
+  }
+}
+
+// 不同尺寸的高度
+.size-height {
+  .height (@size-height, @size-font-size) {
+    .get-padding(@size-height, @size-font-size);
+
+    font-size: @size-font-size;
+  }
+
+  &-size-mini {
+    /* prettier-ignore */
+    padding-top: (round(@size-mini - @border-1 * 2 - $line-height * $font-size) / 2);
+
+    /* prettier-ignore */
+    padding-bottom: (round(@size-mini - @border-1 * 2 - $line-height * $font-size) / 2);
+    font-size: @input-size-mini-font-size;
+    line-height: 1.667;
+  }
+
+  &-size-small {
+    .height(@size-small, @input-size-small-font-size);
+  }
+
+  &-size-large {
+    .height(@size-large, @input-size-large-font-size);
+  }
+}
+
+// 不同尺寸的带有前置后置标签的高度
+.outer-size() {
+  .size-font-size(@size-input-height, @size-font-size, @suffix-icon-size, @addon-icon-size) {
+    .@{input-prefix-cls}-outer {
+      font-size: @size-font-size;
+    }
+
+    .@{input-prefix-cls}-wrapper {
+      .@{input-prefix-cls}-prefix,
+      .@{input-prefix-cls}-suffix {
+        font-size: @size-font-size;
+
+        > svg {
+          font-size: @suffix-icon-size;
+        }
+      }
+    }
+
+    .@{input-prefix-cls}-prepend,
+    .@{input-prefix-cls}-append {
+      font-size: @size-font-size;
+
+      > svg {
+        font-size: @addon-icon-size;
+      }
+    }
+
+    .@{input-prefix-cls}-prepend {
+      .addon(after, @size-input-height, @size-font-size);
+    }
+
+    .@{input-prefix-cls}-append {
+      .addon(before, @size-input-height, @size-font-size);
+    }
+  }
+
+  &&-size-mini {
+    .size-font-size(
+        @size-mini,
+        @input-size-mini-font-size,
+        @input-size-mini-icon-suffix-size,
+        @input-size-mini-icon-addon-size
+      );
+  }
+
+  &&-size-small {
+    .size-font-size(
+        @size-small,
+        @input-size-small-font-size,
+        @input-size-small-icon-suffix-size,
+        @input-size-small-icon-addon-size
+      );
+  }
+
+  &&-size-large {
+    .size-font-size(
+        @size-large,
+        @input-size-large-font-size,
+        @input-size-large-icon-suffix-size,
+        @input-size-large-icon-addon-size
+      );
+  }
+}

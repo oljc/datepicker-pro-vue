@@ -1,0 +1,57 @@
+@import './global.less';
+
+@trigger-prefix-cls: ~'@{prefix}-trigger';
+
+.@{trigger-prefix-cls} {
+  &-wrapper {
+    display: inline-block;
+  }
+
+  &-popup {
+    position: absolute;
+    z-index: 1200;
+  }
+
+  &-arrow {
+    position: absolute;
+    z-index: -1;
+    display: block;
+    box-sizing: border-box;
+    width: 8px;
+    height: 8px;
+    background-color: #fff;
+    content: '';
+  }
+
+  &-popup[x-placement='top'] &-arrow,
+  &-popup[x-placement='tl'] &-arrow,
+  &-popup[x-placement='tr'] &-arrow {
+    border-top: none;
+    border-left: none;
+    border-bottom-right-radius: @radius-small;
+  }
+
+  &-popup[x-placement='bottom'] &-arrow,
+  &-popup[x-placement='bl'] &-arrow,
+  &-popup[x-placement='br'] &-arrow {
+    border-right: none;
+    border-bottom: none;
+    border-top-left-radius: @radius-small;
+  }
+
+  &-popup[x-placement='left'] &-arrow,
+  &-popup[x-placement='lt'] &-arrow,
+  &-popup[x-placement='lb'] &-arrow {
+    border-bottom: none;
+    border-left: none;
+    border-top-right-radius: @radius-small;
+  }
+
+  &-popup[x-placement='right'] &-arrow,
+  &-popup[x-placement='rt'] &-arrow,
+  &-popup[x-placement='rb'] &-arrow {
+    border-top: none;
+    border-right: none;
+    border-bottom-left-radius: @radius-small;
+  }
+}

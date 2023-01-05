@@ -1,0 +1,175 @@
+@import './global.less';
+
+.@{prefix}-picker {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 4px 11px 4px 4px;
+  line-height: @line-height-base;
+  background-color: @color-fill-2;
+  border: 1px solid @color-transparent;
+  border-radius: @radius-small;
+  transition: all @transition-duration-1 @transition-timing-function-linear;
+
+  &-input {
+    display: inline-flex;
+    flex: 1;
+  }
+
+  input {
+    width: 100%;
+    padding: 0;
+    padding-left: 8px;
+    color: @color-text-2;
+    line-height: @line-height-base;
+    text-align: left;
+    background-color: @color-transparent;
+    border: none;
+    outline: none;
+    transition: all @transition-duration-1 @transition-timing-function-linear;
+
+    &::placeholder {
+      color: @color-text-3;
+    }
+
+    // fix color error under disabled status in safari
+    &[disabled] {
+      -webkit-text-fill-color: @color-text-4;
+    }
+  }
+
+  &-suffix {
+    display: inline-flex;
+    align-items: center;
+    width: 1em;
+    margin-left: 4px;
+    // text-align: center;
+  }
+
+  &-suffix-icon {
+    color: @color-text-2;
+  }
+
+  & &-clear-icon {
+    display: none;
+    color: @color-text-2;
+    font-size: 12px;
+  }
+
+  &:hover {
+    background-color: @color-fill-3;
+    border-color: @color-transparent;
+  }
+
+  &:not(&-disabled):hover &-clear-icon {
+    display: inline-block;
+  }
+
+  &:not(&-disabled):hover &-suffix &-clear-icon + span {
+    display: none;
+  }
+
+  input[disabled] {
+    color: @color-text-4;
+    cursor: not-allowed;
+
+    &::placeholder {
+      color: @color-text-4;
+    }
+  }
+
+  &-error {
+    background-color: rgb(253, 205, 197);
+    border-color: @color-transparent;
+
+    &:hover {
+      background-color: rgb(253, 205, 197);
+      border-color: @color-transparent;
+    }
+  }
+
+  &-focused {
+    box-shadow: 0 0 0 0 rgb(232, 243, 255);
+  }
+
+  &-focused,
+  &-focused:hover {
+    background-color: #fff;
+    border-color: @color-primary-6;
+  }
+
+  &-focused&-error {
+    border-color: @color-danger-6;
+    box-shadow: 0 0 0 0 rgb(253, 205, 197);
+  }
+
+  &-focused &-input-active input,
+  &-focused:hover &-input-active input {
+    background: @color-fill-2;
+  }
+
+  &-disabled,
+  &-disabled:hover {
+    color: @color-text-4;
+    background-color: @color-fill-2;
+    border-color: @color-transparent;
+    cursor: not-allowed;
+
+    input[disabled] {
+      color: @color-text-4;
+      cursor: not-allowed;
+
+      &::placeholder {
+        color: @color-text-4;
+      }
+    }
+  }
+
+  &-separator {
+    min-width: 10px;
+    padding: 0 8px;
+    color: @color-text-3;
+  }
+
+  &-disabled &-separator {
+    color: @color-text-4;
+  }
+
+  &-disabled &-suffix-icon {
+    color: @color-text-4;
+  }
+
+  // Size
+  &-size-mini {
+    height: @size-mini;
+
+    input {
+      font-size: 12px;
+    }
+  }
+
+  &-size-small {
+    height: @size-small;
+
+    input {
+      font-size: 14px;
+    }
+  }
+
+  &-size-medium {
+    height: @size-default;
+
+    input {
+      font-size: 14px;
+    }
+  }
+
+  &-size-large {
+    height: @size-large;
+
+    input {
+      font-size: 14px;
+    }
+  }
+}

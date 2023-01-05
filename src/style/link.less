@@ -1,0 +1,35 @@
+@import './global.less';
+
+@link-prefix-cls: ~'@{prefix}-picker-link';
+
+.@{link-prefix-cls} {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 2px;
+  color: rgb(22, 93, 255);
+  font-size: 14px;
+  line-height: @line-height-base;
+  text-decoration: none;
+  background-color: @color-transparent;
+  border-radius: @radius-small;
+  cursor: pointer;
+  transition: all @transition-duration-1 @transition-timing-function-linear;
+
+  &:hover {
+    color: rgb(22, 93, 255);
+    background-color: @color-fill-2;
+  }
+
+  &:active {
+    color: rgb(22, 93, 255);
+    background-color: @color-fill-3;
+    transition: none;
+  }
+
+  &&-disabled {
+    color: rgb(148, 191, 255);
+    background: none;
+    cursor: not-allowed;
+  }
+}

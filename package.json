@@ -1,0 +1,101 @@
+{
+  "name": "datepicker-pro-vue",
+  "version": "1.0.0",
+  "description": "A beautiful, concise and fully functional date picker for Vue2. With a clean and intuitive interface, it's easy to use and customize. Supports multiple languages and various date formats.",
+  "scripts": {
+    "dev": "rollup -w --bundleConfigAsCjs -c build/rollup.config.dev.js",
+    "build": "yarn clean && rollup --bundleConfigAsCjs -c build/rollup.config.prod.js",
+    "clean": "rimraf ./dist",
+    "lint-staged": "npx lint-staged"
+  },
+  "main": "dist/datepicker-pro-vue.umd.js",
+  "module": "dist/datepicker-pro-vue.esm.js",
+  "unpkg": "dist/datepicker-pro-vue.umd.min.js",
+  "keywords": [
+    "DatepickerPro",
+    "vue2",
+    "Enhanced",
+    "LIjiAngChen8",
+    "Arco"
+  ],
+  "author": "LIjiAngChen8",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LIjiAngChen8/datepicker-pro-vue"
+  },
+  "bugs": {
+    "url": "https://github.com/LIjiAngChen8/datepicker-pro-vue/issues",
+    "email": "SpaceCode@foxmail.com"
+  },
+  "license": "MIT",
+  "peerDependencies": {
+    "vue": "^2.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.20.7",
+    "@babel/plugin-transform-runtime": "^7.19.6",
+    "@babel/preset-env": "^7.20.2",
+    "@commitlint/cli": "^17.3.0",
+    "@commitlint/config-conventional": "^17.3.0",
+    "@parcel/transformer-vue": "2.8.2",
+    "@rollup/plugin-alias": "^4.0.2",
+    "@rollup/plugin-babel": "^6.0.3",
+    "@rollup/plugin-commonjs": "^24.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "@rollup/plugin-strip": "^3.0.2",
+    "@rollup/plugin-terser": "^0.2.1",
+    "@vue/compiler-sfc": "^3.2.45",
+    "autoprefixer": "8.0.0",
+    "eslint": "^7.21.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-prettier": "^3.3.1",
+    "eslint-plugin-vue": "^7.7.0",
+    "husky": "^8.0.2",
+    "lint-staged": "^13.1.0",
+    "postcss": "^8.4.20",
+    "prettier": "^2.2.1",
+    "rollup": "^3.8.1",
+    "rollup-plugin-filesize": "^9.1.2",
+    "rollup-plugin-livereload": "^2.0.5",
+    "rollup-plugin-polyfill-node": "^0.11.0",
+    "rollup-plugin-postcss": "^4.0.2",
+    "rollup-plugin-serve": "^2.0.2",
+    "rollup-plugin-vue": "^5.1.9",
+    "stylelint": "^13.8.0",
+    "stylelint-config-prettier": "^8.0.2",
+    "stylelint-config-rational-order": "^0.1.2",
+    "stylelint-config-standard": "^20.0.0",
+    "stylelint-order": "^4.1.0",
+    "vue": "^2.6.10",
+    "vue-template-compiler": "^2.7.14"
+  },
+  "lint-staged": {
+    "*.{js,ts,vue}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{less,css}": [
+      "stylelint --fix",
+      "prettier --write"
+    ]
+  },
+  "browserslist": [
+    "defaults",
+    "not ie < 8",
+    "last 2 versions",
+    "> 1%",
+    "iOS 7",
+    "last 3 iOS versions"
+  ],
+  "dependencies": {
+    "b-tween": "^0.3.3",
+    "dayjs": "^1.11.7",
+    "popper.js": "^1.16.1"
+  },
+  "files": [
+    "dist",
+    "LICENSE"
+  ]
+}
