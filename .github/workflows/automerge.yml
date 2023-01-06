@@ -10,11 +10,11 @@ on:
       - ready_for_review
       - reopened
       - unlocked
+    tags:
+      - v*
   pull_request_review:
     types:
       - submitted
-  tags:
-      - v*
   status: {}
 
 jobs:
