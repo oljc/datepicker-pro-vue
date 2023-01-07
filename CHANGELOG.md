@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/LIjiAngChen8/datepicker-pro-vue/compare/v1.0.1...v1.0.2) (2023-01-07)
+
+
+### 🪛CI持续集成
+
+* steps错误缩进修复 ([820a2ad](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/820a2ad2919d7a124bcdd052670eedbb4a2c079a))
+
 ## [1.0.1](https://github.com/LIjiAngChen8/datepicker-pro-vue/compare/v1.0.0...v1.0.1) (2023-01-07)
 
 
