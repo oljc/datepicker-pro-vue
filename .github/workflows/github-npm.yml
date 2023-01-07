@@ -18,7 +18,7 @@ jobs:
           registry-url: https://npm.pkg.github.com/
           cache: 'yarn'
           
-     - name: Cache
+      - name: Cache
         if: ${{ steps.release.outputs.release_created }}
         id: cache-dependencies
         uses: actions/cache@v3
