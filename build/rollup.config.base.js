@@ -1,13 +1,14 @@
 import vue from 'rollup-plugin-vue';
 import babel from '@rollup/plugin-babel';
-import { nodeResolve } from '@rollup/plugin-node-resolve';
+import nodeResolve from '@rollup/plugin-node-resolve';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
 import commonjs from '@rollup/plugin-commonjs';
 import alias from '@rollup/plugin-alias';
-import postcss from 'rollup-plugin-postcss'; // css转js预处理器
-import autoprefixer from 'autoprefixer'; // 浏览器前缀兼容
+import postcss from 'rollup-plugin-postcss';
+import autoprefixer from 'autoprefixer';
 import terser from '@rollup/plugin-terser';
 import strip from '@rollup/plugin-strip';
+
 import { name, version, author } from '../package.json';
 
 const banner =
@@ -54,15 +55,16 @@ export default {
     }),
     vue({
       css: true,
-      style: {
-        postcssPlugins: [autoprefixer()],
-      },
       template: {
         isProduction: true,
       },
     }),
     postcss({
       extensions: ['.css', '.less'],
+      plugins: [
+        autoprefixer(), // 自动添加浏览器前缀
+      ],
+      minimize: true,
     }),
     alias({
       entries: {
