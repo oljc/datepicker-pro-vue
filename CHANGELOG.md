@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.0.1](https://github.com/LIjiAngChen8/datepicker-pro-vue/compare/v1.0.0...v1.0.1) (2023-01-07)
+
+
+### 📄文档
+
+* 更新文档 ([4813636](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/481363678c5f925007ad324fc3748f3f8c1784b5))
+
+
+### 💡性能优化
+
+* 调整构建效率 ([eacfff1](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/eacfff13f63c725104149c307255cc06ddb2d823))
+* 调整构建效率 ([e7f42b8](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/e7f42b8670db6363c4b1fdbf8421e7c930507487))
+
 ## 1.0.0 (2023-01-05)
 
 
