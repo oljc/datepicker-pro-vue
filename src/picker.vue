@@ -29,9 +29,9 @@
       @change="onInputChange"
       @pressEnter="onInputPressEnter"
     >
-      <template #suffix-icon>
+      <template slot="suffix-icon">
         <slot name="suffix-icon">
-          <IconCalendar />
+          <IconCommon use="calendar" />
         </slot>
       </template>
     </DateInput>
@@ -44,7 +44,7 @@
 <script>
 import Popper from './popper/index.vue';
 import DateInput from './common/input.vue';
-import IconCalendar from './icon/icon-common.vue';
+import IconCommon from './icon/icon-common.vue';
 import PickerPanel from './picker-panel.vue';
 
 import { getPrefixCls } from './utils/config';
@@ -70,7 +70,7 @@ import {
 
 export default {
   name: 'DatePickerPro',
-  components: { Popper, DateInput, IconCalendar, PickerPanel },
+  components: { Popper, DateInput, IconCommon, PickerPanel },
   data() {
     return {
       panelVisible: false,

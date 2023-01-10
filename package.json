@@ -29,7 +29,7 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "vue": "^2.0.0"
+    "vue": "^2.6.11"
   },
   "devDependencies": {
     "@babel/core": "^7.20.7",
@@ -68,8 +68,8 @@
     "stylelint-config-rational-order": "^0.1.2",
     "stylelint-config-standard": "^20.0.0",
     "stylelint-order": "^4.1.0",
-    "vue": "^2.6.10",
-    "vue-template-compiler": "^2.7.14"
+    "vue": "2.6.14",
+    "vue-template-compiler": "2.6.14"
   },
   "lint-staged": {
     "*.{js,ts,vue}": [

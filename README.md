@@ -27,12 +27,12 @@
 
 npm
 ```bash
-npm install xxx
+npm install datepicker-pro-vue
 ```
 
 yarn
 ```bash
-yarn add
+yarn add datepicker-pro-vue
 ```
 CDN
 ```html
@@ -46,7 +46,7 @@ CDN
 ```js
 import Vue from "vue";
 import App from "./App.vue";
-import DatePickerPro from 'vue-datepicker-pro'; // 引入组件
+import DatePickerPro from 'datepicker-pro-vue'; // 引入组件
 
 Vue.use(DatePickerPro)
 // DatePickerPro.install(Vue);
