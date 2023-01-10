@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.0.3](https://github.com/LIjiAngChen8/datepicker-pro-vue/compare/v1.0.2...v1.0.3) (2023-01-10)
+
+
+### 💡性能优化
+
+* 移除Map缓存Dom策略 ([b171cae](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/b171cae556f6e627b0894d748682a039304dc50a))
+
+
+### 🐛问题修复
+
+* vue/vue-template-compiler版本导致插槽默认内容undefind ([d7d2fac](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/d7d2fac4722f56c909e8a83367b99300a94702b1))
+* 修复clockCircle图标命名拼写错误 ([44c7108](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/44c710872b3c132f9c1ae9c6160e789dd9f5245f))
+* 统一图标组件slot用法 ([e1c03c7](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/e1c03c713dcfcb389170181cb1ee158bd2a1bc01))
+
+
+### 🖇️其他
+
+* 打包 ([58f3d4e](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/58f3d4eed41944022e92f3eed62e0d6d42d757b2))
+
 ## [1.0.2](https://github.com/LIjiAngChen8/datepicker-pro-vue/compare/v1.0.1...v1.0.2) (2023-01-07)
 
 
