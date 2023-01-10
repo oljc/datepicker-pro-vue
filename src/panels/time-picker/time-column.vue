@@ -4,11 +4,7 @@
       <li
         v-for="item in list"
         :key="item.value"
-        :ref="
-          (el) => {
-            onItemRef(el, item);
-          }
-        "
+        :ref="item.value"
         :class="[
           `${prefixCls}-cell`,
           {
@@ -16,11 +12,7 @@
             [`${prefixCls}-cell-selected`]: item.selected,
           },
         ]"
-        @click="
-          () => {
-            onItemClick(item);
-          }
-        "
+        @click="onItemClick(item)"
       >
         <div :class="`${prefixCls}-cell-inner`">{{ item.label }}</div>
       </li>
@@ -50,17 +42,12 @@ export default {
       type: Boolean,
     },
   },
-  data() {
-    return {
-      refMap: new Map(),
-    };
-  },
   methods: {
     scrollToTop(easing = false) {
       if (!this.$refs.refWrapper || isUndefined(this.value) || !this.visible) {
         return;
       }
-      const refSelected = this.refMap.get(this.value);
+      const refSelected = this.$refs[this.value][0];
       if (refSelected) {
         scrollTo(
           this.$refs.refWrapper,
@@ -68,9 +55,6 @@ export default {
           easing ? 100 : 0
         );
       }
-    },
-    onItemRef(el, item) {
-      this.refMap.set(item.value, el);
     },
     onItemClick(item) {
       if (!item.disabled) {
