@@ -3076,12 +3076,7 @@
 
   var script$i = {
     name: 'IconCommon',
-    props: {
-      use: {
-        type: String,
-        default: 'calendar',
-      },
-    },
+    props: ['use'],
     data() {
       return {
         prefixCls: getPrefixCls('icon'),
@@ -3089,7 +3084,7 @@
           calendar: `<path d="M7 22h34M14 5v8m20-8v8M8 41h32a1 1 0 0 0 1-1V10a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v30a1 1 0 0 0 1 1Z"></path>`,
           circle: `<path d="M24 14v10h9.5m8.5 0c0 9.941-8.059 18-18 18S6 33.941 6 24 14.059 6 24 6s18 8.059 18 18Z"></path>`,
           close: `<path d="M9.857 9.858 24 24m0 0 14.142 14.142M24 24 38.142 9.858M24 24 9.857 38.142"></path>`,
-          clockCirecle: `<path d="M24 14v10h9.5m8.5 0c0 9.941-8.059 18-18 18S6 33.941 6 24 14.059 6 24 6s18 8.059 18 18Z"></path>`,
+          clockCircle: `<path d="M24 14v10h9.5m8.5 0c0 9.941-8.059 18-18 18S6 33.941 6 24 14.059 6 24 6s18 8.059 18 18Z"></path>`,
           doubleLeft: `<path d="M36.857 9.9 22.715 24.042l14.142 14.142M25.544 9.9 11.402 24.042l14.142 14.142"></path>`,
           doubleRight: `<path d="m11.143 38.1 14.142-14.142L11.143 9.816M22.456 38.1l14.142-14.142L22.456 9.816"></path>`,
           left: `<path d="M32 8.4 16.444 23.956 32 39.513"></path>`,
@@ -5190,17 +5185,12 @@
         type: Boolean,
       },
     },
-    data() {
-      return {
-        refMap: new Map(),
-      };
-    },
     methods: {
       scrollToTop(easing = false) {
         if (!this.$refs.refWrapper || isUndefined(this.value) || !this.visible) {
           return;
         }
-        const refSelected = this.refMap.get(this.value);
+        const refSelected = this.$refs[this.value][0];
         if (refSelected) {
           scrollTo(
             this.$refs.refWrapper,
@@ -5208,9 +5198,6 @@
             easing ? 100 : 0
           );
         }
-      },
-      onItemRef(el, item) {
-        this.refMap.set(item.value, el);
       },
       onItemClick(item) {
         if (!item.disabled) {
@@ -5239,13 +5226,9 @@
   /* template */
   var __vue_render__$9 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{ref:"refWrapper",class:(_vm.prefixCls + "-column")},[_c('ul',_vm._l((_vm.list),function(item){
   var _obj;
-  return _c('li',{key:item.value,ref:function (el) {
-            _vm.onItemRef(el, item);
-          },refInFor:true,class:[
+  return _c('li',{key:item.value,ref:item.value,refInFor:true,class:[
           (_vm.prefixCls + "-cell"),
-          ( _obj = {}, _obj[(_vm.prefixCls + "-cell-disabled")] = item.disabled, _obj[(_vm.prefixCls + "-cell-selected")] = item.selected, _obj ) ],on:{"click":function () {
-            _vm.onItemClick(item);
-          }}},[_c('div',{class:(_vm.prefixCls + "-cell-inner")},[_vm._v(_vm._s(item.label))])])}),0)])};
+          ( _obj = {}, _obj[(_vm.prefixCls + "-cell-disabled")] = item.disabled, _obj[(_vm.prefixCls + "-cell-selected")] = item.selected, _obj ) ],on:{"click":function($event){return _vm.onItemClick(item)}}},[_c('div',{class:(_vm.prefixCls + "-cell-inner")},[_vm._v(_vm._s(item.label))])])}),0)])};
   var __vue_staticRenderFns__$9 = [];
 
     /* style */
@@ -6616,7 +6599,7 @@
 
   var script = {
     name: 'DatePickerPro',
-    components: { Popper: __vue_component__$j, DateInput: __vue_component__$g, IconCalendar: __vue_component__$i, PickerPanel: __vue_component__$1 },
+    components: { Popper: __vue_component__$j, DateInput: __vue_component__$g, IconCommon: __vue_component__$i, PickerPanel: __vue_component__$1 },
     data() {
       return {
         panelVisible: false,
@@ -7271,7 +7254,7 @@
   const __vue_script__ = script;
 
   /* template */
-  var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return (!_vm.hideTrigger)?_c('Popper',{attrs:{"animation":"slide-dynamic-origin","offset":4,"trigger":_vm.trigger,"position":_vm.position,"disabled":_vm.mergedDisabled || _vm.readonly,"popup-visible":_vm.panelVisible,"unmount-on-close":_vm.unmountOnClose,"popup-container":_vm.popupContainer},on:{"popupVisibleChange":_vm.onPanelVisibleChange}},[_c('DateInput',_vm._b({ref:"refInput",attrs:{"size":_vm.size,"focused":_vm.panelVisible,"visible":_vm.panelVisible,"error":_vm.error,"disabled":_vm.mergedDisabled,"readonly":!_vm.inputEditable,"allow-clear":_vm.allowClear && !_vm.readonly,"placeholder":_vm.computedPlaceholder,"input-value":_vm.inputValue,"value":_vm.needConfirm ? _vm.panelValue : _vm.selectedValue,"format":_vm.inputFormat},on:{"clear":_vm.onInputClear,"change":_vm.onInputChange,"pressEnter":_vm.onInputPressEnter},scopedSlots:_vm._u([{key:"suffix-icon",fn:function(){return [_vm._t("suffix-icon",function(){return [_c('IconCalendar')]})]},proxy:true}],null,true)},'DateInput',_vm.$attrs,false)),_vm._v(" "),_c('template',{slot:"content"},[_c('PickerPanel',_vm._g(_vm._b({on:{"click":_vm.onPanelClick}},'PickerPanel',_vm.panelProps,false),_vm.panelOn))],1)],2):_vm._e()};
+  var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return (!_vm.hideTrigger)?_c('Popper',{attrs:{"animation":"slide-dynamic-origin","offset":4,"trigger":_vm.trigger,"position":_vm.position,"disabled":_vm.mergedDisabled || _vm.readonly,"popup-visible":_vm.panelVisible,"unmount-on-close":_vm.unmountOnClose,"popup-container":_vm.popupContainer},on:{"popupVisibleChange":_vm.onPanelVisibleChange}},[_c('DateInput',_vm._b({ref:"refInput",attrs:{"size":_vm.size,"focused":_vm.panelVisible,"visible":_vm.panelVisible,"error":_vm.error,"disabled":_vm.mergedDisabled,"readonly":!_vm.inputEditable,"allow-clear":_vm.allowClear && !_vm.readonly,"placeholder":_vm.computedPlaceholder,"input-value":_vm.inputValue,"value":_vm.needConfirm ? _vm.panelValue : _vm.selectedValue,"format":_vm.inputFormat},on:{"clear":_vm.onInputClear,"change":_vm.onInputChange,"pressEnter":_vm.onInputPressEnter}},'DateInput',_vm.$attrs,false),[_c('template',{slot:"suffix-icon"},[_vm._t("suffix-icon",function(){return [_c('IconCommon',{attrs:{"use":"calendar"}})]})],2)],2),_vm._v(" "),_c('template',{slot:"content"},[_c('PickerPanel',_vm._g(_vm._b({on:{"click":_vm.onPanelClick}},'PickerPanel',_vm.panelProps,false),_vm.panelOn))],1)],2):_vm._e()};
   var __vue_staticRenderFns__ = [];
 
     /* style */
