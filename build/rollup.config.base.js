@@ -14,7 +14,7 @@ import { name, version, author } from '../package.json';
 const banner =
   '/*!\n' +
   ` * ${name} v${version}\n` +
-  ` * (c) 2014-${new Date().getFullYear()} ${author}\n` +
+  ` * (c) 2022-${new Date().getFullYear()} ${author}\n` +
   ' * Released under the MIT License.\n' +
   ' */';
 
