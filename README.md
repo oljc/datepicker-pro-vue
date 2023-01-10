@@ -13,6 +13,8 @@
 一个轻量、界面简洁、直观、功能齐全的日期选择器。支持多语言、农历展示和各种日期格式。
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/LIjiAngChen8/datepicker-pro-vue/blob/main/LICENSE)
+[![](https://data.jsdelivr.com/v1/package/npm/datepicker-pro-vue/badge)](https://www.jsdelivr.com/package/npm/datepicker-pro-vue)
+
 
 </div>
 
@@ -31,6 +33,10 @@ npm install datepicker-pro-vue
 yarn
 ```bash
 yarn add datepicker-pro-vue
+```
+CDN
+```html
+<script src="https://cdn.jsdelivr.net/npm/datepicker-pro-vue@1"></script>
 ```
 
 #### 引入
