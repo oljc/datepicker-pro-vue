@@ -38,6 +38,7 @@
     "@commitlint/cli": "^17.3.0",
     "@commitlint/config-conventional": "^17.3.0",
     "@parcel/transformer-vue": "2.8.2",
+    "@popperjs/core": "^2.11.6",
     "@rollup/plugin-alias": "^4.0.2",
     "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-commonjs": "^24.0.0",
@@ -46,6 +47,7 @@
     "@rollup/plugin-terser": "^0.2.1",
     "@vue/compiler-sfc": "^3.2.45",
     "autoprefixer": "8.0.0",
+    "b-tween": "^0.3.3",
     "eslint": "^7.21.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-config-prettier": "^8.3.0",
@@ -90,9 +92,7 @@
     "last 3 iOS versions"
   ],
   "dependencies": {
-    "b-tween": "^0.3.3",
-    "dayjs": "^1.11.7",
-    "popper.js": "^1.16.1"
+    "dayjs": "^1.11.7"
   },
   "files": [
     "dist",
