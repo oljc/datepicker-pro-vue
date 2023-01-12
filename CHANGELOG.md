@@ -1,5 +1,44 @@
 # Changelog
 
+## [1.1.0](https://github.com/LIjiAngChen8/datepicker-pro-vue/compare/v1.0.3...v1.1.0) (2023-01-12)
+
+
+### 🪛CI持续集成
+
+* 自动化发包Github Package ([962d7ee](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/962d7ee38baa6f11e5fc84aba42e1493f6618fc4))
+
+
+### 🐛问题修复
+
+* popup样式z-index调至5200 ([ee1d0d8](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/ee1d0d86163d86d7cc4f7e7dffb91182562d4136))
+
+
+### 💡性能优化
+
+* 更新为新版@popperjs/core ([d962446](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/d962446e899094b727bd39fafaa062f991917bd8))
+
+
+### 📦项目构建/依赖
+
+* Upgrade popper to @popperjs/core ([1fb095c](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/1fb095c796b048834d1f3fd920c004be2ecfa5d9))
+* 打包配置Banner信息调整 ([75a3789](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/75a37896a31e6aa4fdc5e5a3d8c3882141837e44))
+
+
+### 📄文档
+
+* Add Contributor Covenant Code of Conduct ([f3823aa](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/f3823aa68fd06c5dd500447fcae7d85e455dfe06))
+* Update description ([df5de92](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/df5de92bc784efda5f31e7d7f1d28111e4e06b51))
+
+
+### 🖇️其他
+
+* 打包 ([67137b8](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/67137b8f7ce193a3770dd8b53f9ef5a1f967cefc))
+
+
+### ✨新功能
+
+* add range-picker ([ec66c10](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/ec66c1057e10d178dc5cba501e534b39c650b046))
+
 ## [1.0.3](https://github.com/LIjiAngChen8/datepicker-pro-vue/compare/v1.0.2...v1.0.3) (2023-01-10)
 
 
