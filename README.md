@@ -36,7 +36,11 @@ yarn add datepicker-pro-vue
 ```
 CDN
 ```html
-<script src="https://cdn.jsdelivr.net/npm/datepicker-pro-vue@1"></script>
+// jsdelivr
+<script src="https://cdn.jsdelivr.net/npm/datepicker-pro-vue"></script>
+
+// unpkg
+<script src="https://unpkg.com/datepicker-pro-vue"></script>
 ```
 
 #### 引入
@@ -107,20 +111,26 @@ Props
 | `Do`   | 1st... 3st       | 带序号的月份中的某天        |
 | `X`    | 1410715640.579   | Unix 时间戳          |
 | `x`    | 1410715640579    | Unix 毫秒时间戳
-# 依赖
+# 相关依赖
 
 | 名称         | 版本     | 作者        |
 | ----------- | ------- |------------ |
 | [dayjs]     | ^1.11.7 | iamkun      |
-| [popper.js] | ^1.16.1 | floating-ui |
+| [@popperjs/core] | ^2.11.6 | floating-ui |
 | [b-tween]   | ^0.3.3  | PengJiyuan  |
 
 [dayjs]: https://day.js.org/
-[popper.js]: https://popper.js.org/
+[@popperjs/core]: https://popper.js.org/
 [b-tween]: https://github.com/PengJiyuan/b-tween
 
-# 致谢
-感谢本项目中所有用到的资源、工具为本项目做出的贡献。
+# 参与贡献
+
+贡献之前请先阅读 [行为准则](./CODE_OF_CONDUCT.md)。
+
+感谢本项目中所有用到的资源、工具的开发们，以及参与贡献的人！
+
+<a href="https://github.com/LIjiAngChen8/datepicker-pro-vue/graphs/contributors"><img src="https://contrib.rocks/image?repo=LIjiAngChen8/datepicker-pro-vue" />
+</a>
 
 # License
 

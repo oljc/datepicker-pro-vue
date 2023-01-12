@@ -1,5 +1,5 @@
 <template>
-  <component :is="tag">
+  <component :is="popupTag">
     <slot></slot>
     <div
       ref="content"
@@ -7,7 +7,7 @@
       @after-leave="doDestroy"
     >
       <transition
-        :name="transition"
+        :name="animationName"
         :enter-active-class="enterActiveClass"
         :leave-active-class="leaveActiveClass"
       >
@@ -30,7 +30,8 @@
 </template>
 
 <script>
-import Popper from 'popper.js';
+import { createPopper } from '@popperjs/core';
+
 import { getPrefixCls } from '../utils/config';
 
 function on(element, event, handler, capture = false) {
@@ -51,40 +52,48 @@ function off(element, event, handler) {
 
 export default {
   props: {
-    tag: {
+    // 弹出框是否可见
+    popupVisible: {
+      type: Boolean,
+      default: undefined,
+    },
+    popupTag: {
       type: String,
       default: 'div',
     },
-    popupVisible: {
-      type: Boolean,
-      default: false,
-    },
+    // 触发方式
     trigger: {
       type: String,
       default: 'hover',
       validator: (value) =>
         ['clickToOpen', 'click', 'hover', 'focus'].indexOf(value) > -1,
     },
+    // 弹窗位置
     position: {
       type: String,
       default: 'bottom',
     },
+    // 弹出框是否显示箭头
     showArrow: {
       type: Boolean,
       default: false,
     },
+    // 偏移
     offset: {
       type: [String, Number],
       default: 0,
     },
+    // mouseenter事件延时触发的时间（毫秒）
     mouseEnterDelay: {
       type: Number,
       default: 100,
     },
+    // mouseleave事件延时触发的时间（毫秒）
     mouseLeaveDelay: {
       type: Number,
       default: 100,
     },
+    // 禁用
     disabled: {
       type: Boolean,
       default: false,
@@ -104,13 +113,13 @@ export default {
       type: Boolean,
       default: true,
     },
-    transition: {
+    // 动画
+    animationName: {
       type: String,
-      default: '',
+      default: 'fade-in',
     },
     enterActiveClass: String,
     leaveActiveClass: String,
-    boundariesSelector: String,
     // 弹出挂载容器
     popupContainer: {
       type: [String, Object],
@@ -129,26 +138,19 @@ export default {
         return {};
       },
     },
-    rootClass: {
-      type: String,
-      default: '',
+    // GPU渲染-低端机可能无法开启
+    gpuAcceleration: {
+      type: Boolean,
+      default: true,
     },
   },
 
   data() {
     return {
-      prefixCls: getPrefixCls('trigger') || 'ljc',
+      prefixCls: getPrefixCls('trigger') || 'ljc-trigger',
       referenceElm: null,
       popperJS: null,
       showPopper: false,
-      currentPlacement: '',
-      popperOptions: {
-        placement: this.position,
-        modifiers: { offset: { offset: `0,${this.offset}px` } },
-        computeStyle: {
-          gpuAcceleration: false,
-        },
-      },
     };
   },
 
@@ -156,14 +158,9 @@ export default {
     showPopper(value) {
       if (value) {
         this.$emit('show', this);
-        // eslint-disable-next-line no-unused-expressions
-        this.popperJS ? this.popperJS.enableEventListeners() : null;
         this.updatePopper();
       } else {
-        // eslint-disable-next-line no-unused-expressions
-        this.popperJS ? this.popperJS.disableEventListeners() : null;
-        // eslint-disable-next-line no-unused-expressions
-        this.unmountOnClose ? this.doDestroy() : null;
+        this.unmountOnClose && this.doDestroy();
         this.$emit('hide', this);
       }
       this.$emit('update:popupVisible', value);
@@ -184,12 +181,6 @@ export default {
     disabled(value) {
       this.showPopper = !value;
     },
-  },
-
-  created() {
-    this.appendedArrow = false;
-    this.appendedToBody = false;
-    this.popperOptions = Object.assign(this.popperOptions, this.options);
   },
 
   mounted() {
@@ -251,54 +242,32 @@ export default {
         this.popperJS = null;
       }
 
-      if (this.appendedToBody) {
-        this.appendedToBody = false;
+      if (this.renderToBody) {
         document.body.removeChild(this.popper);
       }
     },
 
     createPopper() {
-      this.$nextTick(() => {
-        if (this.renderToBody && !this.appendedToBody) {
-          this.appendedToBody = true;
-          document.body.appendChild(this.popper);
-        }
+      if (this.renderToBody) {
+        document.body.appendChild(this.popper);
+      }
 
-        if (this.popperJS && this.popperJS.destroy) {
-          this.popperJS.destroy();
-        }
-
-        if (this.boundariesSelector) {
-          const boundariesElement = document.querySelector(
-            this.boundariesSelector
-          );
-
-          if (boundariesElement) {
-            // eslint-disable-next-line prefer-object-spread
-            this.popperOptions.modifiers = Object.assign(
-              {},
-              this.popperOptions.modifiers
-            );
-            // eslint-disable-next-line prefer-object-spread
-            this.popperOptions.modifiers.preventOverflow = Object.assign(
-              {},
-              this.popperOptions.modifiers.preventOverflow
-            );
-            this.popperOptions.modifiers.preventOverflow.boundariesElement =
-              boundariesElement;
-          }
-        }
-
-        this.popperOptions.onCreate = () => {
-          this.$emit('created', this);
-          this.$nextTick(this.updatePopper);
-        };
-
-        this.popperJS = new Popper(
-          this.referenceElm,
-          this.popper,
-          this.popperOptions
-        );
+      if (this.popperJS && this.popperJS.destroy) {
+        this.popperJS.destroy();
+      }
+      this.popperJS = createPopper(this.referenceElm, this.popper, {
+        placement: this.position,
+        modifiers: [
+          {
+            name: 'offset',
+            options: {
+              offset: [0, this.offset],
+            },
+          },
+        ],
+        computeStyle: {
+          gpuAcceleration: this.gpuAcceleration,
+        },
       });
     },
 
@@ -316,7 +285,7 @@ export default {
     },
 
     updatePopper() {
-      this.popperJS ? this.popperJS.scheduleUpdate() : this.createPopper();
+      this.popperJS ? this.popperJS.update() : this.createPopper();
     },
 
     onMouseOver() {
@@ -344,8 +313,6 @@ export default {
       ) {
         return;
       }
-
-      this.$emit('documentClick', this);
 
       if (this.forceShow) {
         return;
