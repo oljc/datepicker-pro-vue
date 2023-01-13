@@ -11,6 +11,7 @@
 @time-picker-prefix-cls: ~'@{prefix}-timepicker';
 
 @datepicker-timepicker-height: 276px;
+@lunar-add-height: 11px;
 
 .@{date-panel-prefix-cls} {
   display: flex;
@@ -75,6 +76,17 @@
     }
   }
 
+  &-lunar {
+    .@{time-picker-prefix-cls} {
+      height: @datepicker-timepicker-height + @lunar-add-height;
+
+      ul::after {
+        height: @lunar-add-height + @datepicker-timepicker-height - @timepicker-cell-height -
+          @timepicker-cell-spacing * 2;
+      }
+    }
+  }
+
   &-footer {
     border-right: 1px solid @picker-panel-color-border;
   }
@@ -112,10 +124,10 @@
 
   &-view-tab-pane {
     flex: 1;
-    height: 50px;
+    height: 35px;
     color: @color-text-4;
     font-size: 14px;
-    line-height: 50px;
+    line-height: 35px;
     text-align: center;
     border-right: 1px solid @picker-panel-color-border;
     cursor: pointer;

@@ -24,7 +24,7 @@
         @cellMouseEnter="onCellMouseEnter"
       />
     </div>
-    <div v-if="showTimeView" :class="`${prefixCls}-timepicker`">
+    <div v-if="showTimeView" :class="timeClassName">
       <header :class="`${prefixCls}-timepicker-title`">选择时间</header>
       <TimePanel
         v-bind="{
@@ -202,6 +202,14 @@ export default {
         this.prefixCls,
         {
           [`${this.prefixCls}-with-view-tabs`]: this.showViewTabs,
+        },
+      ];
+    },
+    timeClassName() {
+      return [
+        `${this.prefixCls}-timepicker`,
+        {
+          [`${this.prefixCls}-lunar`]: this.showLunar,
         },
       ];
     },
