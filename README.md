@@ -10,11 +10,16 @@
 
 <div align="center">
 
-一个轻量、界面简洁、直观、功能齐全的日期选择器。支持多语言、农历展示和各种日期格式。
+![version](https://img.shields.io/npm/v/datepicker-pro-vue.svg?label=version&logo=npm)
+![minizipped](https://img.shields.io/bundlephobia/minzip/datepicker-pro-vue.svg?color=165DFF)
+![minified](https://img.shields.io/bundlephobia/min/datepicker-pro-vue.svg?color=165DFF)
 
-[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/LIjiAngChen8/datepicker-pro-vue/blob/main/LICENSE)
+[![Release](https://github.com/LIjiAngChen8/datepicker-pro-vue/actions/workflows/release.yml/badge.svg)](https://github.com/LIjiAngChen8/datepicker-pro-vue/actions/workflows/release.yml)
+![last-commit](https://img.shields.io/github/last-commit/LIjiAngChen8/datepicker-pro-vue.svg)
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?)](https://github.com/LIjiAngChen8/datepicker-pro-vue/blob/main/LICENSE)
 [![](https://data.jsdelivr.com/v1/package/npm/datepicker-pro-vue/badge)](https://www.jsdelivr.com/package/npm/datepicker-pro-vue)
 
+一个轻量、界面简洁、直观、功能齐全的日期选择器。支持多语言、农历展示和各种日期格式。
 
 </div>
 
