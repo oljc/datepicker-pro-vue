@@ -266,6 +266,9 @@ export default {
     endHeaderMode: {
       type: String,
     },
+    showLunar: {
+      type: Boolean,
+    },
   },
   data() {
     return {
@@ -301,6 +304,7 @@ export default {
         rangeValues: this.value,
         disabledDate: this.getDisabledDateFunc(0),
         dateRender: this.getDateRenderFunc(0),
+        showLunar: this.showLunar,
       };
     },
     startPanelOn() {
@@ -317,6 +321,7 @@ export default {
         rangeValues: this.value,
         disabledDate: this.getDisabledDateFunc(1),
         dateRender: this.getDateRenderFunc(1),
+        showLunar: this.showLunar,
       };
     },
     endPanelOn() {

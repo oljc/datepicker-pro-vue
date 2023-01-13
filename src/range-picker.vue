@@ -192,6 +192,9 @@ export default {
     size: {
       type: String,
     },
+    showLunar: {
+      type: Boolean,
+    },
     shortcuts: {
       type: Array,
       default: () => [],
@@ -723,6 +726,7 @@ export default {
         visible: this.panelVisible,
         startHeaderMode: this.startHeaderMode,
         endHeaderMode: this.endHeaderMode,
+        showLunar: this.showLunar,
       };
     },
     rangePanelOn() {
@@ -1039,6 +1043,7 @@ export default {
       return isTime ? [...this.selectedValue] : [];
     },
     onPanelCellClick(date) {
+      console.log('单击', date);
       const newValue = this.getValueToModify();
       const mergedOpValue = this.getMergedOpValue(
         date,
