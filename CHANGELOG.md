@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.1.1](https://github.com/LIjiAngChen8/datepicker-pro-vue/compare/v1.1.0...v1.1.1) (2023-01-13)
+
+
+### 🖇️其他
+
+* 新增props农历showLunar ([57f4124](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/57f4124e0eaadce25f83f6350175ef08089b1fc9))
+* 新增props农历showLunar ([7ee5fc5](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/7ee5fc5fe35841e8c7c5aaae24d6412d4ea8a7cd))
+
+
+### 🐛问题修复
+
+* 修复开启showLunar时时间选择不够高度问题 ([fb21404](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/fb21404aedb317e96f8fa9d1e9f9f227d6fc15f8))
+
+
+### 🔖工作流
+
+* github npm 策略调整 ([d9154b0](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/d9154b06b6e4a16900304f1e8e5e232089914c59))
+* github npm 策略调整 ([377e372](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/377e372b5b62a82ad82b812c44f817b29aee606c))
+
 ## [1.1.0](https://github.com/LIjiAngChen8/datepicker-pro-vue/compare/v1.0.3...v1.1.0) (2023-01-12)
 
 
