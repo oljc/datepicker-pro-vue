@@ -23,8 +23,12 @@
 
 </div>
 
-# 简介
-组件提供了众多属性方便灵活配置，覆盖了绝大部份的时间业务场景。
+# 特性
+- 遵循的是 ISO 8601 时间格式标准。
+- 支持预设时间快捷选择。
+- 提供农历/节假日的显示，可自定义假日信息。
+- 组件提供了众多属性方便灵活配置，覆盖了绝大部份的时间业务场景。
+- 界面简洁美观、交互流畅。
 
 # 快速上手
 
@@ -47,6 +51,8 @@ CDN
 // unpkg
 <script src="https://unpkg.com/datepicker-pro-vue"></script>
 ```
+*需要引入指定版本时只需在包名后面加入具体版本信息即可。*`datepicker-pro-vue@xxx`*，不加默认为最新版*。
+
 
 #### 引入
 
@@ -80,9 +86,48 @@ Props
 
 |参数名         | 描述                                 | 类型                  | 默认值|
 | ------------ | ----------------------------------- | --------------------- | -------| 
-| xxxxxx | xxxxxxxxxxxxxxxxxxxxxxxxxx            | `boolean`             | `false`| 
+|**v-model**|面板显示的日期|`Date \| string \| number`|`-`|
+| allow-clear  | 是否允许清除                          | `boolean`             | `true`| 
+| readonly  | 是否为只读                          | `boolean`             | `false`| 
+| disabled  | 是否为禁用                          | `boolean`             | `false`| 
+|disabled-date|不可选取的日期|`(current?: Date) => boolean`|`-`|
+|disabled-time|不可选取的时间|`(current: Date) => DisabledTimeProps`|`-`|
+|default-picker-value|面板默认显示的日期|`Date \| string \| number`|`-`|
+| error  | 是否为错误状态                          | `boolean`             | `false`| 
+| shortcuts  | 预设时间范围快捷选择                          | `ShortcutType[]`             | `[]`| 
+| position  | 弹出的框的位置 | `top \| bottom \| left \| right`<br>`top-start\|top-end`<br>`bottom-start``bottom-end`<br>`right-start \| right-end`<br>`left-start \| left-end`| `bottom`| 
+| trigger  | 触发方式                          | `toggle`｜`click`｜`hover` ｜`focus`        | `click`| 
+| popupTag  | 容器标签                          | `String`             | `div`| 
+| showArrow  | 是否显示箭头                          | `boolean`             | `false`| 
+| offset  | 偏移量                          | `String`｜ `number`            | `4`| 
+| mouseEnterDelay  | 移入事件延迟触发时间                          | `number`             | `100`| 
+| mouseLeaveDelay  | 移出事件延迟触发时间                          | `number`             | `100`| 
+| forceShow  | 持续展示                          | `boolean`             | `false`| 
+| renderToBody  | 是否挂载在body下                | `boolean`             | `false`| 
+| unmountOnClose  | 是否在隐藏的时候销毁DOM结构                          | `boolean`             | `false`| 
+| popupContainer  | 弹出框的挂载容器       | `string`｜`HTMLElement`｜`null`｜`undefined`       | - | 
+| gpuAcceleration  | 开启GPU加速渲染（低端机可能无法开启）     | `boolean`       | `true` | 
+| stopPropagation  | 阻止弹窗事件冒泡       | `boolean`       | `false` | 
+| preventDefault  | 阻止弹窗默认行为       | `boolean`       | `false` | 
+|value-format|值的格式，对 `value` `defaultValue` `pickerValue` `defaultPickerValue` 以及事件中的返回值生效，支持设置为时间戳，Date 和字符串（参考[字符串解析格式](#字符串解析格式)）。如果没有指定，将格式化为字符串，格式同 `format`。|`'timestamp' \| 'Date' \| string`|`-`|
+|preview-shortcut|是否要预览快捷选择的结果|`boolean`|`true`|
+|show-confirm-btn|是否显示确认按钮，`showTime = true` 的时候始终显示。|`boolean`|`false`|
 
-字符串解析格式
+### `Common` Events
+
+|事件名|描述|参数|
+|---|---|---|
+|change|组件值发生改变|value: `Date \| string \| number \| undefined`<br>date: `Date \| undefined`<br>dateString: `string \| undefined`|
+|select|选中日期发生改变但组件值未改变|value: `Date \| string \| number`<br>date: `Date`<br>dateString: `string`|
+|popup-visible-change|打开或关闭弹出框|visible: `boolean`|
+|ok|点击确认按钮|value: `Date \| string \| number`<br>date: `Date`<br>dateString: `string`|
+|clear|点击清除按钮|-|
+|select-shortcut|点击快捷选项|shortcut: `ShortcutType`|
+|picker-value-change|面板日期改变|value: `Date \| string \| number`<br>date: `Date`<br>dateString: `string`|
+
+
+
+### 字符串解析格式
 
 格式     | 输出               | 描述                |
 | ------ | ---------------- | ----------------- |
