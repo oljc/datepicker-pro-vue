@@ -66,7 +66,7 @@ export default {
       type: String,
       default: 'hover',
       validator: (value) =>
-        ['clickToOpen', 'click', 'hover', 'focus'].indexOf(value) > -1,
+        ['toggle', 'click', 'hover', 'focus'].indexOf(value) > -1,
     },
     // 弹窗位置
     position: {
@@ -111,7 +111,7 @@ export default {
     // 是否卸载节点
     unmountOnClose: {
       type: Boolean,
-      default: true,
+      default: false,
     },
     // 动画
     animationName: {
@@ -131,12 +131,6 @@ export default {
     preventDefault: {
       type: Boolean,
       default: false,
-    },
-    options: {
-      type: Object,
-      default() {
-        return {};
-      },
     },
     // GPU渲染-低端机可能无法开启
     gpuAcceleration: {
@@ -188,13 +182,13 @@ export default {
     this.popper =
       this.popupContainer || this.$refs.content || this.$slots.content[0].elm;
     switch (this.trigger) {
-      case 'clickToOpen':
-        on(this.referenceElm, 'click', this.doShow);
+      case 'toggle':
+        on(this.referenceElm, 'click', this.doToggle);
         on(document, 'click', this.handleDocumentClick, true);
         on(document, 'touchstart', this.handleDocumentClick);
         break;
       case 'click':
-        on(this.referenceElm, 'click', this.doToggle);
+        on(this.referenceElm, 'click', this.doShow);
         on(document, 'click', this.handleDocumentClick, true);
         on(document, 'touchstart', this.handleDocumentClick);
         break;
@@ -219,17 +213,21 @@ export default {
     doToggle(event) {
       this.stopPropagation && event.stopPropagation();
       this.preventDefault && event.preventDefault();
-      if (!this.forceShow) {
+      if (!this.disabled && !this.forceShow) {
         this.showPopper = !this.showPopper;
       }
     },
 
     doShow() {
-      this.showPopper = true;
+      if (!this.disabled) {
+        this.showPopper = true;
+      }
     },
 
     doClose() {
-      this.showPopper = false;
+      if (!this.disabled) {
+        this.showPopper = false;
+      }
     },
 
     doDestroy() {
@@ -289,6 +287,7 @@ export default {
     },
 
     onMouseOver() {
+      if (this.disabled) return;
       clearTimeout(this._timer);
       this._timer = setTimeout(() => {
         this.showPopper = true;
@@ -296,6 +295,7 @@ export default {
     },
 
     onMouseOut() {
+      if (this.disabled) return;
       clearTimeout(this._timer);
       this._timer = setTimeout(() => {
         this.showPopper = false;
@@ -304,6 +304,7 @@ export default {
 
     handleDocumentClick(e) {
       if (
+        this.disabled ||
         !this.$el ||
         !this.referenceElm ||
         this.elementContains(this.$el, e.target) ||
