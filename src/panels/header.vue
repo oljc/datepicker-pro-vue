@@ -1,11 +1,14 @@
 <template>
   <div :class="`${prefixCls}-header`">
-    <div :class="getIconClassName(showSuperPrev)" @click="onSuperPrev">
+    <div
+      :class="getIconClassName(showSuperPrev)"
+      @click="onSuperPrev && onSuperPrev()"
+    >
       <template v-if="showSuperPrev">
         <IconCommon use="doubleLeft" />
       </template>
     </div>
-    <div :class="getIconClassName(showPrev)" @click="() => onPrev && onPrev()">
+    <div :class="getIconClassName(showPrev)" @click="onPrev && onPrev()">
       <template v-if="showPrev">
         <IconCommon use="left" />
       </template>
@@ -28,12 +31,15 @@
       </template>
       <template v-else>{{ title }}</template>
     </div>
-    <div :class="getIconClassName(showNext)" @click="() => onNext && onNext()">
+    <div :class="getIconClassName(showNext)" @click="onNext && onNext()">
       <template v-if="showNext">
         <IconCommon use="right" />
       </template>
     </div>
-    <div :class="getIconClassName(showSuperNext)" @click="onSuperNext">
+    <div
+      :class="getIconClassName(showSuperNext)"
+      @click="onSuperNext && onSuperNext()"
+    >
       <template v-if="showSuperNext">
         <IconCommon use="doubleRight" />
       </template>
