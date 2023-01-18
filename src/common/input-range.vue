@@ -137,9 +137,6 @@ export default {
   },
   methods: {
     getDisabled(index) {
-      if (this.disabled) {
-        return this.disabled;
-      }
       return isArray(this.disabled) ? this.disabled[index] : this.disabled;
     },
     getInputWrapClassName(index) {
