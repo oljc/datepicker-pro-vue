@@ -247,7 +247,7 @@ export default {
       localPanelVisible: this.popupVisible || this.defaultPopupVisible,
 
       startLocalValue: this.computedStartDefaultValue || getNow(),
-      endLocalValue: this.computedDefaultEndValue || getNow(),
+      endLocalValue: this.computedEndDefaultValue || getNow(),
 
       footerValue: [
         this.panelValue?.[0] || getNow(),
@@ -321,24 +321,18 @@ export default {
       this.focusInput(this.focusedIndex);
       this.inputValue = undefined;
     },
-    // selectedValue(newVal) {
-    //   this.setStartHeaderValue(newVal);
-    // },
-    // selectedValue(newVal) {
-    //   this.setEndHeaderValue(newVal);
-    // },
   },
   computed: {
     startHeaderProps() {
       return {
         headerValue: this.startHeaderValue,
-        headerOperations: this.startHeaderOperations,
+        headerOperations: this.computedStartHeaderOperations,
       };
     },
     endHeaderProps() {
       return {
         headerValue: this.endHeaderValue,
-        headerOperations: this.endHeaderOperations,
+        headerOperations: this.computedEndHeaderOperations,
       };
     },
     mergedSize() {
@@ -416,9 +410,6 @@ export default {
       return this.previewValue ?? this.processValue ?? this.selectedValue;
     },
     panelVisible() {
-      console.log('-', !isUndefined(this.popupVisible));
-      console.log('1', this.popupVisible);
-      console.log('2', this.localPanelVisible);
       return !isUndefined(this.popupVisible)
         ? this.popupVisible
         : this.localPanelVisible;
@@ -447,113 +438,101 @@ export default {
     endDefaultValue() {
       return this.defaultPickerValue?.[1];
     },
-
-    // start
-    computedStartMode() {
-      return this.startHeaderMode || 'date';
-    },
-    startSpan() {
+    // ----------------------------------------
+    spanStart() {
       return { date: 1, week: 1, year: 10 * 12, quarter: 12, month: 12 }[
-        this.computedStartMode
+        this.startHeaderMode || 'date'
       ];
     },
-    startSuperSpan() {
-      return ['year'].includes(this.computedStartMode) ? 10 * 12 : 12;
-    },
-    computedStartValue() {
-      return getDayjsValue(this.startValue, this.parseValueFormat);
+    superSpanStart() {
+      return ['year'].includes(this.startHeaderMode || 'date') ? 10 * 12 : 12;
     },
     computedStartDefaultValue() {
-      return getDayjsValue(this.startDefaultValue, this.parseValueFormat);
+      return getDayjsValue(this.startDefaultValue, this.format);
     },
     startHeaderValue() {
-      return this.computedStartValue || this.startLocalValue;
+      return (
+        getDayjsValue(this.startValue, this.format) || this.startLocalValue
+      );
     },
-    startShowSingleBtn() {
-      console.log(this.startSpan !== this.startSuperSpan);
-      return this.startSpan !== this.startSuperSpan;
+    showStartSingleBtn() {
+      return this.spanStart !== this.superSpanStart;
     },
     startHeaderOperations() {
       return {
         onSuperPrev: () => {
           this.setStartHeaderValue(
-            methods.subtract(this.startHeaderValue, this.startSuperSpan, 'M')
+            methods.subtract(this.startHeaderValue, this.superSpanStart, 'M')
           );
         },
-        onPrev: this.startShowSingleBtn
+        onPrev: this.showStartSingleBtn
           ? () => {
               this.setStartHeaderValue(
-                methods.subtract(this.startHeaderValue, this.startSpan, 'M')
+                methods.subtract(this.startHeaderValue, this.spanStart, 'M')
               );
             }
           : undefined,
-        onNext: this.startShowSingleBtn
+        onNext: this.showStartSingleBtn
           ? () => {
               this.setStartHeaderValue(
-                methods.add(this.startHeaderValue, this.startSpan, 'M')
+                methods.add(this.startHeaderValue, this.spanStart, 'M')
               );
             }
           : undefined,
         onSuperNext: () => {
           this.setStartHeaderValue(
-            methods.add(this.startHeaderValue, this.startSuperSpan, 'M')
+            methods.add(this.startHeaderValue, this.superSpanStart, 'M')
           );
         },
       };
     },
-    // end
-    computedEndMode() {
-      return this.endHeaderMode || 'date';
-    },
-    endSpan() {
+    // *******************END******************
+    spanEnd() {
       return { date: 1, week: 1, year: 10 * 12, quarter: 12, month: 12 }[
-        this.computedEndMode
+        this.endHeaderMode || 'date'
       ];
     },
-    endSuperSpan() {
-      return ['year'].includes(this.computedEndMode) ? 10 * 12 : 12;
+    superSpanEnd() {
+      return ['year'].includes(this.endHeaderMode || 'date') ? 10 * 12 : 12;
     },
-    computedEndValue() {
-      return getDayjsValue(this.endValue, this.parseValueFormat);
-    },
-    computedDefaultEndValue() {
-      return getDayjsValue(this.endDefaultValue, this.parseValueFormat);
+    computedEndDefaultValue() {
+      return getDayjsValue(this.endDefaultValue, this.format);
     },
     endHeaderValue() {
-      return this.computedEndValue || this.endLocalValue;
+      return getDayjsValue(this.endValue, this.format) || this.endLocalValue;
     },
-    endShowSingleBtn() {
-      return this.endSpan !== this.endSuperSpan;
+    showSingleBtn() {
+      return this.spanEnd !== this.superSpanEnd;
     },
     endHeaderOperations() {
       return {
         onSuperPrev: () => {
           this.setEndHeaderValue(
-            methods.subtract(this.endHeaderValue, this.endSuperSpan, 'M')
+            methods.subtract(this.endHeaderValue, this.superSpanEnd, 'M')
           );
         },
-        onPrev: this.endShowSingleBtn
+        onPrev: this.showSingleBtn
           ? () => {
               this.setEndHeaderValue(
-                methods.subtract(this.endHeaderValue, this.endSpan, 'M')
+                methods.subtract(this.endHeaderValue, this.spanEnd, 'M')
               );
             }
           : undefined,
-        onNext: this.endShowSingleBtn
+        onNext: this.showSingleBtn
           ? () => {
               this.setEndHeaderValue(
-                methods.add(this.endHeaderValue, this.endSpan, 'M')
+                methods.add(this.endHeaderValue, this.spanEnd, 'M')
               );
             }
           : undefined,
         onSuperNext: () => {
           this.setEndHeaderValue(
-            methods.add(this.endHeaderValue, this.endSuperSpan, 'M')
+            methods.add(this.endHeaderValue, this.superSpanEnd, 'M')
           );
         },
       };
     },
-    // 操作
+    /** ************* 以下为操作 ****************** */
     canShortenMonth() {
       return methods
         .add(this.startHeaderValue, this.span, 'M')
@@ -776,83 +755,83 @@ export default {
         this.$emit('update:popupVisible', newVisible);
       }
     },
-    isSame(current, target) {
-      return current.isSame(target, this.unit);
+
+    onChange(newVal) {
+      const returnValue = getReturnRangeValue(newVal, this.returnValueFormat);
+      const formattedValue = getFormattedValue(newVal, this.parseValueFormat);
+      const dateValue = getDateValue(newVal);
+      this.$emit('picker-value-change', returnValue, dateValue, formattedValue);
+      this.$emit('update:pickerValue', returnValue);
     },
-    // start
-    setStartHeaderValue(newVal, emitChange = true) {
-      if (!newVal) return;
+    // --------------
+    isSameStart(current, target) {
+      const computedMode = this.startHeaderMode || 'date';
       const unit =
-        this.computedStartMode === 'date' || this.computedStartMode === 'week'
-          ? 'M'
-          : 'y';
-      if (emitChange && !this.startHeaderValue.isSame(newVal, unit)) {
-        const returnValue = getReturnRangeValue(
-          [newVal, this.endHeaderValue],
-          this.returnValueFormat
-        );
-        const formattedValue = getFormattedValue(
-          [newVal, this.endHeaderValue],
-          this.parseValueFormat
-        );
-        const dateValue = getDateValue([newVal, this.endHeaderValue]);
-        this.$emit(
-          'picker-value-change',
-          returnValue,
-          dateValue,
-          formattedValue
-        );
-        this.$emit('update:pickerValue', returnValue);
-      }
+        computedMode === 'date' || computedMode === 'week' ? 'M' : 'y';
+      return current.isSame(target, unit);
+    },
+    setStartLocalValue(newVal) {
+      if (!newVal) return;
       this.startLocalValue = newVal;
     },
-    // end
-    setEndHeaderValue(newVal, emitChange = true) {
+    setStartHeaderValue(newVal, emitChange = true) {
       if (!newVal) return;
-      const unit =
-        this.computedEndMode === 'date' || this.computedEndMode === 'week'
-          ? 'M'
-          : 'y';
-      if (emitChange && !this.endHeaderValue.isSame(newVal, unit)) {
-        const returnValue = getReturnRangeValue(
-          [this.startHeaderValue, newVal],
-          this.returnValueFormat
-        );
-        const formattedValue = getFormattedValue(
-          [this.startHeaderValue, newVal],
-          this.parseValueFormat
-        );
-        const dateValue = getDateValue([this.startHeaderValue, newVal]);
-        this.$emit(
-          'picker-value-change',
-          returnValue,
-          dateValue,
-          formattedValue
-        );
-        this.$emit('update:pickerValue', returnValue);
+      if (emitChange && !this.isSameStart(this.startHeaderValue, newVal)) {
+        this.onChange([newVal, this.endHeaderValue]);
       }
+      this.setStartLocalValue(newVal);
+    },
+    getDefaultStartHeaderValue() {
+      return this.computedStartDefaultValue || getNow();
+    },
+    resetStartHeaderValue(emitChange = true) {
+      const defaultLocalValue = this.getDefaultStartHeaderValue();
+      if (emitChange) {
+        this.setStartHeaderValue(defaultLocalValue);
+      } else {
+        this.setStartLocalValue(defaultLocalValue);
+      }
+    },
+    // ***************END***************
+    isSameEnd(current, target) {
+      const computedMode = this.endHeaderMode || 'date';
+      const unit =
+        computedMode === 'date' || computedMode === 'week' ? 'M' : 'y';
+      return current.isSame(target, unit);
+    },
+    setLocalValue(newVal) {
+      if (!newVal) return;
       this.endLocalValue = newVal;
     },
-
-    // 合并
+    setEndHeaderValue(newVal, emitChange = true) {
+      if (!newVal) return;
+      if (emitChange && !this.isSameEnd(this.endHeaderValue, newVal)) {
+        this.onChange([this.startHeaderValue, newVal]);
+      }
+      this.setLocalValue(newVal);
+    },
+    getDefaultEndHeaderValue() {
+      return this.computedEndDefaultValue || getNow();
+    },
+    resetEndHeaderValue(emitChange = true) {
+      const defaultLocalValue = this.getDefaultEndHeaderValue();
+      if (emitChange) {
+        this.setEndHeaderValue(defaultLocalValue);
+      } else {
+        this.setLocalValue(defaultLocalValue);
+      }
+    },
+    // -1-------
     setHeaderValue(newVal) {
-      const isSameStartValue = this.isSame(this.startHeaderValue, newVal[0]);
-      const isSameEndValue = this.isSame(this.endHeaderValue, newVal[1]);
-
+      const isSameStartValue = this.startHeaderValue.isSame(
+        newVal[0],
+        this.unit
+      );
+      const isSameEndValue = this.endHeaderValue.isSame(newVal[1], this.unit);
       this.setStartHeaderValue(newVal[0], false);
       this.setEndHeaderValue(newVal[1], false);
-
       if (!isSameStartValue || !isSameEndValue) {
-        const returnValue = getReturnRangeValue(newVal, this.returnValueFormat);
-        const formattedValue = getFormattedValue(newVal, this.parseValueFormat);
-        const dateValue = getDateValue(newVal);
-        this.$emit(
-          'picker-value-change',
-          returnValue,
-          dateValue,
-          formattedValue
-        );
-        this.$emit('update:pickerValue', returnValue);
+        this.onChange(newVal);
       }
     },
     getFixedValue(values) {
@@ -865,20 +844,16 @@ export default {
       return [header0, header1];
     },
     getFormSelectedValue() {
-      let selected0 = this.selectedValue?.[0];
-      let selected1 = this.selectedValue?.[1];
+      let selected0 = this.panelValue?.[0];
+      let selected1 = this.panelValue?.[1];
       if (selected0 && selected1) {
         [selected0, selected1] = getSortedDayjsArray([selected0, selected1]);
       }
       return [selected0, selected1];
     },
-    /**
-     * 重置
-     */
     resetHeaderValue() {
-      const defaultStartHeaderValue =
-        this.computedStartDefaultValue || getNow();
-      const defaultEndHeaderValue = this.computedDefaultEndValue || getNow();
+      const defaultStartHeaderValue = this.getDefaultStartHeaderValue();
+      const defaultEndHeaderValue = this.getDefaultEndHeaderValue();
       this.$nextTick(() => {
         const [selected0, selected1] = this.getFormSelectedValue();
         const [header0, header1] = this.getFixedValue([
@@ -888,6 +863,7 @@ export default {
         this.setHeaderValue([header0, header1]);
       });
     },
+
     onStartPanelHeaderLabelClick(type) {
       this.startHeaderMode = type;
     },
