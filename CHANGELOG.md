@@ -1,5 +1,37 @@
 # Changelog
 
+## [1.1.2](https://github.com/LIjiAngChen8/datepicker-pro-vue/compare/v1.1.1...v1.1.2) (2023-01-18)
+
+
+### 🐛问题修复
+
+* 修复在禁用下还导致popper切换 ([1064c37](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/1064c37c5f2cfeaaa083a2ae358bf1745a7a6654))
+
+
+### 📄文档
+
+* Add issue模板 ([a268ac8](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/a268ac8346ddb26c42980dde3d4d533f46e10740))
+* Add PULL_REQUEST_TEMPLATE ([0976029](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/0976029bb79e374e9ad4ab2344510441cbb75e4f))
+* 增加徽章展示 ([d6eb02f](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/d6eb02f7b5d03fd1f849899ad7ea5048aa0e9c69))
+* 新增props说明文档 ([9cc05a5](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/9cc05a50a2f2be2b7f2740930d7196e26b1cc736))
+* 贡献指南中文版 ([ae1cfd0](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/ae1cfd0032e7389902d1b55b8446e5dfc024ed6c))
+
+
+### 💡性能优化
+
+* 提高容错率防止Function不存在 ([cb99405](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/cb99405fc44c0a3b42462bfd36a00958cf6cd0cb))
+
+
+### ✨代码重构
+
+* remove useless code ([900fe7b](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/900fe7bee61bc7f9395ff43b0ba37c2d0da6930b))
+* 调整在范围选择器中开启农历显示时样式不对齐问题 ([c4d90f1](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/c4d90f146e5b9742c05b580599530f18781f6fef))
+
+
+### 🖇️其他
+
+* 范围选择器重构 TODO 版 ([aba7d30](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/aba7d3091403014c8ffdaffb306b44b9a39a0e88))
+
 ## [1.1.1](https://github.com/LIjiAngChen8/datepicker-pro-vue/compare/v1.1.0...v1.1.1) (2023-01-13)
 
 
