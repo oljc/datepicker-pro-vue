@@ -86,30 +86,30 @@ Props
 
 |参数名         | 描述                                 | 类型                  | 默认值|
 | ------------ | ----------------------------------- | --------------------- | -------| 
-|**v-model**|面板显示的日期|`Date \| string \| number`|`-`|
-| allow-clear  | 是否允许清除                          | `boolean`             | `true`| 
-| readonly  | 是否为只读                          | `boolean`             | `false`| 
-| disabled  | 是否为禁用                          | `boolean`             | `false`| 
-|disabled-date|不可选取的日期|`(current?: Date) => boolean`|`-`|
-|disabled-time|不可选取的时间|`(current: Date) => DisabledTimeProps`|`-`|
-|default-picker-value|面板默认显示的日期|`Date \| string \| number`|`-`|
-| error  | 是否为错误状态                          | `boolean`             | `false`| 
-| shortcuts  | 预设时间范围快捷选择                          | `ShortcutType[]`             | `[]`| 
-| position  | 弹出的框的位置 | `top \| bottom \| left \| right`<br>`top-start\|top-end`<br>`bottom-start``bottom-end`<br>`right-start \| right-end`<br>`left-start \| left-end`| `bottom`| 
-| trigger  | 触发方式                          | `toggle`｜`click`｜`hover` ｜`focus`        | `click`| 
-| popupTag  | 容器标签                          | `String`             | `div`| 
-| showArrow  | 是否显示箭头                          | `boolean`             | `false`| 
-| offset  | 偏移量                          | `String`｜ `number`            | `4`| 
-| mouseEnterDelay  | 移入事件延迟触发时间                          | `number`             | `100`| 
-| mouseLeaveDelay  | 移出事件延迟触发时间                          | `number`             | `100`| 
-| forceShow  | 持续展示                          | `boolean`             | `false`| 
-| renderToBody  | 是否挂载在body下                | `boolean`             | `false`| 
-| unmountOnClose  | 是否在隐藏的时候销毁DOM结构                          | `boolean`             | `false`| 
-| popupContainer  | 弹出框的挂载容器       | `string`｜`HTMLElement`｜`null`｜`undefined`       | - | 
-| gpuAcceleration  | 开启GPU加速渲染（低端机可能无法开启）     | `boolean`       | `true` | 
-| stopPropagation  | 阻止弹窗事件冒泡       | `boolean`       | `false` | 
-| preventDefault  | 阻止弹窗默认行为       | `boolean`       | `false` | 
-|value-format|值的格式，对 `value` `defaultValue` `pickerValue` `defaultPickerValue` 以及事件中的返回值生效，支持设置为时间戳，Date 和字符串（参考[字符串解析格式](#字符串解析格式)）。如果没有指定，将格式化为字符串，格式同 `format`。|`'timestamp' \| 'Date' \| string`|`-`|
+|**v-model**|面板显示的日期|`Date` `string` `number`|`-`|
+| allow-clear | 是否允许清除 | `boolean` | `true`| 
+| readonly | 是否为只读 | `boolean` | `false`| 
+| disabled | 是否为禁用 | `boolean` | `false`| 
+| disabled-date |不可选取的日期|`(current?: Date) => boolean`|`-`|
+| disabled-time |不可选取的时间|`(current: Date) => DisabledTimeProps`|`-`|
+| default-picker-value |面板默认显示的日期|`Date` `string` `number`|`-`|
+| error | 是否为错误状态 | `boolean` | `false`| 
+| shortcuts | 预设时间范围快捷选择 | `ShortcutType[]`| `[]`| 
+| position | 弹出的框的位置 | `top` `bottom`<br>`left` `right`<br>`top-start`<br>`top-end`<br>`bottom-start`<br> `bottom-end`<br>`right-start`<br>`right-end`<br>`left-start`<br>`left-end`| `bottom`| 
+| trigger  | 触发方式 | `toggle` `click` `hover` `focus` `click`| 
+| popupTag  | 容器标签 | `String` | `div`| 
+| showArrow  | 是否显示箭头 | `boolean` | `false`| 
+| offset  | 偏移量 | `String` `number` | `4`| 
+| mouseEnterDelay  | 移入事件延迟触发时间 | `number`| `100` | 
+| mouseLeaveDelay  | 移出事件延迟触发时间 | `number`| `100`| 
+| forceShow | 持续展示 | `boolean`| `false`| 
+| renderToBody | 是否挂载在body下 | `boolean`| `false`| 
+| unmountOnClose | 是否在隐藏的时候销毁DOM结构 | `boolean`             | `false`| 
+| popupContainer | 弹出框的挂载容器 | `string` `HTMLElement` `null` `undefined`| - | 
+| gpuAcceleration | 开启GPU加速渲染（低端机可能无法开启）| `boolean` | `true` | 
+| stopPropagation | 阻止弹窗事件冒泡 | `boolean` | `false` | 
+| preventDefault | 阻止弹窗默认行为 | `boolean` | `false` | 
+|value-format|值的格式，对 `value` `defaultValue` `pickerValue` `defaultPickerValue` 以及事件中的返回值生效，支持设置为时间戳，Date 和字符串（参考[字符串解析格式](#字符串解析格式)）。如果没有指定，将格式化为字符串，格式同 `format`。|`timestamp` `Date` `string`|`-`|
 |preview-shortcut|是否要预览快捷选择的结果|`boolean`|`true`|
 |show-confirm-btn|是否显示确认按钮，`showTime = true` 的时候始终显示。|`boolean`|`false`|
 
