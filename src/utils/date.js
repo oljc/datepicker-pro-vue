@@ -42,21 +42,60 @@ originDayjs.extend(QuarterOfYear);
 export const dayjs = originDayjs;
 
 export const methods = {
+  /**
+   * 增加一定时间
+   * @param {Dayjs} time 时间
+   * @param {number} value 增加值
+   * @param {string} unit 单位
+   * @returns dayjs对象
+   */
   add(time, value, unit) {
     return time.add(value, unit);
   },
+  /**
+   * 减去一定时间
+   * @param {Dayjs} time 时间
+   * @param {number} value 减少值
+   * @param {string} unit 单位
+   * @returns dayjs对象
+   */
   subtract(time, value, unit) {
     return time.subtract(value, unit);
   },
+  /**
+   * 设置到一个时间的开始
+   * @param {Dayjs} time 时间
+   * @param {string} unit 单位
+   * @returns 返回复制的 Day.js 对象
+   */
   startOf(time, unit) {
     return time.startOf(unit);
   },
+  /**
+   * 设置到时间末尾
+   * @param {Dayjs} time 时间
+   * @param {string} unit 单位
+   * @returns 返回复制的 Day.js 对象
+   */
   endOf(time, unit) {
     return time.endOf(unit);
   },
+  /**
+   * 修改时间
+   * @param {*} time 时间
+   * @param {*} unit 单位
+   * @param {*} value 更新值
+   */
   set(time, unit, value) {
     return time.set(unit, value);
   },
+  /**
+   * 检查两个给定时间是否在同一周内
+   * @param {*} date1 时间
+   * @param {*} date2 时间
+   * @param {*} weekStart 每周的起始日期
+   * @param {*} localeName 语言地
+   */
   isSameWeek(date1, date2, weekStart, localeName) {
     return date1
       .locale({ ...dayjs.Ls[localeName.toLocaleLowerCase()], weekStart })
