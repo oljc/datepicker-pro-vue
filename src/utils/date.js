@@ -42,21 +42,60 @@ originDayjs.extend(QuarterOfYear);
 export const dayjs = originDayjs;
 
 export const methods = {
+  /**
+   * 增加一定时间
+   * @param {Dayjs} time 时间
+   * @param {number} value 增加值
+   * @param {string} unit 单位
+   * @returns dayjs对象
+   */
   add(time, value, unit) {
     return time.add(value, unit);
   },
+  /**
+   * 减去一定时间
+   * @param {Dayjs} time 时间
+   * @param {number} value 减少值
+   * @param {string} unit 单位
+   * @returns dayjs对象
+   */
   subtract(time, value, unit) {
     return time.subtract(value, unit);
   },
+  /**
+   * 设置到一个时间的开始
+   * @param {Dayjs} time 时间
+   * @param {string} unit 单位
+   * @returns 返回复制的 Day.js 对象
+   */
   startOf(time, unit) {
     return time.startOf(unit);
   },
+  /**
+   * 设置到时间末尾
+   * @param {Dayjs} time 时间
+   * @param {string} unit 单位
+   * @returns 返回复制的 Day.js 对象
+   */
   endOf(time, unit) {
     return time.endOf(unit);
   },
+  /**
+   * 修改时间
+   * @param {*} time 时间
+   * @param {*} unit 单位
+   * @param {*} value 更新值
+   */
   set(time, unit, value) {
     return time.set(unit, value);
   },
+  /**
+   * 检查两个给定时间是否在同一周内
+   * @param {*} date1 时间
+   * @param {*} date2 时间
+   * @param {*} weekStart 每周的起始日期
+   * @param {*} localeName 语言地
+   */
   isSameWeek(date1, date2, weekStart, localeName) {
     return date1
       .locale({ ...dayjs.Ls[localeName.toLocaleLowerCase()], weekStart })
@@ -68,10 +107,21 @@ export function getNow() {
   return dayjs();
 }
 
+/**
+ * 时间排序
+ * @param {Dayjs} values 时间数组
+ * @returns 返回一个时间数组, 时间戳越小的元素就越靠前
+ */
 export function getSortedDayjsArray(values) {
   return [...values].sort((a, b) => a.valueOf() - b.valueOf());
 }
 
+/**
+ * 判断两个值是否有变化
+ * @param {*} prevValue 之前值
+ * @param {*} currentValue 当前值
+ * @returns 返回是否有变
+ */
 export function isValueChange(prevValue, currentValue) {
   const isDifference = (value1, value2) => {
     if (value1 === undefined && value2 === undefined) {
@@ -103,6 +153,12 @@ export function isValueChange(prevValue, currentValue) {
   return true;
 }
 
+/**
+ * 转换为Dayjs时间
+ * @param {*} time 时间
+ * @param {string} format 格式
+ * @returns dayjs对象
+ */
 export function getDayjsValue(time, format) {
   const formatValue = (value) => {
     if (!value) return undefined;
@@ -120,7 +176,11 @@ export function getDayjsValue(time, format) {
 
   return formatValue(time);
 }
-
+/**
+ * 将一个值或一组值转换为JavaScript Date对象
+ * @param {*} value 时间
+ * @returns Date对象
+ */
 export function getDateValue(value) {
   const formatValue = (t) => (t ? t.toDate() : undefined);
 
@@ -131,6 +191,11 @@ export function getDateValue(value) {
   return formatValue(value);
 }
 
+/**
+ * 时间本地化
+ * @param {*} localeName 语言
+ * @param {*} weekStart 每周的起始日期
+ */
 export function initializeDateLocale(localeName, weekStart) {
   dayjs.locale({ ...dayjs.Ls[localeName.toLocaleLowerCase()], weekStart });
 }
@@ -171,6 +236,11 @@ export function getFormattedValue(time, format) {
   return formatValue(time);
 }
 
+/**
+ * 日期转换为指定格式
+ * @param {*} date 时间
+ * @param {string} format 格式 -timestamp｜Date｜dayjs
+ */
 export function getReturnValue(date, format) {
   if (format === 'timestamp') {
     return date.toDate().getTime();
@@ -184,6 +254,11 @@ export function getReturnRangeValue(dates, format) {
   return dates.map((date) => (date ? getReturnValue(date, format) : undefined));
 }
 
+/**
+ * 时间值是否是有效的输入
+ * @param {*} time 时间
+ * @param {*} format 格式
+ */
 export function isValidInputValue(time, format) {
   if (!time) return false;
   return (

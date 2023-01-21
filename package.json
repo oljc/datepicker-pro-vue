@@ -6,7 +6,8 @@
     "dev": "rollup -w --bundleConfigAsCjs -c build/rollup.config.dev.js",
     "build": "yarn clean && rollup --bundleConfigAsCjs -c build/rollup.config.prod.js",
     "clean": "rimraf ./dist",
-    "lint-staged": "npx lint-staged"
+    "lint-staged": "npx lint-staged",
+    "test": "jest"
   },
   "main": "dist/datepicker-pro-vue.umd.js",
   "module": "dist/datepicker-pro-vue.esm.js",
@@ -46,6 +47,7 @@
     "@rollup/plugin-strip": "^3.0.2",
     "@rollup/plugin-terser": "^0.2.1",
     "@vue/compiler-sfc": "^3.2.45",
+    "@vue/vue2-jest": "^29.2.2",
     "autoprefixer": "8.0.0",
     "b-tween": "^0.3.3",
     "eslint": "^7.21.0",
@@ -55,6 +57,7 @@
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-vue": "^7.7.0",
     "husky": "^8.0.2",
+    "jest": "27.x",
     "lint-staged": "^13.1.0",
     "postcss": "^8.4.20",
     "prettier": "^2.2.1",

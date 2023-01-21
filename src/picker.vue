@@ -2,13 +2,14 @@
   <Popper
     v-if="!hideTrigger"
     animation="slide-dynamic-origin"
-    :offset="4"
+    :offset="offset"
     :trigger="trigger"
     :position="position"
-    :disabled="mergedDisabled || readonly"
+    :disabled="disabled || readonly"
     :popup-visible="panelVisible"
     :unmount-on-close="unmountOnClose"
     :popup-container="popupContainer"
+    :renderToBody="renderToBody"
     @popupVisibleChange="onPanelVisibleChange"
   >
     <DateInput
@@ -18,7 +19,7 @@
       :focused="panelVisible"
       :visible="panelVisible"
       :error="error"
-      :disabled="mergedDisabled"
+      :disabled="disabled"
       :readonly="!inputEditable"
       :allow-clear="allowClear && !readonly"
       :placeholder="computedPlaceholder"
@@ -49,7 +50,7 @@ import PickerPanel from './picker-panel.vue';
 
 import { getPrefixCls } from './utils/config';
 import placeholder from './utils/placeholder';
-import { isFunction, isBoolean, isUndefined } from './utils/is';
+import { isFunction, isBoolean } from './utils/is';
 import {
   omit,
   getColumnsFromFormat,
@@ -79,18 +80,17 @@ export default {
       processValue: undefined, // 操作过程中的选中值
       previewValue: undefined, // 预览用的值：悬浮
       headerMode: undefined,
-      localValue: this.computedDefaultValue || getNow(),
+      localValue: this.computedDefaultPickerValue || getNow(),
       timePickerValue: this.getDefaultValue(),
       clearPreviewTimer: null,
-      setSelectedValue: !isUndefined(this.computedModelValue)
-        ? this.computedModelValue
-        : !isUndefined(this.computedDefaultValue)
-        ? this.computedDefaultValue
-        : undefined,
     };
   },
   props: {
-    toBody: {
+    offset: {
+      type: Number,
+      default: 4,
+    },
+    renderToBody: {
       type: Boolean,
       default: true,
     },
@@ -224,9 +224,6 @@ export default {
     value: {
       type: [Object, String, Number],
     },
-    modelValue: {
-      type: [Object, String, Number],
-    },
     defaultValue: {
       type: [Object, String, Number],
     },
@@ -245,7 +242,6 @@ export default {
       this.setHeaderValue(newVal);
     },
     panelVisible(newVisible) {
-      console.log('面板刷新', newVisible);
       this.processValue = undefined;
       this.previewValue = undefined;
       this.headerMode = undefined;
@@ -257,11 +253,6 @@ export default {
       // close
       if (!newVisible) {
         this.inputValue = undefined;
-      }
-    },
-    computedModelValue(val) {
-      if (isUndefined(val)) {
-        this.setSelectedValue = undefined;
       }
     },
   },
@@ -294,9 +285,6 @@ export default {
         ? (value) => this.format(getDateValue(value))
         : defaultFormat;
     },
-    mergedDisabled() {
-      return this.disabled;
-    },
     inputEditable() {
       return !this.readonly && !isFunction(this.inputFormat);
     },
@@ -319,10 +307,7 @@ export default {
       return this.processValue ?? this.selectedValue;
     },
     computedModelValue() {
-      return getDayjsValue(
-        this.value || this.modelValue,
-        this.parseValueFormat
-      );
+      return getDayjsValue(this.value, this.parseValueFormat);
     },
     computedTimePickerProps() {
       return {
@@ -350,8 +335,11 @@ export default {
     computedDefaultValue() {
       return getDayjsValue(this.defaultValue, this.parseValueFormat);
     },
+    computedDefaultPickerValue() {
+      return getDayjsValue(this.defaultPickerValue, this.parseValueFormat);
+    },
     selectedValue() {
-      return this.computedModelValue || this.setSelectedValue;
+      return this.computedModelValue || this.computedDefaultValue || undefined;
     },
     headerValue() {
       return this.computedValue || this.localValue;
@@ -480,7 +468,6 @@ export default {
      */
     setPanelVisible(newVisible) {
       if (this.panelVisible !== newVisible) {
-        console.log('选择面板是否可见');
         this.panelVisible = newVisible;
         this.$emit('popup-visible-change', newVisible);
         this.$emit('update:popupVisible', newVisible);
@@ -575,7 +562,6 @@ export default {
       }, 100);
     },
     onPanelHeaderLabelClick(type) {
-      console.log('切换面板事件:', type);
       this.headerMode = type;
     },
     onMonthHeaderClick() {
@@ -585,7 +571,7 @@ export default {
       this.headerMode = 'date';
     },
     onPanelVisibleChange(visible) {
-      if (this.mergedDisabled) return;
+      if (this.disabled) return;
       this.setPanelVisible(visible);
     },
     onPanelHeaderSelect(date) {
@@ -617,7 +603,6 @@ export default {
     },
     onPanelCellClick(value) {
       const newValue = this.getMergedOpValue(value, this.timePickerValue);
-      console.log('面板单击onPanelCellClick：', value);
       this.onPanelSelect(newValue);
     },
     onTimePickerSelect(time) {
@@ -647,13 +632,12 @@ export default {
           dateValue,
           formattedValue
         );
-        console.log('保存---》', newVal);
         this.$emit('update:pickerValue', returnValue);
       }
       this.setLocalValue(newVal);
     },
     getDefaultLocalValue() {
-      return this.panelValue || this.computedDefaultValue || getNow();
+      return this.panelValue || this.computedDefaultPickerValue || getNow();
     },
     resetHeaderValue(emitChange = true) {
       const defaultLocalValue = this.getDefaultLocalValue();
@@ -675,10 +659,8 @@ export default {
       const returnValue = value ? this.getReturnValue(value) : undefined;
       const formattedValue = getFormattedValue(value, this.parseValueFormat);
       const dateValue = getDateValue(value);
-      console.log(returnValue);
       if (isValueChange(value, this.selectedValue)) {
         this.$emit('input', returnValue);
-        this.$emit('update:modelValue', returnValue);
         this.$emit('change', returnValue, dateValue, formattedValue);
         // eventHandlers.onChange()
       }
@@ -694,13 +676,10 @@ export default {
      * @param {Boolean} emitOk 是否完成
      */
     confirm(value, showPanel, emitOk) {
-      console.log('完成时间的选择-confirm');
       if (this.isDisabledDate(value)) {
         return;
       }
-      console.log(value, showPanel, emitOk);
       this.emitChange(value, emitOk);
-      this.setSelectedValue = value;
       this.processValue = undefined;
       this.previewValue = undefined;
       this.inputValue = undefined;
@@ -715,7 +694,6 @@ export default {
      * @param {Boolean} emitSelect 是否暴露事件
      */
     select(value, emitSelect) {
-      console.log('选择操作但是不改变外部值-select', value);
       this.processValue = value;
       this.previewValue = undefined;
       this.inputValue = undefined;
