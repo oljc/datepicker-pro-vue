@@ -107,10 +107,21 @@ export function getNow() {
   return dayjs();
 }
 
+/**
+ * 时间排序
+ * @param {Dayjs} values 时间数组
+ * @returns 返回一个时间数组, 时间戳越小的元素就越靠前
+ */
 export function getSortedDayjsArray(values) {
   return [...values].sort((a, b) => a.valueOf() - b.valueOf());
 }
 
+/**
+ * 判断两个值是否有变化
+ * @param {*} prevValue 之前值
+ * @param {*} currentValue 当前值
+ * @returns 返回是否有变
+ */
 export function isValueChange(prevValue, currentValue) {
   const isDifference = (value1, value2) => {
     if (value1 === undefined && value2 === undefined) {
@@ -142,6 +153,12 @@ export function isValueChange(prevValue, currentValue) {
   return true;
 }
 
+/**
+ * 转换为Dayjs时间
+ * @param {*} time 时间
+ * @param {string} format 格式
+ * @returns dayjs对象
+ */
 export function getDayjsValue(time, format) {
   const formatValue = (value) => {
     if (!value) return undefined;
@@ -159,7 +176,11 @@ export function getDayjsValue(time, format) {
 
   return formatValue(time);
 }
-
+/**
+ * 将一个值或一组值转换为JavaScript Date对象
+ * @param {*} value 时间
+ * @returns Date对象
+ */
 export function getDateValue(value) {
   const formatValue = (t) => (t ? t.toDate() : undefined);
 
@@ -170,6 +191,11 @@ export function getDateValue(value) {
   return formatValue(value);
 }
 
+/**
+ * 时间本地化
+ * @param {*} localeName 语言
+ * @param {*} weekStart 每周的起始日期
+ */
 export function initializeDateLocale(localeName, weekStart) {
   dayjs.locale({ ...dayjs.Ls[localeName.toLocaleLowerCase()], weekStart });
 }
@@ -210,6 +236,11 @@ export function getFormattedValue(time, format) {
   return formatValue(time);
 }
 
+/**
+ * 日期转换为指定格式
+ * @param {*} date 时间
+ * @param {string} format 格式 -timestamp｜Date｜dayjs
+ */
 export function getReturnValue(date, format) {
   if (format === 'timestamp') {
     return date.toDate().getTime();
@@ -223,6 +254,11 @@ export function getReturnRangeValue(dates, format) {
   return dates.map((date) => (date ? getReturnValue(date, format) : undefined));
 }
 
+/**
+ * 时间值是否是有效的输入
+ * @param {*} time 时间
+ * @param {*} format 格式
+ */
 export function isValidInputValue(time, format) {
   if (!time) return false;
   return (
