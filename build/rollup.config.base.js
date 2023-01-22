@@ -52,6 +52,10 @@ export default {
     babel({
       exclude: '**/node_modules/**',
       babelHelpers: 'bundled',
+      plugins: [
+        '@babel/plugin-proposal-optional-chaining',
+        '@babel/plugin-proposal-nullish-coalescing-operator',
+      ],
     }),
     vue({
       css: true,
@@ -75,5 +79,5 @@ export default {
       labels: ['unittest'],
     }),
   ],
-  external: ['@babel', 'lodash', 'vue'],
+  external: ['lodash', 'vue'],
 };
