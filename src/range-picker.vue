@@ -403,11 +403,11 @@ export default {
     },
     // 待确认的选中值
     forSelectedValue() {
-      return this.processValue ?? this.selectedValue;
+      return this.processValue || this.selectedValue;
     },
     // 面板显示的值
     panelValue() {
-      return this.previewValue ?? this.processValue ?? this.selectedValue;
+      return this.previewValue || this.processValue || this.selectedValue;
     },
     panelVisible() {
       return !isUndefined(this.popupVisible)

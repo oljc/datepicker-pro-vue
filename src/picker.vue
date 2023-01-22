@@ -300,11 +300,11 @@ export default {
     },
     // panel 展示用的值
     panelValue() {
-      return this.previewValue ?? this.processValue ?? this.selectedValue;
+      return this.previewValue || this.processValue || this.selectedValue;
     },
     // 待确认的值
     forSelectedValue() {
-      return this.processValue ?? this.selectedValue;
+      return this.processValue || this.selectedValue;
     },
     computedModelValue() {
       return getDayjsValue(this.value, this.parseValueFormat);
