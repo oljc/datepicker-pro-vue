@@ -1,0 +1,25 @@
+name: ✨Feature
+description: 填写表单提交新功能、新特性～
+title: "[Feature]: "
+labels: ["✨Feature"]
+assignees:
+  - LIjiAngChen8
+body:
+- type: input
+  id: name
+  attributes:
+    label: 功能名
+    description: Provide a short description of the feature。
+    placeholder: 我是功能名
+  validations:
+    required: true
+- type: textarea
+  id: feature-info
+  attributes:
+    label: 需求描述
+    description: 尽可能的填写你对该新功能的需求的描述。
+    placeholder: 描述信息!
+    value: "描述信息!"
+  validations:
+    required: true
+   
