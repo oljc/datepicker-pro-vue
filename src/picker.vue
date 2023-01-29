@@ -40,6 +40,7 @@
       <PickerPanel v-bind="panelProps" v-on="panelOn" @click="onPanelClick" />
     </template>
   </Popper>
+  <PickerPanel v-else v-bind="{ ...$attrs, ...panelProps }" v-on="panelOn" />
 </template>
 
 <script>
@@ -376,11 +377,18 @@ export default {
       };
     },
     defaultTimePickerValue() {
-      let format = this.timePickerProps?.format || undefined;
+      let format =
+        (this.timePickerProps && this.timePickerProps.format) || undefined;
       if (!format || !getColumnsFromFormat(format).list.length) {
-        format = this.timePickerProps?.use12Hours ? 'hh:mm:ss a' : 'HH:mm:ss';
+        format =
+          this.timePickerProps && this.timePickerProps.use12Hours
+            ? 'hh:mm:ss a'
+            : 'HH:mm:ss';
       }
-      return getDayjsValue(this.timePickerProps?.defaultValue, format);
+      return getDayjsValue(
+        this.timePickerProps && this.timePickerProps.defaultValue,
+        format
+      );
     },
     /**
      * 面板属性
@@ -405,7 +413,7 @@ export default {
         showConfirmBtn: this.needConfirm,
         confirmBtnDisabled: this.confirmBtnDisabled,
         timePickerProps: this.computedTimePickerProps,
-        extra: this.$slots?.extra?.[0],
+        extra: this.$slots.extra && this.$slots.extra[0],
         dateRender: this.$slots.cell,
         headerValue: this.headerValue,
         headerOperations: this.headerOperations,
@@ -596,7 +604,7 @@ export default {
     getMergedOpValue(date, time) {
       if (
         !(this.mode === 'date' && this.showTime) &&
-        !this.timePickerProps?.value
+        !(this.timePickerProps && this.timePickerProps.value)
       )
         return date;
       return mergeValueWithTime(getNow(), date, time);
