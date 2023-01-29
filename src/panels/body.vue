@@ -114,10 +114,10 @@ export default {
         : this.rangeValues;
     },
     rangeStart() {
-      return this.sortedRangeValues?.[0];
+      return this.sortedRangeValues && this.sortedRangeValues[0];
     },
     rangeEnd() {
-      return this.sortedRangeValues?.[1];
+      return this.sortedRangeValues && this.sortedRangeValues[1];
     },
   },
   methods: {
@@ -128,13 +128,13 @@ export default {
       const day = date.format('DD');
       const lunarCalendar = LunarCalendar.solarToLunar(year, month, day);
       if (this.mode === 'date' || this.mode === 'week') {
-        return lunarCalendar?.lunarFestival || lunarCalendar?.lunarDayName;
+        return lunarCalendar.lunarFestival || lunarCalendar.lunarDayName;
       }
       if (this.mode === 'year') {
-        return lunarCalendar?.GanZhiYear;
+        return lunarCalendar.GanZhiYear;
       }
       if (this.mode === 'month') {
-        return lunarCalendar?.GanZhiMonth || lunarCalendar?.lunarMonthName;
+        return lunarCalendar.GanZhiMonth || lunarCalendar.lunarMonthName;
       }
       return '';
     },
