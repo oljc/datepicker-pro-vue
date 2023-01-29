@@ -1,5 +1,63 @@
 # Changelog
 
+## [1.2.0](https://github.com/LIjiAngChen8/datepicker-pro-vue/compare/v1.1.3...v1.2.0) (2023-01-29)
+
+
+### 📄文档
+
+* Add Contributing Docs ([da2e610](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/da2e6109372f3bd7f050d04be710ce69150f8951))
+* Delete CONTRIBUTING ([233a8cf](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/233a8cfc98c1a4065e4635a7da1b27b36db9d30e))
+* Update Bug Issue Template ([60c1705](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/60c1705d89448cae8a908a482eec62b8c25b5f22))
+* update ISSUE_TEMPLATE ([5afb549](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/5afb5495ec9ecdb4276bfb9a7810d02d6825f49b))
+* 更新中文贡献指南 ([f7905be](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/f7905be0111238b2d997bb1d853f492e70193550))
+
+
+### 🔖工作流
+
+* Update code to check workflow naming ([705e021](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/705e021541613be6fbec811ce28ef0b71984d2f5))
+
+
+### 🐛问题修复
+
+* inconsistent panel height in dashboard ([329ec1e](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/329ec1e8340b7fe8eff774724e2aa5f18e3aa739))
+* 移除空值合并操作符 ([fbebc09](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/fbebc092d8d72c731cc9b104a4e6a0de3e9f0096))
+* 解决babel对proposal-optional-chaining不生效问题 ([2a9dcb6](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/2a9dcb633182a05cd84fc9f544f6b10a24118229))
+
+
+### 💡性能优化
+
+* Replace optional chaining with regular conditional logic ([6b19d4c](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/6b19d4c95fb7ac40263a179c637c3c43fc6c7e6f))
+* Replace optional chaining with regular conditional logic ([81906ef](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/81906eff974bb7e88251149f7b82a6456faae302))
+* Replace optional chaining with regular conditional logic ([34ac7c0](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/34ac7c05b93f8bdd70b4190041e559883d15ddb7))
+
+
+### ✨代码重构
+
+* 不设置宽度的情况下自动适应宽度 ([f80b382](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/f80b382afc26cb46202a4c88bd7d66d2e46bfbcb))
+* 添加顶层包裹class ([016e2df](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/016e2dfb91f897ffba3977458811eb3164feffa5))
+* 调整在范围选择器中开启农历显示时样式不对齐问题 ([dc7a345](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/dc7a345c547db2dde902f1930d5294278471c9d9))
+
+
+### 📦项目构建/依赖
+
+* Add babel plugin ([39b7d3c](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/39b7d3c4a03a202cc751fb07978a2c507f0a218f))
+* Add babel plugin ([2f02b71](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/2f02b7130c101340ebe9e7316f05e3b5c52392b5))
+* Remove unused Rollup config in example directory ([4e0465e](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/4e0465e5c077ddab4115614ca60e206f1226d111))
+* Reorganize rollup setup for better maintainability ([7bb17ef](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/7bb17ef43846932c184edc45f8cfc3516ebcea57))
+* Update the babel configuration file ([d398c89](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/d398c8989a69fa3597fb0b96a688d87209197922))
+
+
+### ✨新功能
+
+* 新增范围选择器RangePickerPro ([81cc471](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/81cc47148f114cfec2a2b0cb67aa2dffc303fb85))
+* 添加hideTrigger直接显示PickerPanel面板 ([0ccae14](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/0ccae14ddce004eadfec2132e86be780c1ffc0c4))
+* 点击选择时间定位当前时间 ([0ec8ca3](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/0ec8ca35d9e54ddf0c42d6c099519a8c5c7f1780))
+
+
+### 🖇️其他
+
+* **main:** release ([e1c4e83](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/e1c4e83ad9f45f68afb49bbe6ffaa3dcec2ed2b0))
+
 ## [1.1.3](https://github.com/LIjiAngChen8/datepicker-pro-vue/compare/v1.1.2...v1.1.3) (2023-01-21)
 
 
