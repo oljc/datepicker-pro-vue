@@ -1,5 +1,5 @@
 <template>
-  <component :is="popupTag">
+  <component :is="popupTag" class="datepicke-pro-vue">
     <slot></slot>
     <div
       ref="content"
