@@ -1,9 +1,14 @@
 @import './global.less';
 @picker-prefix-cls: ~'@{prefix}-picker';
 
+.datepicke-pro-vue{
+  display: inline;
+}
+
 .@{prefix}-picker-container,
 .@{prefix}-picker-range-container {
   box-sizing: border-box;
+  width: max-content;
   min-height: 60px;
   overflow: hidden;
   background-color: @color-bg-popup;
