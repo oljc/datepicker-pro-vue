@@ -1,7 +1,8 @@
 import DatePickerPro from './picker';
+import RangePickerPro from './range-picker';
 import './style';
 
-const components = [DatePickerPro];
+const components = [DatePickerPro, RangePickerPro];
 
 // eslint-disable-next-line func-names
 const install = function (Vue) {
@@ -17,6 +18,7 @@ if (typeof window !== 'undefined' && window.Vue) {
 export default {
   install,
   DatePickerPro,
+  RangePickerPro,
 };
 
-export { install, DatePickerPro };
+export { install, DatePickerPro, RangePickerPro };
