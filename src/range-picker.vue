@@ -94,44 +94,38 @@ export default {
   inheritAttrs: false,
   props: {
     /**
-     * @zh 范围选择器的类型
-     * @en Type of range selector
+     * 范围选择器的类型
      * */
     mode: {
       type: String,
       default: 'date',
     },
     /**
-     * @zh 绑定值
-     * @en Value
+     * 绑定值
      */
     modelValue: {
       type: Array,
     },
     /**
-     * @zh 默认值
-     * @en Default value
+     * 默认值
      */
     defaultValue: {
       type: Array,
     },
     /**
-     * @zh 默认面板显示的日期
-     * @en The date displayed in the default panel
+     * 默认面板显示的日期
      * */
     pickerValue: {
       type: Array,
     },
     /**
-     * @zh 面板显示的日期
-     * @en Date displayed on the panel
+     * 面板显示的日期
      * */
     defaultPickerValue: {
       type: Array,
     },
     /**
-     * @zh 是否禁用
-     * @en Whether to disable
+     * 是否禁用
      * */
     disabled: {
       type: [Boolean, Array],
@@ -250,8 +244,8 @@ export default {
       endLocalValue: this.computedEndDefaultValue || getNow(),
 
       footerValue: [
-        this.panelValue?.[0] || getNow(),
-        this.panelValue?.[1] || getNow(),
+        (this.panelValue && this.panelValue[0]) || getNow(),
+        (this.panelValue && this.panelValue[1]) || getNow(),
       ],
       startTimeValue:
         this.sValue || this.startDefaultTimePickerValue || getNow(),
@@ -427,16 +421,16 @@ export default {
       return ['year'].includes(this.mode) ? 10 * 12 : 12;
     },
     startValue() {
-      return this.pickerValue?.[0];
+      return this.pickerValue && this.pickerValue[0];
     },
     endValue() {
-      return this.pickerValue?.[1];
+      return this.pickerValue && this.pickerValue[1];
     },
     startDefaultValue() {
-      return this.defaultPickerValue?.[0];
+      return this.defaultPickerValue && this.defaultPickerValue[0];
     },
     endDefaultValue() {
-      return this.defaultPickerValue?.[1];
+      return this.defaultPickerValue && this.defaultPickerValue[1];
     },
     // ----------------------------------------
     spanStart() {
@@ -556,13 +550,13 @@ export default {
       return pick(this.endHeaderOperations, operations);
     },
     sValue() {
-      return this.panelValue?.[0];
+      return this.panelValue && this.panelValue[0];
     },
     eValue() {
-      return this.panelValue?.[1];
+      return this.panelValue && this.panelValue[1];
     },
     timePickerDefaultValue() {
-      return this.timePickerProps?.defaultValue;
+      return this.timePickerProps && this.timePickerProps.defaultValue;
     },
     startTimePickerProps() {
       return isArray(this.timePickerDefaultValue)
@@ -581,10 +575,12 @@ export default {
         : this.timePickerProps;
     },
     startTimePickerPropsFormat() {
-      return this.startTimePickerProps?.format;
+      return this.startTimePickerProps && this.startTimePickerProps.format;
     },
     starTimePickerPropsUse12Hours() {
-      return !!this.startTimePickerProps?.use12Hours;
+      return !!(
+        this.startTimePickerProps && this.startTimePickerProps.use12Hours
+      );
     },
     startFormat() {
       let res = this.starTimePickerPropsFormat || undefined;
@@ -595,15 +591,15 @@ export default {
     },
     startDefaultTimePickerValue() {
       return getDayjsValue(
-        this.startTimePickerProps?.defaultValue,
+        this.startTimePickerProps && this.startTimePickerProps.defaultValue,
         this.startFormat
       );
     },
     endTimePickerPropsFormat() {
-      return this.endTimePickerProps?.format;
+      return this.endTimePickerProps && this.endTimePickerProps.format;
     },
     endimePickerPropsUse12Hours() {
-      return !!this.endTimePickerProps?.use12Hours;
+      return !!(this.endTimePickerProps && this.endTimePickerProps.use12Hours);
     },
     endFormat() {
       let res = this.endimePickerPropsFormat || undefined;
@@ -614,7 +610,7 @@ export default {
     },
     endDefaultTimePickerValue() {
       return getDayjsValue(
-        this.endTimePickerProps?.defaultValue,
+        this.endTimePickerProps && this.endTimePickerProps.defaultValue,
         this.endFormat
       );
     },
@@ -746,7 +742,7 @@ export default {
       }
     },
     getFocusedIndex(cur = 0) {
-      return this.disabledArray?.[cur] ? cur ^ 1 : cur;
+      return this.disabledArray && this.disabledArray[cur] ? cur ^ 1 : cur;
     },
     setPanelVisible(newVisible) {
       if (this.panelVisible !== newVisible) {
@@ -844,8 +840,8 @@ export default {
       return [header0, header1];
     },
     getFormSelectedValue() {
-      let selected0 = this.panelValue?.[0];
-      let selected1 = this.panelValue?.[1];
+      let selected0 = this.panelValue && this.panelValue[0];
+      let selected1 = this.panelValue && this.panelValue[1];
       if (selected0 && selected1) {
         [selected0, selected1] = getSortedDayjsArray([selected0, selected1]);
       }
@@ -901,7 +897,7 @@ export default {
         this.eValue || this.endDefaultTimePickerValue || getNow();
     },
     isDisabledItem(num, getDisabledList) {
-      const list = getDisabledList?.() || [];
+      const list = (getDisabledList && getDisabledList()) || [];
       return list.includes(num);
     },
     isDisabledDate(value, type) {
@@ -920,7 +916,7 @@ export default {
       if (isValueChange(value, this.selectedValue)) {
         this.$emit('update:modelValue', returnValue);
         this.$emit('change', returnValue, dateValue, formattedValue);
-        this.eventHandlers?.onChange();
+        this.eventHandlers && this.eventHandlers.onChange();
       }
       if (emitOk) {
         this.$emit('ok', returnValue, dateValue, formattedValue);
@@ -928,8 +924,8 @@ export default {
     },
     confirm(value, showPanel, emitOk) {
       if (
-        this.isDisabledDate(value?.[0], 'start') ||
-        this.isDisabledDate(value?.[1], 'end')
+        this.isDisabledDate(value && value[0], 'start') ||
+        this.isDisabledDate(value && value[1], 'end')
       ) {
         return;
       }
@@ -988,7 +984,7 @@ export default {
       }
     },
     focusInput(index) {
-      this.$refs.refInput?.focus(index);
+      this.$refs.refInput && this.$refs.refInput.focus(index);
     },
     getMergedOpValue(date, time) {
       if (!this.hasTime) return date;
