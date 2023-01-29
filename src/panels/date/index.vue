@@ -25,8 +25,11 @@
       />
     </div>
     <div v-if="showTimeView" :class="timeClassName">
-      <header :class="`${prefixCls}-timepicker-title`">选择时间</header>
+      <header :class="`${prefixCls}-timepicker-title`" @click="callChildNow"
+        >选择时间</header
+      >
       <TimePanel
+        ref="timePanel"
         v-bind="{
           ...timePickerProps,
           ...disabledTimeProps,
@@ -276,6 +279,9 @@ export default {
   methods: {
     newArray(length) {
       return [...Array(length)];
+    },
+    callChildNow() {
+      this.$refs.timePanel.onSelectNow();
     },
     onCellClick(cellData) {
       this.$emit('select', cellData.value);

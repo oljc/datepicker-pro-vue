@@ -142,7 +142,7 @@ export default {
   },
   computed: {
     selectedHour() {
-      const _hour = this.selectedValue?.hour();
+      const _hour = this.selectedValue && this.selectedValue.hour();
       if (isUndefined(_hour) || !this.computedUse12Hours) return _hour;
       // 12小时制
       if (_hour > 12) return _hour - 12;
@@ -150,13 +150,13 @@ export default {
       return _hour;
     },
     selectedMinute() {
-      return this.selectedValue?.minute();
+      return this.selectedValue && this.selectedValue.minute();
     },
     selectedSecond() {
-      return this.selectedValue?.second();
+      return this.selectedValue && this.selectedValue.second();
     },
     selectedAmpm() {
-      const _hour = this.selectedValue?.hour();
+      const _hour = this.selectedValue && this.selectedValue.hour();
       return !isUndefined(_hour) && _hour >= 12 ? 'pm' : 'am';
     },
     // 小时

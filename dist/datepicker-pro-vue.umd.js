@@ -2154,8 +2154,6 @@
     return prefix;
   }
 
-  //
-
   function on(element, event, handler, capture = false) {
     if (element && event && handler) {
       document.addEventListener
@@ -2172,7 +2170,9 @@
     }
   }
 
-  var script$j = {
+  var Popper = {
+  render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c(_vm.popupTag,{tag:"component",staticClass:"datepicke-pro-vue"},[_vm._t("default"),_vm._v(" "),_c('div',{ref:"content",class:[(_vm.prefixCls + "-popup"), (_vm.prefixCls + "-position-" + _vm.position)],on:{"after-leave":_vm.doDestroy}},[_c('transition',{attrs:{"name":_vm.animationName,"enter-active-class":_vm.enterActiveClass,"leave-active-class":_vm.leaveActiveClass}},[_c('div',{directives:[{name:"show",rawName:"v-show",value:(!_vm.disabled && _vm.showPopper),expression:"!disabled && showPopper"}],class:(_vm.prefixCls + "-popup-wrapper")},[_c('div',{class:[(_vm.prefixCls + "-content")]},[_vm._t("content")],2),_vm._v(" "),(_vm.showArrow)?_c('div',{ref:"arrowRef",class:[(_vm.prefixCls + "-arrow")]}):_vm._e()])])],1)],2)},
+  staticRenderFns: [],
     props: {
       // 弹出框是否可见
       popupVisible: {
@@ -2188,7 +2188,7 @@
         type: String,
         default: 'hover',
         validator: (value) =>
-          ['clickToOpen', 'click', 'hover', 'focus'].indexOf(value) > -1,
+          ['toggle', 'click', 'hover', 'focus'].indexOf(value) > -1,
       },
       // 弹窗位置
       position: {
@@ -2233,7 +2233,7 @@
       // 是否卸载节点
       unmountOnClose: {
         type: Boolean,
-        default: true,
+        default: false,
       },
       // 动画
       animationName: {
@@ -2253,12 +2253,6 @@
       preventDefault: {
         type: Boolean,
         default: false,
-      },
-      options: {
-        type: Object,
-        default() {
-          return {};
-        },
       },
       // GPU渲染-低端机可能无法开启
       gpuAcceleration: {
@@ -2310,13 +2304,13 @@
       this.popper =
         this.popupContainer || this.$refs.content || this.$slots.content[0].elm;
       switch (this.trigger) {
-        case 'clickToOpen':
-          on(this.referenceElm, 'click', this.doShow);
+        case 'toggle':
+          on(this.referenceElm, 'click', this.doToggle);
           on(document, 'click', this.handleDocumentClick, true);
           on(document, 'touchstart', this.handleDocumentClick);
           break;
         case 'click':
-          on(this.referenceElm, 'click', this.doToggle);
+          on(this.referenceElm, 'click', this.doShow);
           on(document, 'click', this.handleDocumentClick, true);
           on(document, 'touchstart', this.handleDocumentClick);
           break;
@@ -2339,17 +2333,21 @@
       doToggle(event) {
         this.stopPropagation && event.stopPropagation();
         this.preventDefault && event.preventDefault();
-        if (!this.forceShow) {
+        if (!this.disabled && !this.forceShow) {
           this.showPopper = !this.showPopper;
         }
       },
 
       doShow() {
-        this.showPopper = true;
+        if (!this.disabled) {
+          this.showPopper = true;
+        }
       },
 
       doClose() {
-        this.showPopper = false;
+        if (!this.disabled) {
+          this.showPopper = false;
+        }
       },
 
       doDestroy() {
@@ -2409,6 +2407,7 @@
       },
 
       onMouseOver() {
+        if (this.disabled) return;
         clearTimeout(this._timer);
         this._timer = setTimeout(() => {
           this.showPopper = true;
@@ -2416,6 +2415,7 @@
       },
 
       onMouseOut() {
+        if (this.disabled) return;
         clearTimeout(this._timer);
         this._timer = setTimeout(() => {
           this.showPopper = false;
@@ -2424,6 +2424,7 @@
 
       handleDocumentClick(e) {
         if (
+          this.disabled ||
           !this.$el ||
           !this.referenceElm ||
           this.elementContains(this.$el, e.target) ||
@@ -2454,120 +2455,39 @@
     },
   };
 
-  function normalizeComponent(template, style, script, scopeId, isFunctionalTemplate, moduleIdentifier /* server only */, shadowMode, createInjector, createInjectorSSR, createInjectorShadow) {
-      if (typeof shadowMode !== 'boolean') {
-          createInjectorSSR = createInjector;
-          createInjector = shadowMode;
-          shadowMode = false;
+  function styleInject(css, ref) {
+    if ( ref === void 0 ) ref = {};
+    var insertAt = ref.insertAt;
+
+    if (!css || typeof document === 'undefined') { return; }
+
+    var head = document.head || document.getElementsByTagName('head')[0];
+    var style = document.createElement('style');
+    style.type = 'text/css';
+
+    if (insertAt === 'top') {
+      if (head.firstChild) {
+        head.insertBefore(style, head.firstChild);
+      } else {
+        head.appendChild(style);
       }
-      // Vue.extend constructor export interop.
-      const options = typeof script === 'function' ? script.options : script;
-      // render functions
-      if (template && template.render) {
-          options.render = template.render;
-          options.staticRenderFns = template.staticRenderFns;
-          options._compiled = true;
-          // functional template
-          if (isFunctionalTemplate) {
-              options.functional = true;
-          }
-      }
-      // scopedId
-      if (scopeId) {
-          options._scopeId = scopeId;
-      }
-      let hook;
-      if (moduleIdentifier) {
-          // server build
-          hook = function (context) {
-              // 2.3 injection
-              context =
-                  context || // cached call
-                      (this.$vnode && this.$vnode.ssrContext) || // stateful
-                      (this.parent && this.parent.$vnode && this.parent.$vnode.ssrContext); // functional
-              // 2.2 with runInNewContext: true
-              if (!context && typeof __VUE_SSR_CONTEXT__ !== 'undefined') {
-                  context = __VUE_SSR_CONTEXT__;
-              }
-              // inject component styles
-              if (style) {
-                  style.call(this, createInjectorSSR(context));
-              }
-              // register component module identifier for async chunk inference
-              if (context && context._registeredComponents) {
-                  context._registeredComponents.add(moduleIdentifier);
-              }
-          };
-          // used by ssr in case component is cached and beforeCreate
-          // never gets called
-          options._ssrRegister = hook;
-      }
-      else if (style) {
-          hook = shadowMode
-              ? function (context) {
-                  style.call(this, createInjectorShadow(context, this.$root.$options.shadowRoot));
-              }
-              : function (context) {
-                  style.call(this, createInjector(context));
-              };
-      }
-      if (hook) {
-          if (options.functional) {
-              // register for functional component in vue file
-              const originalRender = options.render;
-              options.render = function renderWithStyleInjection(h, context) {
-                  hook.call(context);
-                  return originalRender(h, context);
-              };
-          }
-          else {
-              // inject component registration as beforeCreate hook
-              const existing = options.beforeCreate;
-              options.beforeCreate = existing ? [].concat(existing, hook) : [hook];
-          }
-      }
-      return script;
+    } else {
+      head.appendChild(style);
+    }
+
+    if (style.styleSheet) {
+      style.styleSheet.cssText = css;
+    } else {
+      style.appendChild(document.createTextNode(css));
+    }
   }
 
-  /* script */
-  const __vue_script__$j = script$j;
+  var css_248z$a = "";
+  styleInject(css_248z$a);
 
-  /* template */
-  var __vue_render__$i = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c(_vm.popupTag,{tag:"component"},[_vm._t("default"),_vm._v(" "),_c('div',{ref:"content",class:[(_vm.prefixCls + "-popup"), (_vm.prefixCls + "-position-" + _vm.position)],on:{"after-leave":_vm.doDestroy}},[_c('transition',{attrs:{"name":_vm.animationName,"enter-active-class":_vm.enterActiveClass,"leave-active-class":_vm.leaveActiveClass}},[_c('div',{directives:[{name:"show",rawName:"v-show",value:(!_vm.disabled && _vm.showPopper),expression:"!disabled && showPopper"}],class:(_vm.prefixCls + "-popup-wrapper")},[_c('div',{class:[(_vm.prefixCls + "-content")]},[_vm._t("content")],2),_vm._v(" "),(_vm.showArrow)?_c('div',{ref:"arrowRef",class:[(_vm.prefixCls + "-arrow")]}):_vm._e()])])],1)],2)};
-  var __vue_staticRenderFns__$i = [];
-
-    /* style */
-    const __vue_inject_styles__$j = undefined;
-    /* scoped */
-    const __vue_scope_id__$j = undefined;
-    /* module identifier */
-    const __vue_module_identifier__$j = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$j = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-    /* style inject shadow dom */
-    
-
-    
-    const __vue_component__$j = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$i, staticRenderFns: __vue_staticRenderFns__$i },
-      __vue_inject_styles__$j,
-      __vue_script__$j,
-      __vue_scope_id__$j,
-      __vue_is_functional_template__$j,
-      __vue_module_identifier__$j,
-      false,
-      undefined,
-      undefined,
-      undefined
-    );
-
-  //
-
-  var script$i = {
+  var IconCommon = {
+  render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{class:_vm.prefixCls,attrs:{"viewBox":"0 0 48 48","fill":"none","xmlns":"http://www.w3.org/2000/svg","stroke":"currentColor","stroke-width":4,"stroke-linecap":"butt","stroke-linejoin":"miter"},domProps:{"innerHTML":_vm._s(_vm.icon[_vm.use])}})},
+  staticRenderFns: [],
     name: 'IconCommon',
     props: ['use'],
     data() {
@@ -2587,45 +2507,13 @@
     },
   };
 
-  /* script */
-  const __vue_script__$i = script$i;
-
-  /* template */
-  var __vue_render__$h = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{class:_vm.prefixCls,attrs:{"viewBox":"0 0 48 48","fill":"none","xmlns":"http://www.w3.org/2000/svg","stroke":"currentColor","stroke-width":4,"stroke-linecap":"butt","stroke-linejoin":"miter"},domProps:{"innerHTML":_vm._s(_vm.icon[_vm.use])}})};
-  var __vue_staticRenderFns__$h = [];
-
-    /* style */
-    const __vue_inject_styles__$i = undefined;
-    /* scoped */
-    const __vue_scope_id__$i = undefined;
-    /* module identifier */
-    const __vue_module_identifier__$i = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$i = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-    /* style inject shadow dom */
-    
-
-    
-    const __vue_component__$i = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$h, staticRenderFns: __vue_staticRenderFns__$h },
-      __vue_inject_styles__$i,
-      __vue_script__$i,
-      __vue_scope_id__$i,
-      __vue_is_functional_template__$i,
-      __vue_module_identifier__$i,
-      false,
-      undefined,
-      undefined,
-      undefined
-    );
-
-  //
-
-  var script$h = {
+  var IconHover = {
+  render: function(){
+  var _obj;
+  var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('span',{class:[
+      _vm.prefixCls,
+      ( _obj = {}, _obj[(_vm.prefix + "-icon-hover")] = _vm.prefix, _obj[(_vm.prefixCls + "-size-" + _vm.size)] = _vm.size !== 'medium', _obj[(_vm.prefixCls + "-disabled")] = _vm.disabled, _obj ) ]},[_vm._t("default")],2)},
+  staticRenderFns: [],
     name: 'IconHover',
     props: {
       prefix: {
@@ -2647,50 +2535,10 @@
     },
   };
 
-  /* script */
-  const __vue_script__$h = script$h;
-
-  /* template */
-  var __vue_render__$g = function () {
-  var _obj;
-  var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('span',{class:[
-      _vm.prefixCls,
-      ( _obj = {}, _obj[(_vm.prefix + "-icon-hover")] = _vm.prefix, _obj[(_vm.prefixCls + "-size-" + _vm.size)] = _vm.size !== 'medium', _obj[(_vm.prefixCls + "-disabled")] = _vm.disabled, _obj ) ]},[_vm._t("default")],2)};
-  var __vue_staticRenderFns__$g = [];
-
-    /* style */
-    const __vue_inject_styles__$h = undefined;
-    /* scoped */
-    const __vue_scope_id__$h = undefined;
-    /* module identifier */
-    const __vue_module_identifier__$h = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$h = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-    /* style inject shadow dom */
-    
-
-    
-    const __vue_component__$h = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$g, staticRenderFns: __vue_staticRenderFns__$g },
-      __vue_inject_styles__$h,
-      __vue_script__$h,
-      __vue_scope_id__$h,
-      __vue_is_functional_template__$h,
-      __vue_module_identifier__$h,
-      false,
-      undefined,
-      undefined,
-      undefined
-    );
-
   /**
    * 判断工具
    * @author LIjiANgChen8 李江辰
-   * @vervison v0.1.0
+   * @vervison v0.1.1
    * @date 2022/12/05
    */
 
@@ -2698,35 +2546,74 @@
 
   /**
    * 判断是否函数
-   * @param obj 任意对象
-   * @return {boolean} 布尔结果
+   * @param obj 任意参数
+   * @return {boolean} 是函数返回true，否则false
    */
   function isFunction(obj) {
     return typeof obj === 'function';
   }
+
+  /**
+   * 判断是否为数字
+   * @param {any} obj - 任意参数
+   * @returns {boolean} 是数字返回true，否则false
+   */
+  function isNumber(obj) {
+    return opt.call(obj) === '[object Number]' && !Number.isNaN(obj);
+  }
+
+  /**
+   * 判断是否布尔值
+   * @param {any} obj 任意参数
+   * @return {boolean} 布尔结果
+   */
   function isBoolean(obj) {
     return opt.call(obj) === '[object Boolean]';
   }
+
+  /**
+   * 判断是否对象
+   * @param obj 任意参数
+   * @return {boolean} 是对象返回true，否则false
+   */
   function isObject(obj) {
     return opt.call(obj) === '[object Object]';
   }
+
+  /**
+   * 判断是否数组
+   * @param obj 任意参数
+   * @return {boolean} 是数组返回true，否则false
+   */
   function isArray(obj) {
     return opt.call(obj) === '[object Array]';
   }
+
+  /**
+   * 判断undefined
+   * @param obj 任意参数
+   * @return {boolean} undefined返回true，否则false
+   */
   function isUndefined(obj) {
     return obj === undefined;
   }
+
+  /**
+   * 检查传入的参数是否为day.js对象
+   * @param {any} time 时间
+   * @returns {boolean} 如果是day.js对象返回true，否则返回false
+   */
   function isDayjs(time) {
     return isObject(time) && '$y' in time && '$M' in time && '$D' in time && '$d' in time && '$H' in time && '$m' in time && '$s' in time;
   }
 
-  //
-
-  var script$g = {
+  var DateInput = {
+  render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:_vm.classNames},[_c('div',{class:(_vm.prefixCls + "-input")},[_c('input',_vm._b({ref:"refInput",class:(_vm.prefixCls + "-start-time"),attrs:{"disabled":_vm.disabled,"placeholder":_vm.placeholder},domProps:{"value":_vm.displayValue},on:{"keydown":function($event){if(!$event.type.indexOf('key')&&_vm._k($event.keyCode,"enter",13,$event.key,"Enter")){ return null; }return _vm.onPressEnter.apply(null, arguments)},"input":_vm.onChange}},'input',_vm.readonly ? { readonly: true } : {},false))]),_vm._v(" "),_c('div',{class:(_vm.prefixCls + "-suffix")},[(_vm.allowClear && !_vm.disabled && _vm.displayValue)?_c('IconHover',{class:(_vm.prefixCls + "-clear-icon"),attrs:{"prefix":_vm.prefixCls},nativeOn:{"click":function($event){return _vm.onClear.apply(null, arguments)}}},[_c('IconCommon',{attrs:{"use":"close"}})],1):_vm._e(),_vm._v(" "),_c('span',{class:(_vm.prefixCls + "-suffix-icon")},[_vm._t("suffix-icon")],2)],1)])},
+  staticRenderFns: [],
     name: 'DateInput',
     components: {
-      IconHover: __vue_component__$h,
-      IconCommon: __vue_component__$i,
+      IconHover,
+      IconCommon,
     },
     props: {
       size: {
@@ -2814,55 +2701,26 @@
     },
   };
 
-  /* script */
-  const __vue_script__$g = script$g;
-
-  /* template */
-  var __vue_render__$f = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:_vm.classNames},[_c('div',{class:(_vm.prefixCls + "-input")},[_c('input',_vm._b({ref:"refInput",class:(_vm.prefixCls + "-start-time"),attrs:{"disabled":_vm.disabled,"placeholder":_vm.placeholder},domProps:{"value":_vm.displayValue},on:{"keydown":function($event){if(!$event.type.indexOf('key')&&_vm._k($event.keyCode,"enter",13,$event.key,"Enter")){ return null; }return _vm.onPressEnter.apply(null, arguments)},"input":_vm.onChange}},'input',_vm.readonly ? { readonly: true } : {},false))]),_vm._v(" "),_c('div',{class:(_vm.prefixCls + "-suffix")},[(_vm.allowClear && !_vm.disabled && _vm.displayValue)?_c('IconHover',{class:(_vm.prefixCls + "-clear-icon"),attrs:{"prefix":_vm.prefixCls},nativeOn:{"click":function($event){return _vm.onClear.apply(null, arguments)}}},[_c('IconCommon',{attrs:{"use":"close"}})],1):_vm._e(),_vm._v(" "),_c('span',{class:(_vm.prefixCls + "-suffix-icon")},[_vm._t("suffix-icon")],2)],1)])};
-  var __vue_staticRenderFns__$f = [];
-
-    /* style */
-    const __vue_inject_styles__$g = undefined;
-    /* scoped */
-    const __vue_scope_id__$g = undefined;
-    /* module identifier */
-    const __vue_module_identifier__$g = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$g = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-    /* style inject shadow dom */
-    
-
-    
-    const __vue_component__$g = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$f, staticRenderFns: __vue_staticRenderFns__$f },
-      __vue_inject_styles__$g,
-      __vue_script__$g,
-      __vue_scope_id__$g,
-      __vue_is_functional_template__$g,
-      __vue_module_identifier__$g,
-      false,
-      undefined,
-      undefined,
-      undefined
-    );
-
-  //
-
-  var script$f = {
+  var Button = {
+  render: function(){
+  var _obj;
+  var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('button',{class:[
+      _vm.cls,
+      ( _obj = {}, _obj[(_vm.prefixCls + "-only-icon")] = _vm.$slots.icon && !_vm.$slots.default, _obj ) ],attrs:{"type":_vm.htmlType},on:{"click":_vm.handleClick}},[(_vm.loading || _vm.$slots.icon)?_c('span',{class:(_vm.prefixCls + "-icon")},[(_vm.loading)?_c('icon-loading',{attrs:{"spin":true}}):_vm._t("icon")],2):_vm._e(),_vm._v(" "),_vm._t("default")],2)},
+  staticRenderFns: [],
     name: 'Button',
     props: {
       type: {
         type: String,
+        default: 'secondary',
       },
       shape: {
         type: String,
+        default: 'square',
       },
       status: {
         type: String,
+        default: 'normal',
       },
       size: {
         type: String,
@@ -2892,10 +2750,10 @@
       cls() {
         return [
           this.prefixCls,
-          `${this.prefixCls}-${this.type ?? 'secondary'}`,
-          `${this.prefixCls}-shape-${this.shape ?? 'square'}`,
+          `${this.prefixCls}-${this.type}`,
+          `${this.prefixCls}-shape-${this.shape}`,
           `${this.prefixCls}-size-${this.size}`,
-          `${this.prefixCls}-status-${this.status ?? 'normal'}`,
+          `${this.prefixCls}-status-${this.status}`,
           {
             [`${this.prefixCls}-long`]: this.long,
             [`${this.prefixCls}-loading`]: this.loading,
@@ -2915,47 +2773,7 @@
     },
   };
 
-  /* script */
-  const __vue_script__$f = script$f;
-
-  /* template */
-  var __vue_render__$e = function () {
-  var _obj;
-  var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('button',{class:[
-      _vm.cls,
-      ( _obj = {}, _obj[(_vm.prefixCls + "-only-icon")] = _vm.$slots.icon && !_vm.$slots.default, _obj ) ],attrs:{"type":_vm.htmlType},on:{"click":_vm.handleClick}},[(_vm.loading || _vm.$slots.icon)?_c('span',{class:(_vm.prefixCls + "-icon")},[(_vm.loading)?_c('icon-loading',{attrs:{"spin":true}}):_vm._t("icon")],2):_vm._e(),_vm._v(" "),_vm._t("default")],2)};
-  var __vue_staticRenderFns__$e = [];
-
-    /* style */
-    const __vue_inject_styles__$f = undefined;
-    /* scoped */
-    const __vue_scope_id__$f = undefined;
-    /* module identifier */
-    const __vue_module_identifier__$f = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$f = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-    /* style inject shadow dom */
-    
-
-    
-    const __vue_component__$f = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$e, staticRenderFns: __vue_staticRenderFns__$e },
-      __vue_inject_styles__$f,
-      __vue_script__$f,
-      __vue_scope_id__$f,
-      __vue_is_functional_template__$f,
-      __vue_module_identifier__$f,
-      false,
-      undefined,
-      undefined,
-      undefined
-    );
-
-  var script$e = {
+  var RenderFunction = {
     props: {
       renderFunc: {
         type: Function,
@@ -2967,47 +2785,13 @@
     },
   };
 
-  /* script */
-  const __vue_script__$e = script$e;
-
-  /* template */
-
-    /* style */
-    const __vue_inject_styles__$e = undefined;
-    /* scoped */
-    const __vue_scope_id__$e = undefined;
-    /* module identifier */
-    const __vue_module_identifier__$e = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$e = undefined;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-    /* style inject shadow dom */
-    
-
-    
-    const __vue_component__$e = /*#__PURE__*/normalizeComponent(
-      {},
-      __vue_inject_styles__$e,
-      __vue_script__$e,
-      __vue_scope_id__$e,
-      __vue_is_functional_template__$e,
-      __vue_module_identifier__$e,
-      false,
-      undefined,
-      undefined,
-      undefined
-    );
-
-  //
-
-  var script$d = {
+  var PanelShortcuts = {
+  render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:(_vm.prefixCls + "-shortcuts")},[(_vm.showNowBtn)?_c('Button',{attrs:{"size":"mini"},on:{"click":function () { return _vm.onNowClick(); }}},[_vm._v("此刻")]):_vm._e(),_vm._v(" "),_vm._l((_vm.shortcuts),function(item,index){return _c('Button',{key:index,attrs:{"size":"mini"},on:{"click":function () { return _vm.onItemClick(item); }},nativeOn:{"mouseenter":function($event){return (function () { return _vm.onItemMouseEnter(item); }).apply(null, arguments)},"mouseleave":function($event){return (function () { return _vm.onItemMouseLeave(item); }).apply(null, arguments)}}},[(_vm.isFunction(item.label))?_c('RenderFunction',{attrs:{"render-func":item.label}}):[_vm._v("\n      "+_vm._s(item.label)+"\n    ")]],2)})],2)},
+  staticRenderFns: [],
     name: 'PanelShortcuts',
     components: {
-      Button: __vue_component__$f,
-      RenderFunction: __vue_component__$e,
+      Button,
+      RenderFunction,
     },
     props: {
       prefixCls: {
@@ -3040,42 +2824,6 @@
       },
     },
   };
-
-  /* script */
-  const __vue_script__$d = script$d;
-
-  /* template */
-  var __vue_render__$d = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:(_vm.prefixCls + "-shortcuts")},[(_vm.showNowBtn)?_c('Button',{attrs:{"size":"mini"},on:{"click":function () { return _vm.onNowClick(); }}},[_vm._v("此刻")]):_vm._e(),_vm._v(" "),_vm._l((_vm.shortcuts),function(item,index){return _c('Button',{key:index,attrs:{"size":"mini"},on:{"click":function () { return _vm.onItemClick(item); }},nativeOn:{"mouseenter":function($event){return (function () { return _vm.onItemMouseEnter(item); }).apply(null, arguments)},"mouseleave":function($event){return (function () { return _vm.onItemMouseLeave(item); }).apply(null, arguments)}}},[(_vm.isFunction(item.label))?_c('RenderFunction',{attrs:{"render-func":item.label}}):[_vm._v("\n      "+_vm._s(item.label)+"\n    ")]],2)})],2)};
-  var __vue_staticRenderFns__$d = [];
-
-    /* style */
-    const __vue_inject_styles__$d = undefined;
-    /* scoped */
-    const __vue_scope_id__$d = undefined;
-    /* module identifier */
-    const __vue_module_identifier__$d = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$d = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-    /* style inject shadow dom */
-    
-
-    
-    const __vue_component__$d = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$d, staticRenderFns: __vue_staticRenderFns__$d },
-      __vue_inject_styles__$d,
-      __vue_script__$d,
-      __vue_scope_id__$d,
-      __vue_is_functional_template__$d,
-      __vue_module_identifier__$d,
-      false,
-      undefined,
-      undefined,
-      undefined
-    );
 
   function ownKeys(object, enumerableOnly) {
     var keys = Object.keys(object);
@@ -3338,21 +3086,60 @@
   originDayjs.extend(QuarterOfYear);
   var dayjs = originDayjs;
   var methods = {
+    /**
+     * 增加一定时间
+     * @param {Dayjs} time 时间
+     * @param {number} value 增加值
+     * @param {string} unit 单位
+     * @returns dayjs对象
+     */
     add: function add(time, value, unit) {
       return time.add(value, unit);
     },
+    /**
+     * 减去一定时间
+     * @param {Dayjs} time 时间
+     * @param {number} value 减少值
+     * @param {string} unit 单位
+     * @returns dayjs对象
+     */
     subtract: function subtract(time, value, unit) {
       return time.subtract(value, unit);
     },
+    /**
+     * 设置到一个时间的开始
+     * @param {Dayjs} time 时间
+     * @param {string} unit 单位
+     * @returns 返回复制的 Day.js 对象
+     */
     startOf: function startOf(time, unit) {
       return time.startOf(unit);
     },
+    /**
+     * 设置到时间末尾
+     * @param {Dayjs} time 时间
+     * @param {string} unit 单位
+     * @returns 返回复制的 Day.js 对象
+     */
     endOf: function endOf(time, unit) {
       return time.endOf(unit);
     },
+    /**
+     * 修改时间
+     * @param {*} time 时间
+     * @param {*} unit 单位
+     * @param {*} value 更新值
+     */
     set: function set(time, unit, value) {
       return time.set(unit, value);
     },
+    /**
+     * 检查两个给定时间是否在同一周内
+     * @param {*} date1 时间
+     * @param {*} date2 时间
+     * @param {*} weekStart 每周的起始日期
+     * @param {*} localeName 语言地
+     */
     isSameWeek: function isSameWeek(date1, date2, weekStart, localeName) {
       return date1.locale(_objectSpread2(_objectSpread2({}, dayjs.Ls[localeName.toLocaleLowerCase()]), {}, {
         weekStart: weekStart
@@ -3362,11 +3149,24 @@
   function getNow() {
     return dayjs();
   }
+
+  /**
+   * 时间排序
+   * @param {Dayjs} values 时间数组
+   * @returns 返回一个时间数组, 时间戳越小的元素就越靠前
+   */
   function getSortedDayjsArray(values) {
     return _toConsumableArray(values).sort(function (a, b) {
       return a.valueOf() - b.valueOf();
     });
   }
+
+  /**
+   * 判断两个值是否有变化
+   * @param {*} prevValue 之前值
+   * @param {*} currentValue 当前值
+   * @returns 返回是否有变
+   */
   function isValueChange(prevValue, currentValue) {
     var isDifference = function isDifference(value1, value2) {
       if (value1 === undefined && value2 === undefined) {
@@ -3388,6 +3188,13 @@
     }
     return true;
   }
+
+  /**
+   * 转换为Dayjs时间
+   * @param {*} time 时间
+   * @param {string} format 格式
+   * @returns dayjs对象
+   */
   function getDayjsValue(time, format) {
     var formatValue = function formatValue(value) {
       if (!value) return undefined;
@@ -3401,6 +3208,11 @@
     }
     return formatValue(time);
   }
+  /**
+   * 将一个值或一组值转换为JavaScript Date对象
+   * @param {*} value 时间
+   * @returns Date对象
+   */
   function getDateValue(value) {
     var formatValue = function formatValue(t) {
       return t ? t.toDate() : undefined;
@@ -3410,6 +3222,12 @@
     }
     return formatValue(value);
   }
+
+  /**
+   * 时间本地化
+   * @param {*} localeName 语言
+   * @param {*} weekStart 每周的起始日期
+   */
   function initializeDateLocale(localeName, weekStart) {
     dayjs.locale(_objectSpread2(_objectSpread2({}, dayjs.Ls[localeName.toLocaleLowerCase()]), {}, {
       weekStart: weekStart
@@ -3436,17 +3254,43 @@
     };
     return formatValue(time);
   }
+
+  /**
+   * 日期转换为指定格式
+   * @param {*} date 时间
+   * @param {string} format 格式 -timestamp｜Date｜dayjs
+   */
+  function getReturnValue(date, format) {
+    if (format === 'timestamp') {
+      return date.toDate().getTime();
+    }
+    if (format === 'Date') {
+      return date.toDate();
+    }
+    return date.format(format);
+  }
+  function getReturnRangeValue(dates, format) {
+    return dates.map(function (date) {
+      return date ? getReturnValue(date, format) : undefined;
+    });
+  }
+
+  /**
+   * 时间值是否是有效的输入
+   * @param {*} time 时间
+   * @param {*} format 格式
+   */
   function isValidInputValue(time, format) {
     if (!time) return false;
     return typeof time === 'string' && dayjs(time, format).format(format) === time;
   }
 
-  //
-
-  var script$c = {
+  var PanelHeader = {
+  render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:(_vm.prefixCls + "-header")},[_c('div',{class:_vm.getIconClassName(_vm.showSuperPrev),on:{"click":function($event){_vm.onSuperPrev && _vm.onSuperPrev();}}},[(_vm.showSuperPrev)?[_c('IconCommon',{attrs:{"use":"doubleLeft"}})]:_vm._e()],2),_vm._v(" "),_c('div',{class:_vm.getIconClassName(_vm.showPrev),on:{"click":function($event){_vm.onPrev && _vm.onPrev();}}},[(_vm.showPrev)?[_c('IconCommon',{attrs:{"use":"left"}})]:_vm._e()],2),_vm._v(" "),_c('div',{class:(_vm.prefixCls + "-header-title")},[(_vm.onLabelClick && (_vm.year || _vm.month))?[(_vm.year)?_c('span',{class:(_vm.prefixCls + "-header-label"),on:{"click":function () { return _vm.onLabelClick && _vm.onLabelClick('year'); }}},[_vm._v(_vm._s(_vm.year))]):_vm._e(),_vm._v(" "),(_vm.year && _vm.month)?_c('span',[_vm._v("-")]):_vm._e(),_vm._v(" "),(_vm.month)?_c('span',{class:(_vm.prefixCls + "-header-label"),on:{"click":function () { return _vm.onLabelClick && _vm.onLabelClick('month'); }}},[_vm._v(_vm._s(_vm.month))]):_vm._e()]:[_vm._v(_vm._s(_vm.title))]],2),_vm._v(" "),_c('div',{class:_vm.getIconClassName(_vm.showNext),on:{"click":function($event){_vm.onNext && _vm.onNext();}}},[(_vm.showNext)?[_c('IconCommon',{attrs:{"use":"right"}})]:_vm._e()],2),_vm._v(" "),_c('div',{class:_vm.getIconClassName(_vm.showSuperNext),on:{"click":function($event){_vm.onSuperNext && _vm.onSuperNext();}}},[(_vm.showSuperNext)?[_c('IconCommon',{attrs:{"use":"doubleRight"}})]:_vm._e()],2)])},
+  staticRenderFns: [],
     name: 'PanelHeader',
     components: {
-      IconCommon: __vue_component__$i,
+      IconCommon,
     },
     props: {
       prefixCls: {
@@ -3516,42 +3360,6 @@
       },
     },
   };
-
-  /* script */
-  const __vue_script__$c = script$c;
-
-  /* template */
-  var __vue_render__$c = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:(_vm.prefixCls + "-header")},[_c('div',{class:_vm.getIconClassName(_vm.showSuperPrev),on:{"click":_vm.onSuperPrev}},[(_vm.showSuperPrev)?[_c('IconCommon',{attrs:{"use":"doubleLeft"}})]:_vm._e()],2),_vm._v(" "),_c('div',{class:_vm.getIconClassName(_vm.showPrev),on:{"click":function () { return _vm.onPrev && _vm.onPrev(); }}},[(_vm.showPrev)?[_c('IconCommon',{attrs:{"use":"left"}})]:_vm._e()],2),_vm._v(" "),_c('div',{class:(_vm.prefixCls + "-header-title")},[(_vm.onLabelClick && (_vm.year || _vm.month))?[(_vm.year)?_c('span',{class:(_vm.prefixCls + "-header-label"),on:{"click":function () { return _vm.onLabelClick && _vm.onLabelClick('year'); }}},[_vm._v(_vm._s(_vm.year))]):_vm._e(),_vm._v(" "),(_vm.year && _vm.month)?_c('span',[_vm._v("-")]):_vm._e(),_vm._v(" "),(_vm.month)?_c('span',{class:(_vm.prefixCls + "-header-label"),on:{"click":function () { return _vm.onLabelClick && _vm.onLabelClick('month'); }}},[_vm._v(_vm._s(_vm.month))]):_vm._e()]:[_vm._v(_vm._s(_vm.title))]],2),_vm._v(" "),_c('div',{class:_vm.getIconClassName(_vm.showNext),on:{"click":function () { return _vm.onNext && _vm.onNext(); }}},[(_vm.showNext)?[_c('IconCommon',{attrs:{"use":"right"}})]:_vm._e()],2),_vm._v(" "),_c('div',{class:_vm.getIconClassName(_vm.showSuperNext),on:{"click":_vm.onSuperNext}},[(_vm.showSuperNext)?[_c('IconCommon',{attrs:{"use":"doubleRight"}})]:_vm._e()],2)])};
-  var __vue_staticRenderFns__$c = [];
-
-    /* style */
-    const __vue_inject_styles__$c = undefined;
-    /* scoped */
-    const __vue_scope_id__$c = undefined;
-    /* module identifier */
-    const __vue_module_identifier__$c = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$c = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-    /* style inject shadow dom */
-    
-
-    
-    const __vue_component__$c = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$c, staticRenderFns: __vue_staticRenderFns__$c },
-      __vue_inject_styles__$c,
-      __vue_script__$c,
-      __vue_scope_id__$c,
-      __vue_is_functional_template__$c,
-      __vue_module_identifier__$c,
-      false,
-      undefined,
-      undefined,
-      undefined
-    );
 
   var extend = function extend(o, c) {
     if (o && c && _typeof(c) === 'object') {
@@ -4170,12 +3978,22 @@
     getLunarYearName: getLunarYearName
   };
 
-  //
-
-  var script$b = {
+  var PanelBody = {
+  render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:(_vm.prefixCls + "-body")},_vm._l((_vm.rows),function(row,rowIndex){
+  var _obj;
+  return _c('div',{key:rowIndex,class:[
+        (_vm.prefixCls + "-row"),
+        ( _obj = {}, _obj[(_vm.prefixCls + "-row-week")] = _vm.isWeek, _obj ) ]},[_vm._l((row),function(cell,colIndex){return [(_vm.isWeek && colIndex === 0)?[_c('div',{key:colIndex,class:[(_vm.prefixCls + "-cell"), (_vm.prefixCls + "-cell-week")]},[_c('div',{class:(_vm.prefixCls + "-date")},[_c('div',{class:(_vm.prefixCls + "-date-value")},[_vm._v(_vm._s(cell.label))])])])]:[_c('div',{key:colIndex,class:_vm.getCellClassName(cell),on:{"mouseenter":function () {
+                _vm.onCellMouseEnter(cell);
+              },"mouseleave":function () {
+                _vm.onCellMouseLeave(cell);
+              },"click":function () {
+                _vm.onCellClick(cell);
+              }}},[(_vm.dateRender)?_c('RenderFunction',{attrs:{"render-func":_vm.dateRender,"date":_vm.getDateValue(cell.value)}}):_c('div',{class:(_vm.prefixCls + "-date")},[_c('div',{class:(_vm.prefixCls + "-date-value")},[_vm._v("\n              "+_vm._s(cell.label)+"\n            ")]),_vm._v(" "),(_vm.showLunar)?_c('div',{class:(_vm.prefixCls + "-date-lunar")},[_vm._v(_vm._s(_vm.getLunar(cell.value)))]):_vm._e()])],1)]]})],2)}),0)},
+  staticRenderFns: [],
     name: 'PanelBody',
     components: {
-      RenderFunction: __vue_component__$e,
+      RenderFunction,
     },
     props: {
       prefixCls: {
@@ -4219,10 +4037,10 @@
           : this.rangeValues;
       },
       rangeStart() {
-        return this.sortedRangeValues?.[0];
+        return this.sortedRangeValues && this.sortedRangeValues[0];
       },
       rangeEnd() {
-        return this.sortedRangeValues?.[1];
+        return this.sortedRangeValues && this.sortedRangeValues[1];
       },
     },
     methods: {
@@ -4233,13 +4051,13 @@
         const day = date.format('DD');
         const lunarCalendar = LunarCalendar.solarToLunar(year, month, day);
         if (this.mode === 'date' || this.mode === 'week') {
-          return lunarCalendar?.lunarFestival || lunarCalendar?.lunarDayName;
+          return lunarCalendar.lunarFestival || lunarCalendar.lunarDayName;
         }
         if (this.mode === 'year') {
-          return lunarCalendar?.GanZhiYear;
+          return lunarCalendar.GanZhiYear;
         }
         if (this.mode === 'month') {
-          return lunarCalendar?.GanZhiMonth || lunarCalendar?.lunarMonthName;
+          return lunarCalendar.GanZhiMonth || lunarCalendar.lunarMonthName;
         }
         return '';
       },
@@ -4306,65 +4124,9 @@
     },
   };
 
-  /* script */
-  const __vue_script__$b = script$b;
-
-  /* template */
-  var __vue_render__$b = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:(_vm.prefixCls + "-body")},_vm._l((_vm.rows),function(row,rowIndex){
-  var _obj;
-  return _c('div',{key:rowIndex,class:[
-        (_vm.prefixCls + "-row"),
-        ( _obj = {}, _obj[(_vm.prefixCls + "-row-week")] = _vm.isWeek, _obj ) ]},[_vm._l((row),function(cell,colIndex){return [(_vm.isWeek && colIndex === 0)?[_c('div',{key:colIndex,class:[(_vm.prefixCls + "-cell"), (_vm.prefixCls + "-cell-week")]},[_c('div',{class:(_vm.prefixCls + "-date")},[_c('div',{class:(_vm.prefixCls + "-date-value")},[_vm._v(_vm._s(cell.label))])])])]:[_c('div',{key:colIndex,class:_vm.getCellClassName(cell),on:{"mouseenter":function () {
-                _vm.onCellMouseEnter(cell);
-              },"mouseleave":function () {
-                _vm.onCellMouseLeave(cell);
-              },"click":function () {
-                _vm.onCellClick(cell);
-              }}},[(_vm.dateRender)?_c('RenderFunction',{attrs:{"render-func":_vm.dateRender,"date":_vm.getDateValue(cell.value)}}):_c('div',{class:(_vm.prefixCls + "-date")},[_c('div',{class:(_vm.prefixCls + "-date-value")},[_vm._v("\n              "+_vm._s(cell.label)+"\n            ")]),_vm._v(" "),(_vm.showLunar)?_c('div',{class:(_vm.prefixCls + "-date-lunar")},[_vm._v(_vm._s(_vm.getLunar(cell.value)))]):_vm._e()])],1)]]})],2)}),0)};
-  var __vue_staticRenderFns__$b = [];
-
-    /* style */
-    const __vue_inject_styles__$b = undefined;
-    /* scoped */
-    const __vue_scope_id__$b = undefined;
-    /* module identifier */
-    const __vue_module_identifier__$b = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$b = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-    /* style inject shadow dom */
-    
-
-    
-    const __vue_component__$b = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$b, staticRenderFns: __vue_staticRenderFns__$b },
-      __vue_inject_styles__$b,
-      __vue_script__$b,
-      __vue_scope_id__$b,
-      __vue_is_functional_template__$b,
-      __vue_module_identifier__$b,
-      false,
-      undefined,
-      undefined,
-      undefined
-    );
-
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-
-  var script$a = {
+  var PanelWeekList = {
+  render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:(_vm.prefixCls + "-week-list")},_vm._l((_vm.weekList),function(key){return _c('div',{key:key,class:(_vm.prefixCls + "-week-list-item")},[_vm._v(_vm._s(_vm.labelList[key] || ''))])}),0)},
+  staticRenderFns: [],
     name: 'PanelWeekList',
     props: {
       prefixCls: {
@@ -4380,42 +4142,6 @@
       labelList: ['日', '一', '二', '三', '四', '五', '六'],
     }),
   };
-
-  /* script */
-  const __vue_script__$a = script$a;
-
-  /* template */
-  var __vue_render__$a = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:(_vm.prefixCls + "-week-list")},_vm._l((_vm.weekList),function(key){return _c('div',{key:key,class:(_vm.prefixCls + "-week-list-item")},[_vm._v(_vm._s(_vm.labelList[key] || ''))])}),0)};
-  var __vue_staticRenderFns__$a = [];
-
-    /* style */
-    const __vue_inject_styles__$a = undefined;
-    /* scoped */
-    const __vue_scope_id__$a = undefined;
-    /* module identifier */
-    const __vue_module_identifier__$a = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$a = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-    /* style inject shadow dom */
-    
-
-    
-    const __vue_component__$a = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$a, staticRenderFns: __vue_staticRenderFns__$a },
-      __vue_inject_styles__$a,
-      __vue_script__$a,
-      __vue_scope_id__$a,
-      __vue_is_functional_template__$a,
-      __vue_module_identifier__$a,
-      false,
-      undefined,
-      undefined,
-      undefined
-    );
 
   // https://github.com/LiikeJS/Liike/blob/master/src/ease.js
   var easeInBy = function (power) { return function (t) { return Math.pow(t, power); }; };
@@ -4642,6 +4368,18 @@
     }
     return result;
   }
+  function normalizeRangeValue(value) {
+    if (isUndefined(value)) {
+      return undefined;
+    }
+    return isArray(value) ? value : [value, undefined];
+  }
+  function isCompleteRangeValue(value) {
+    return !!value && isDayjs(value[0]) && isDayjs(value[1]);
+  }
+  function isValidRangeValue(value) {
+    return isUndefined(value) || value.length === 0 || isCompleteRangeValue(value);
+  }
   function mergeValueWithTime(defaultValue, dateValue, timeValue) {
     var dateVal = dateValue || defaultValue;
     var timeVal = timeValue || defaultValue;
@@ -4658,9 +4396,13 @@
     return clone;
   }
 
-  //
-
-  var script$9 = {
+  var TimeColumn = {
+  render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{ref:"refWrapper",class:(_vm.prefixCls + "-column")},[_c('ul',_vm._l((_vm.list),function(item){
+  var _obj;
+  return _c('li',{key:item.value,ref:item.value,refInFor:true,class:[
+          (_vm.prefixCls + "-cell"),
+          ( _obj = {}, _obj[(_vm.prefixCls + "-cell-disabled")] = item.disabled, _obj[(_vm.prefixCls + "-cell-selected")] = item.selected, _obj ) ],on:{"click":function($event){return _vm.onItemClick(item)}}},[_c('div',{class:(_vm.prefixCls + "-cell-inner")},[_vm._v(_vm._s(item.label))])])}),0)])},
+  staticRenderFns: [],
     name: 'TimePickerColumn',
     props: {
       prefixCls: {
@@ -4713,53 +4455,21 @@
     },
   };
 
-  /* script */
-  const __vue_script__$9 = script$9;
-
-  /* template */
-  var __vue_render__$9 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{ref:"refWrapper",class:(_vm.prefixCls + "-column")},[_c('ul',_vm._l((_vm.list),function(item){
-  var _obj;
-  return _c('li',{key:item.value,ref:item.value,refInFor:true,class:[
-          (_vm.prefixCls + "-cell"),
-          ( _obj = {}, _obj[(_vm.prefixCls + "-cell-disabled")] = item.disabled, _obj[(_vm.prefixCls + "-cell-selected")] = item.selected, _obj ) ],on:{"click":function($event){return _vm.onItemClick(item)}}},[_c('div',{class:(_vm.prefixCls + "-cell-inner")},[_vm._v(_vm._s(item.label))])])}),0)])};
-  var __vue_staticRenderFns__$9 = [];
-
-    /* style */
-    const __vue_inject_styles__$9 = undefined;
-    /* scoped */
-    const __vue_scope_id__$9 = undefined;
-    /* module identifier */
-    const __vue_module_identifier__$9 = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$9 = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-    /* style inject shadow dom */
-    
-
-    
-    const __vue_component__$9 = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$9, staticRenderFns: __vue_staticRenderFns__$9 },
-      __vue_inject_styles__$9,
-      __vue_script__$9,
-      __vue_scope_id__$9,
-      __vue_is_functional_template__$9,
-      __vue_module_identifier__$9,
-      false,
-      undefined,
-      undefined,
-      undefined
-    );
-
-  //
-
-  var script$8 = {
+  var TimePanel = {
+  render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('div',{class:_vm.prefixCls},[(_vm.columns.includes('H') || _vm.columns.includes('h'))?_c('TimeColumn',{attrs:{"value":_vm.selectedHour,"list":_vm.hours,"prefix-cls":_vm.prefixCls,"visible":_vm.visible},on:{"select":function (value) {
+            _vm.onSelect(value, 'hour');
+          }}}):_vm._e(),_vm._v(" "),(_vm.columns.includes('m'))?_c('TimeColumn',{attrs:{"value":_vm.selectedMinute,"list":_vm.minutes,"prefix-cls":_vm.prefixCls,"visible":_vm.visible},on:{"select":function (value) {
+            _vm.onSelect(value, 'minute');
+          }}}):_vm._e(),_vm._v(" "),(_vm.columns.includes('s'))?_c('TimeColumn',{attrs:{"value":_vm.selectedSecond,"list":_vm.seconds,"prefix-cls":_vm.prefixCls,"visible":_vm.visible},on:{"select":function (value) {
+            _vm.onSelect(value, 'second');
+          }}}):_vm._e(),_vm._v(" "),(_vm.computedUse12Hours)?_c('TimeColumn',{attrs:{"value":_vm.selectedAmpm,"list":_vm.ampmList,"prefix-cls":_vm.prefixCls,"visible":_vm.visible},on:{"select":function (value) {
+            _vm.onSelect(value, 'ampm');
+          }}}):_vm._e()],1),_vm._v(" "),(_vm.$slots['extra-footer'])?_c('div',{class:(_vm.prefixCls + "-footer-extra-wrapper")},[_vm._t("extra-footer")],2):_vm._e(),_vm._v(" "),(!_vm.hideFooter)?_c('div',{class:(_vm.prefixCls + "-footer-btn-wrapper")},[(!_vm.isRange)?_c('Button',{attrs:{"size":"mini"},on:{"click":_vm.onSelectNow}},[_vm._v("此刻")]):_vm._e(),_vm._v(" "),_c('Button',{attrs:{"type":"primary","size":"mini","disabled":_vm.confirmBtnDisabled || !_vm.selectedValue},on:{"click":_vm.onConfirm}},[_vm._v("确定")])],1):_vm._e()])},
+  staticRenderFns: [],
     name: 'TimePickerPanel',
     components: {
-      TimeColumn: __vue_component__$9,
-      Button: __vue_component__$f,
+      TimeColumn,
+      Button,
     },
     props: {
       value: {
@@ -4820,7 +4530,7 @@
     },
     computed: {
       selectedHour() {
-        const _hour = this.selectedValue?.hour();
+        const _hour = this.selectedValue && this.selectedValue.hour();
         if (isUndefined(_hour) || !this.computedUse12Hours) return _hour;
         // 12小时制
         if (_hour > 12) return _hour - 12;
@@ -4828,13 +4538,13 @@
         return _hour;
       },
       selectedMinute() {
-        return this.selectedValue?.minute();
+        return this.selectedValue && this.selectedValue.minute();
       },
       selectedSecond() {
-        return this.selectedValue?.second();
+        return this.selectedValue && this.selectedValue.second();
       },
       selectedAmpm() {
-        const _hour = this.selectedValue?.hour();
+        const _hour = this.selectedValue && this.selectedValue.hour();
         return !isUndefined(_hour) && _hour >= 12 ? 'pm' : 'am';
       },
       // 小时
@@ -4993,52 +4703,6 @@
     },
   };
 
-  /* script */
-  const __vue_script__$8 = script$8;
-
-  /* template */
-  var __vue_render__$8 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('div',{class:_vm.prefixCls},[(_vm.columns.includes('H') || _vm.columns.includes('h'))?_c('TimeColumn',{attrs:{"value":_vm.selectedHour,"list":_vm.hours,"prefix-cls":_vm.prefixCls,"visible":_vm.visible},on:{"select":function (value) {
-            _vm.onSelect(value, 'hour');
-          }}}):_vm._e(),_vm._v(" "),(_vm.columns.includes('m'))?_c('TimeColumn',{attrs:{"value":_vm.selectedMinute,"list":_vm.minutes,"prefix-cls":_vm.prefixCls,"visible":_vm.visible},on:{"select":function (value) {
-            _vm.onSelect(value, 'minute');
-          }}}):_vm._e(),_vm._v(" "),(_vm.columns.includes('s'))?_c('TimeColumn',{attrs:{"value":_vm.selectedSecond,"list":_vm.seconds,"prefix-cls":_vm.prefixCls,"visible":_vm.visible},on:{"select":function (value) {
-            _vm.onSelect(value, 'second');
-          }}}):_vm._e(),_vm._v(" "),(_vm.computedUse12Hours)?_c('TimeColumn',{attrs:{"value":_vm.selectedAmpm,"list":_vm.ampmList,"prefix-cls":_vm.prefixCls,"visible":_vm.visible},on:{"select":function (value) {
-            _vm.onSelect(value, 'ampm');
-          }}}):_vm._e()],1),_vm._v(" "),(_vm.$slots['extra-footer'])?_c('div',{class:(_vm.prefixCls + "-footer-extra-wrapper")},[_vm._t("extra-footer")],2):_vm._e(),_vm._v(" "),(!_vm.hideFooter)?_c('div',{class:(_vm.prefixCls + "-footer-btn-wrapper")},[(!_vm.isRange)?_c('Button',{attrs:{"size":"mini"},on:{"click":_vm.onSelectNow}},[_vm._v("此刻")]):_vm._e(),_vm._v(" "),_c('Button',{attrs:{"type":"primary","size":"mini","disabled":_vm.confirmBtnDisabled || !_vm.selectedValue},on:{"click":_vm.onConfirm}},[_vm._v("确定")])],1):_vm._e()])};
-  var __vue_staticRenderFns__$8 = [];
-
-    /* style */
-    const __vue_inject_styles__$8 = undefined;
-    /* scoped */
-    const __vue_scope_id__$8 = undefined;
-    /* module identifier */
-    const __vue_module_identifier__$8 = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$8 = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-    /* style inject shadow dom */
-    
-
-    
-    const __vue_component__$8 = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$8, staticRenderFns: __vue_staticRenderFns__$8 },
-      __vue_inject_styles__$8,
-      __vue_script__$8,
-      __vue_scope_id__$8,
-      __vue_is_functional_template__$8,
-      __vue_module_identifier__$8,
-      false,
-      undefined,
-      undefined,
-      undefined
-    );
-
-  //
-
   const ROW_COUNT$2 = 6;
   const COL_COUNT$2 = 7;
   const CELL_COUNT$2 = ROW_COUNT$2 * COL_COUNT$2;
@@ -5049,14 +4713,23 @@
       value: time,
     };
   }
-  var script$7 = {
+  var DatePanel = {
+  render: function(){
+  var _obj, _obj$1;
+  var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:_vm.classNames},[(_vm.showDateView)?_c('div',{class:(_vm.prefixCls + "-inner")},[_c('PanelHeader',_vm._b({attrs:{"prefix-cls":_vm.pickerPrefixCls,"title":_vm.headerTitle,"mode":_vm.mode,"value":_vm.headerValue,"on-label-click":_vm.onHeaderLabelClick}},'PanelHeader',Object.assign({}, _vm.headerOperations),false)),_vm._v(" "),_c('PanelWeekList',{attrs:{"prefix-cls":_vm.pickerPrefixCls,"week-list":_vm.weekList}}),_vm._v(" "),_c('PanelBody',{attrs:{"mode":_vm.mode,"prefix-cls":_vm.pickerPrefixCls,"rows":_vm.rows,"value":_vm.isRange ? undefined : _vm.value,"range-values":_vm.rangeValues,"disabled-date":_vm.disabledDate,"show-lunar":_vm.showLunar,"is-same-time":_vm.mergedIsSameTime,"date-render":_vm.dateRender},on:{"cellClick":_vm.onCellClick,"cellMouseEnter":_vm.onCellMouseEnter}})],1):_vm._e(),_vm._v(" "),(_vm.showTimeView)?_c('div',{class:_vm.timeClassName},[_c('header',{class:(_vm.prefixCls + "-timepicker-title"),on:{"click":_vm.callChildNow}},[_vm._v("选择时间")]),_vm._v(" "),_c('TimePanel',_vm._b({ref:"timePanel",attrs:{"hide-footer":"","value":_vm.value || _vm.isRange ? _vm.timePickerValue : undefined,"disabled":_vm.disabled},on:{"select":_vm.onTimePanelSelect}},'TimePanel',Object.assign({}, _vm.timePickerProps,
+          _vm.disabledTimeProps),false))],1):_vm._e(),_vm._v(" "),(_vm.showViewTabs)?_c('div',{class:(_vm.prefixCls + "-footer")},[_c('div',{class:(_vm.prefixCls + "-view-tabs")},[_c('div',{class:[
+            (_vm.prefixCls + "-view-tab-pane"),
+            ( _obj = {}, _obj[(_vm.prefixCls + "-view-tab-pane-active")] = _vm.showDateView, _obj ) ],on:{"click":function () { return _vm.changeViewTo('date'); }}},[_c('IconCommon',{attrs:{"use":"calendar"}}),_vm._v(" "),_c('span',{class:(_vm.prefixCls + "-view-tab-pane-text")},[_vm._v("\n          "+_vm._s(_vm.footerValue && _vm.footerValue.format('YYYY-MM-DD'))+"\n        ")])],1),_vm._v(" "),_c('div',{class:[
+            (_vm.prefixCls + "-view-tab-pane"),
+            ( _obj$1 = {}, _obj$1[(_vm.prefixCls + "-view-tab-pane-active")] = _vm.showTimeView, _obj$1 ) ],on:{"click":function () { return _vm.changeViewTo('time'); }}},[_c('IconCommon',{attrs:{"use":"clockCircle"}}),_vm._v(" "),_c('span',{class:(_vm.prefixCls + "-view-tab-pane-text")},[_vm._v("\n          "+_vm._s(_vm.timePickerValue && _vm.timePickerValue.format('HH:mm:ss'))+"\n        ")])],1)])]):_vm._e()])},
+  staticRenderFns: [],
     name: 'DatePanel',
     components: {
-      PanelHeader: __vue_component__$c,
-      PanelBody: __vue_component__$b,
-      PanelWeekList: __vue_component__$a,
-      TimePanel: __vue_component__$8,
-      IconCommon: __vue_component__$i,
+      PanelHeader,
+      PanelBody,
+      PanelWeekList,
+      TimePanel,
+      IconCommon,
     },
     props: {
       isRange: {
@@ -5165,6 +4838,14 @@
           },
         ];
       },
+      timeClassName() {
+        return [
+          `${this.prefixCls}-timepicker`,
+          {
+            [`${this.prefixCls}-lunar`]: this.showLunar,
+          },
+        ];
+      },
       headerTitle() {
         return this.headerValue.format('YYYY-MM');
       },
@@ -5229,6 +4910,9 @@
       newArray(length) {
         return [...Array(length)];
       },
+      callChildNow() {
+        this.$refs.timePanel.onSelectNow();
+      },
       onCellClick(cellData) {
         this.$emit('select', cellData.value);
       },
@@ -5246,55 +4930,12 @@
     },
   };
 
-  /* script */
-  const __vue_script__$7 = script$7;
-
-  /* template */
-  var __vue_render__$7 = function () {
-  var _obj, _obj$1;
-  var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:_vm.classNames},[(_vm.showDateView)?_c('div',{class:(_vm.prefixCls + "-inner")},[_c('PanelHeader',_vm._b({attrs:{"prefix-cls":_vm.pickerPrefixCls,"title":_vm.headerTitle,"mode":_vm.mode,"value":_vm.headerValue,"on-label-click":_vm.onHeaderLabelClick}},'PanelHeader',Object.assign({}, _vm.headerOperations),false)),_vm._v(" "),_c('PanelWeekList',{attrs:{"prefix-cls":_vm.pickerPrefixCls,"week-list":_vm.weekList}}),_vm._v(" "),_c('PanelBody',{attrs:{"mode":_vm.mode,"prefix-cls":_vm.pickerPrefixCls,"rows":_vm.rows,"value":_vm.isRange ? undefined : _vm.value,"range-values":_vm.rangeValues,"disabled-date":_vm.disabledDate,"show-lunar":_vm.showLunar,"is-same-time":_vm.mergedIsSameTime,"date-render":_vm.dateRender},on:{"cellClick":_vm.onCellClick,"cellMouseEnter":_vm.onCellMouseEnter}})],1):_vm._e(),_vm._v(" "),(_vm.showTimeView)?_c('div',{class:(_vm.prefixCls + "-timepicker")},[_c('header',{class:(_vm.prefixCls + "-timepicker-title")},[_vm._v("选择时间")]),_vm._v(" "),_c('TimePanel',_vm._b({attrs:{"hide-footer":"","value":_vm.value || _vm.isRange ? _vm.timePickerValue : undefined,"disabled":_vm.disabled},on:{"select":_vm.onTimePanelSelect}},'TimePanel',Object.assign({}, _vm.timePickerProps,
-          _vm.disabledTimeProps),false))],1):_vm._e(),_vm._v(" "),(_vm.showViewTabs)?_c('div',{class:(_vm.prefixCls + "-footer")},[_c('div',{class:(_vm.prefixCls + "-view-tabs")},[_c('div',{class:[
-            (_vm.prefixCls + "-view-tab-pane"),
-            ( _obj = {}, _obj[(_vm.prefixCls + "-view-tab-pane-active")] = _vm.showDateView, _obj ) ],on:{"click":function () { return _vm.changeViewTo('date'); }}},[_c('IconCommon',{attrs:{"use":"calendar"}}),_vm._v(" "),_c('span',{class:(_vm.prefixCls + "-view-tab-pane-text")},[_vm._v("\n          "+_vm._s(_vm.footerValue && _vm.footerValue.format('YYYY-MM-DD'))+"\n        ")])],1),_vm._v(" "),_c('div',{class:[
-            (_vm.prefixCls + "-view-tab-pane"),
-            ( _obj$1 = {}, _obj$1[(_vm.prefixCls + "-view-tab-pane-active")] = _vm.showTimeView, _obj$1 ) ],on:{"click":function () { return _vm.changeViewTo('time'); }}},[_c('IconCommon',{attrs:{"use":"clockCircle"}}),_vm._v(" "),_c('span',{class:(_vm.prefixCls + "-view-tab-pane-text")},[_vm._v("\n          "+_vm._s(_vm.timePickerValue && _vm.timePickerValue.format('HH:mm:ss'))+"\n        ")])],1)])]):_vm._e()])};
-  var __vue_staticRenderFns__$7 = [];
-
-    /* style */
-    const __vue_inject_styles__$7 = undefined;
-    /* scoped */
-    const __vue_scope_id__$7 = undefined;
-    /* module identifier */
-    const __vue_module_identifier__$7 = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$7 = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-    /* style inject shadow dom */
-    
-
-    
-    const __vue_component__$7 = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$7, staticRenderFns: __vue_staticRenderFns__$7 },
-      __vue_inject_styles__$7,
-      __vue_script__$7,
-      __vue_scope_id__$7,
-      __vue_is_functional_template__$7,
-      __vue_module_identifier__$7,
-      false,
-      undefined,
-      undefined,
-      undefined
-    );
-
-  //
-
-  var script$6 = {
+  var WeekPanel = {
+  render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('DatePanel',_vm._b({attrs:{"mode":"week","is-week":"","show-lunar":_vm.showLunar,"day-start-of-week":_vm.dayStartOfWeek,"is-same-time":_vm.isSameTime},on:{"select":_vm.onSelect,"cellMouseEnter":_vm.onCellMouseEnter}},'DatePanel',_vm.$attrs,false))},
+  staticRenderFns: [],
     name: 'WeekPanel',
     components: {
-      DatePanel: __vue_component__$7,
+      DatePanel,
     },
     props: {
       dayStartOfWeek: {
@@ -5321,43 +4962,8 @@
     },
   };
 
-  /* script */
-  const __vue_script__$6 = script$6;
-
-  /* template */
-  var __vue_render__$6 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('DatePanel',_vm._b({attrs:{"mode":"week","is-week":"","show-lunar":_vm.showLunar,"day-start-of-week":_vm.dayStartOfWeek,"is-same-time":_vm.isSameTime},on:{"select":_vm.onSelect,"cellMouseEnter":_vm.onCellMouseEnter}},'DatePanel',_vm.$attrs,false))};
-  var __vue_staticRenderFns__$6 = [];
-
-    /* style */
-    const __vue_inject_styles__$6 = undefined;
-    /* scoped */
-    const __vue_scope_id__$6 = undefined;
-    /* module identifier */
-    const __vue_module_identifier__$6 = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$6 = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-    /* style inject shadow dom */
-    
-
-    
-    const __vue_component__$6 = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$6, staticRenderFns: __vue_staticRenderFns__$6 },
-      __vue_inject_styles__$6,
-      __vue_script__$6,
-      __vue_scope_id__$6,
-      __vue_is_functional_template__$6,
-      __vue_module_identifier__$6,
-      false,
-      undefined,
-      undefined,
-      undefined
-    );
-
-  //
+  var css_248z$9 = "";
+  styleInject(css_248z$9);
 
   const CELL_COUNT$1 = 12;
   const ROW_COUNT$1 = 4;
@@ -5377,11 +4983,13 @@
     '十二月',
   ];
 
-  var script$5 = {
+  var MonthPanel = {
+  render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:_vm.prefixCls},[_c('div',{class:(_vm.prefixCls + "-inner")},[_c('PanelHeader',_vm._b({attrs:{"prefix-cls":_vm.pickerPrefixCls,"title":_vm.headerTitle,"mode":"month","value":_vm.headerValue,"onLabelClick":_vm.onHeaderLabelClick}},'PanelHeader',Object.assign({}, _vm.headerOperations),false)),_vm._v(" "),_c('PanelBody',{attrs:{"mode":"month","prefix-cls":_vm.pickerPrefixCls,"rows":_vm.rows,"value":_vm.value,"show-lunar":_vm.showLunar,"range-values":_vm.rangeValues,"disabled-date":_vm.disabledDate,"is-same-time":_vm.isSameTime,"date-render":_vm.dateRender},on:{"cellClick":_vm.onCellClick,"cellMouseEnter":_vm.onCellMouseEnter}})],1)])},
+  staticRenderFns: [],
     name: 'MonthPanel',
     components: {
-      PanelHeader: __vue_component__$c,
-      PanelBody: __vue_component__$b,
+      PanelHeader,
+      PanelBody,
     },
     props: {
       headerValue: {
@@ -5452,54 +5060,18 @@
     },
   };
 
-  /* script */
-  const __vue_script__$5 = script$5;
-
-  /* template */
-  var __vue_render__$5 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:_vm.prefixCls},[_c('div',{class:(_vm.prefixCls + "-inner")},[_c('PanelHeader',_vm._b({attrs:{"prefix-cls":_vm.pickerPrefixCls,"title":_vm.headerTitle,"mode":"month","value":_vm.headerValue,"onLabelClick":_vm.onHeaderLabelClick}},'PanelHeader',Object.assign({}, _vm.headerOperations),false)),_vm._v(" "),_c('PanelBody',{attrs:{"mode":"month","prefix-cls":_vm.pickerPrefixCls,"rows":_vm.rows,"value":_vm.value,"show-lunar":_vm.showLunar,"range-values":_vm.rangeValues,"disabled-date":_vm.disabledDate,"is-same-time":_vm.isSameTime,"date-render":_vm.dateRender},on:{"cellClick":_vm.onCellClick,"cellMouseEnter":_vm.onCellMouseEnter}})],1)])};
-  var __vue_staticRenderFns__$5 = [];
-
-    /* style */
-    const __vue_inject_styles__$5 = undefined;
-    /* scoped */
-    const __vue_scope_id__$5 = undefined;
-    /* module identifier */
-    const __vue_module_identifier__$5 = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$5 = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-    /* style inject shadow dom */
-    
-
-    
-    const __vue_component__$5 = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$5, staticRenderFns: __vue_staticRenderFns__$5 },
-      __vue_inject_styles__$5,
-      __vue_script__$5,
-      __vue_scope_id__$5,
-      __vue_is_functional_template__$5,
-      __vue_module_identifier__$5,
-      false,
-      undefined,
-      undefined,
-      undefined
-    );
-
-  //
-
   const ROW_COUNT = 4;
   const COL_COUNT = 3;
   const CELL_COUNT = ROW_COUNT * COL_COUNT;
   const SPAN = 10;
 
-  var script$4 = {
+  var YearPanel = {
+  render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:_vm.prefixCls},[_c('div',{class:(_vm.prefixCls + "-inner")},[_c('PanelHeader',_vm._b({attrs:{"prefix-cls":_vm.pickerPrefixCls,"title":_vm.headerTitle}},'PanelHeader',Object.assign({}, _vm.headerOperations),false)),_vm._v(" "),_c('PanelBody',{attrs:{"mode":"year","prefix-cls":_vm.pickerPrefixCls,"rows":_vm.rows,"value":_vm.value,"range-values":_vm.rangeValues,"disabled-date":_vm.disabledDate,"show-lunar":_vm.showLunar,"is-same-time":_vm.isSameTime,"date-render":_vm.dateRender},on:{"cellClick":_vm.onCellClick,"cellMouseEnter":_vm.onCellMouseEnter}})],1)])},
+  staticRenderFns: [],
     name: 'YearPanel',
     components: {
-      PanelHeader: __vue_component__$c,
-      PanelBody: __vue_component__$b,
+      PanelHeader,
+      PanelBody,
     },
     props: {
       headerValue: {
@@ -5550,6 +5122,7 @@
         const rows = this.newArray(ROW_COUNT).map((_, index) =>
           flatData.slice(index * COL_COUNT, (index + 1) * COL_COUNT)
         );
+        console.log(rows);
         return rows;
       },
       headerTitle() {
@@ -5571,49 +5144,13 @@
     },
   };
 
-  /* script */
-  const __vue_script__$4 = script$4;
-
-  /* template */
-  var __vue_render__$4 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:_vm.prefixCls},[_c('div',{class:(_vm.prefixCls + "-inner")},[_c('PanelHeader',_vm._b({attrs:{"prefix-cls":_vm.pickerPrefixCls,"title":_vm.headerTitle}},'PanelHeader',Object.assign({}, _vm.headerOperations),false)),_vm._v(" "),_c('PanelBody',{attrs:{"mode":"year","prefix-cls":_vm.pickerPrefixCls,"rows":_vm.rows,"value":_vm.value,"range-values":_vm.rangeValues,"disabled-date":_vm.disabledDate,"show-lunar":_vm.showLunar,"is-same-time":_vm.isSameTime,"date-render":_vm.dateRender},on:{"cellClick":_vm.onCellClick,"cellMouseEnter":_vm.onCellMouseEnter}})],1)])};
-  var __vue_staticRenderFns__$4 = [];
-
-    /* style */
-    const __vue_inject_styles__$4 = undefined;
-    /* scoped */
-    const __vue_scope_id__$4 = undefined;
-    /* module identifier */
-    const __vue_module_identifier__$4 = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$4 = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-    /* style inject shadow dom */
-    
-
-    
-    const __vue_component__$4 = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$4, staticRenderFns: __vue_staticRenderFns__$4 },
-      __vue_inject_styles__$4,
-      __vue_script__$4,
-      __vue_scope_id__$4,
-      __vue_is_functional_template__$4,
-      __vue_module_identifier__$4,
-      false,
-      undefined,
-      undefined,
-      undefined
-    );
-
-  //
-
-  var script$3 = {
+  var QuarterPanel = {
+  render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:_vm.prefixCls},[_c('div',{class:(_vm.prefixCls + "-inner")},[_c('PanelHeader',_vm._b({attrs:{"mode":"quarter","prefix-cls":_vm.pickerPrefixCls,"title":_vm.headerTitle,"value":_vm.headerValue,"onLabelClick":_vm.onHeaderLabelClick}},'PanelHeader',Object.assign({}, _vm.headerOperations),false)),_vm._v(" "),_c('PanelBody',{attrs:{"mode":"quarter","prefix-cls":_vm.pickerPrefixCls,"rows":_vm.rows,"value":_vm.value,"range-values":_vm.rangeValues,"disabled-date":_vm.disabledDate,"is-same-time":_vm.isSameTime,"date-render":_vm.dateRender},on:{"cellClick":_vm.onCellClick,"cellMouseEnter":_vm.onCellMouseEnter}})],1)])},
+  staticRenderFns: [],
     name: 'QuarterPanel',
     components: {
-      PanelHeader: __vue_component__$c,
-      PanelBody: __vue_component__$b,
+      PanelHeader,
+      PanelBody,
     },
     props: {
       headerValue: {
@@ -5671,6 +5208,7 @@
         );
       },
       onCellClick(cellData) {
+        console.log('收到', cellData);
         this.$emit('select', cellData.value);
       },
       onCellMouseEnter(cellData) {
@@ -5679,48 +5217,15 @@
     },
   };
 
-  /* script */
-  const __vue_script__$3 = script$3;
+  var css_248z$8 = "";
+  styleInject(css_248z$8);
 
-  /* template */
-  var __vue_render__$3 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:_vm.prefixCls},[_c('div',{class:(_vm.prefixCls + "-inner")},[_c('PanelHeader',_vm._b({attrs:{"mode":"quarter","prefix-cls":_vm.pickerPrefixCls,"title":_vm.headerTitle,"value":_vm.headerValue,"onLabelClick":_vm.onHeaderLabelClick}},'PanelHeader',Object.assign({}, _vm.headerOperations),false)),_vm._v(" "),_c('PanelBody',{attrs:{"mode":"quarter","prefix-cls":_vm.pickerPrefixCls,"rows":_vm.rows,"value":_vm.value,"range-values":_vm.rangeValues,"disabled-date":_vm.disabledDate,"is-same-time":_vm.isSameTime,"date-render":_vm.dateRender},on:{"cellClick":_vm.onCellClick,"cellMouseEnter":_vm.onCellMouseEnter}})],1)])};
-  var __vue_staticRenderFns__$3 = [];
-
-    /* style */
-    const __vue_inject_styles__$3 = undefined;
-    /* scoped */
-    const __vue_scope_id__$3 = undefined;
-    /* module identifier */
-    const __vue_module_identifier__$3 = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$3 = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-    /* style inject shadow dom */
-    
-
-    
-    const __vue_component__$3 = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$3, staticRenderFns: __vue_staticRenderFns__$3 },
-      __vue_inject_styles__$3,
-      __vue_script__$3,
-      __vue_scope_id__$3,
-      __vue_is_functional_template__$3,
-      __vue_module_identifier__$3,
-      false,
-      undefined,
-      undefined,
-      undefined
-    );
-
-  //
-
-  var script$2 = {
+  var PanelFooter = {
+  render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:(_vm.prefixCls + "-footer")},[(_vm.$slots.extra)?_c('div',{class:(_vm.prefixCls + "-footer-extra-wrapper")},[_vm._t("extra")],2):_vm._e(),_vm._v(" "),(_vm.showTodayBtn)?_c('div',{class:(_vm.prefixCls + "-footer-now-wrapper")},[_c('a',{class:(_vm.prefixCls + "-link"),on:{"click":_vm.onTodayClick}},[_vm._v("今天")])]):_vm._e(),_vm._v(" "),(_vm.$slots.btn || _vm.showConfirmBtn)?_c('div',{class:(_vm.prefixCls + "-footer-btn-wrapper")},[_vm._t("btn"),_vm._v(" "),(_vm.showConfirmBtn)?_c('Button',{class:(_vm.prefixCls + "-btn-confirm"),attrs:{"type":"primary","size":"mini","disabled":_vm.confirmBtnDisabled},on:{"click":_vm.onConfirmBtnClick}},[_vm._v("\n      确定\n    ")]):_vm._e()],2):_vm._e()])},
+  staticRenderFns: [],
     name: 'PanelFooter',
     components: {
-      Button: __vue_component__$f,
+      Button,
     },
     props: {
       prefixCls: {
@@ -5747,55 +5252,19 @@
     },
   };
 
-  /* script */
-  const __vue_script__$2 = script$2;
-
-  /* template */
-  var __vue_render__$2 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:(_vm.prefixCls + "-footer")},[(_vm.$slots.extra)?_c('div',{class:(_vm.prefixCls + "-footer-extra-wrapper")},[_vm._t("extra")],2):_vm._e(),_vm._v(" "),(_vm.showTodayBtn)?_c('div',{class:(_vm.prefixCls + "-footer-now-wrapper")},[_c('a',{class:(_vm.prefixCls + "-link"),on:{"click":_vm.onTodayClick}},[_vm._v("今天")])]):_vm._e(),_vm._v(" "),(_vm.$slots.btn || _vm.showConfirmBtn)?_c('div',{class:(_vm.prefixCls + "-footer-btn-wrapper")},[_vm._t("btn"),_vm._v(" "),(_vm.showConfirmBtn)?_c('Button',{class:(_vm.prefixCls + "-btn-confirm"),attrs:{"type":"primary","size":"mini","disabled":_vm.confirmBtnDisabled},on:{"click":_vm.onConfirmBtnClick}},[_vm._v("\n      确定\n    ")]):_vm._e()],2):_vm._e()])};
-  var __vue_staticRenderFns__$2 = [];
-
-    /* style */
-    const __vue_inject_styles__$2 = undefined;
-    /* scoped */
-    const __vue_scope_id__$2 = undefined;
-    /* module identifier */
-    const __vue_module_identifier__$2 = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$2 = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-    /* style inject shadow dom */
-    
-
-    
-    const __vue_component__$2 = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$2, staticRenderFns: __vue_staticRenderFns__$2 },
-      __vue_inject_styles__$2,
-      __vue_script__$2,
-      __vue_scope_id__$2,
-      __vue_is_functional_template__$2,
-      __vue_module_identifier__$2,
-      false,
-      undefined,
-      undefined,
-      undefined
-    );
-
-  //
-
-  var script$1 = {
+  var PickerPanel = {
+  render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:_vm.classNames},[(_vm.showShortcutsInLeft)?_c('PanelShortcuts',_vm._b({on:{"itemClick":_vm.onShortcutClick,"itemMouseEnter":_vm.onShortcutMouseEnter,"itemMouseLeave":_vm.onShortcutMouseLeave,"nowClick":_vm.onTodayBtnClick}},'PanelShortcuts',_vm.shortcutsProps,false)):_vm._e(),_vm._v(" "),_c('div',{class:(_vm.prefixCls + "-panel-wrapper")},[(_vm.headerMode)?[(_vm.headerMode === 'year')?_c('YearPanel',{attrs:{"header-value":_vm.localValue,"show-lunar":_vm.showLunar,"header-operations":_vm.headerPanelHeaderOperations},on:{"select":_vm.onHeaderPanelSelect}}):(_vm.headerMode === 'month')?_c('MonthPanel',{attrs:{"header-value":_vm.localValue,"show-lunar":_vm.showLunar,"header-operations":_vm.headerPanelHeaderOperations,"onHeaderLabelClick":_vm.onMonthHeaderLabelClick},on:{"select":_vm.onHeaderPanelSelect}}):_vm._e()]:[(_vm.mode === 'week')?_c('WeekPanel',_vm._b({attrs:{"day-start-of-week":_vm.dayStartOfWeek},on:{"select":_vm.onPanelSelect}},'WeekPanel',_vm.commonPanelProps,false)):(_vm.mode === 'month')?_c('MonthPanel',_vm._b({on:{"select":_vm.onPanelSelect}},'MonthPanel',_vm.commonPanelProps,false)):(_vm.mode === 'year')?_c('YearPanel',_vm._b({on:{"select":_vm.onPanelSelect}},'YearPanel',_vm.commonPanelProps,false)):(_vm.mode === 'quarter')?_c('QuarterPanel',_vm._b({on:{"select":_vm.onPanelSelect}},'QuarterPanel',_vm.commonPanelProps,false)):_c('DatePanel',_vm._b({attrs:{"mode":"date","show-time":_vm.showTime,"time-picker-props":_vm.timePickerProps,"day-start-of-week":_vm.dayStartOfWeek,"footer-value":_vm.footerValue,"time-picker-value":_vm.timePickerValue,"disabled-time":_vm.disabledTime},on:{"select":_vm.onPanelSelect,"timePickerSelect":_vm.onTimePickerSelect}},'DatePanel',_vm.commonPanelProps,false)),_vm._v(" "),_c('PanelFooter',{attrs:{"prefix-cls":_vm.prefixCls,"show-today-btn":_vm.showNowBtn && !(_vm.showConfirmBtn || _vm.showShortcutsInBottom),"show-confirm-btn":_vm.showConfirmBtn,"confirm-btn-disabled":_vm.confirmBtnDisabled},on:{"todayBtnClick":_vm.onTodayBtnClick,"confirmBtnClick":_vm.onConfirmBtnClick},scopedSlots:_vm._u([(_vm.extra)?{key:"extra",fn:function(){return [(_vm.extra)?_c('RenderFunction',{attrs:{"render-func":_vm.extra}}):_vm._e()]},proxy:true}:null,(_vm.showShortcutsInBottom)?{key:"btn",fn:function(){return [_c('PanelShortcuts',_vm._b({on:{"itemClick":_vm.onShortcutClick,"itemMouseEnter":_vm.onShortcutMouseEnter,"itemMouseLeave":_vm.onShortcutMouseLeave,"nowClick":_vm.onTodayBtnClick}},'PanelShortcuts',_vm.shortcutsProps,false))]},proxy:true}:null],null,true)})]],2),_vm._v(" "),(_vm.showShortcutsInRight)?_c('PanelShortcuts',_vm._b({on:{"itemClick":_vm.onShortcutClick,"itemMouseEnter":_vm.onShortcutMouseEnter,"itemMouseLeave":_vm.onShortcutMouseLeave,"nowClick":_vm.onTodayBtnClick}},'PanelShortcuts',_vm.shortcutsProps,false)):_vm._e()],1)},
+  staticRenderFns: [],
     name: 'DatePikerPanel',
     components: {
-      DatePanel: __vue_component__$7,
-      PanelShortcuts: __vue_component__$d,
-      PanelFooter: __vue_component__$2,
-      WeekPanel: __vue_component__$6,
-      MonthPanel: __vue_component__$5,
-      YearPanel: __vue_component__$4,
-      QuarterPanel: __vue_component__$3,
-      RenderFunction: __vue_component__$e,
+      DatePanel,
+      PanelShortcuts,
+      PanelFooter,
+      WeekPanel,
+      MonthPanel,
+      YearPanel,
+      QuarterPanel,
+      RenderFunction,
     },
     props: {
       mode: {
@@ -6044,42 +5513,6 @@
     },
   };
 
-  /* script */
-  const __vue_script__$1 = script$1;
-
-  /* template */
-  var __vue_render__$1 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:_vm.classNames},[(_vm.showShortcutsInLeft)?_c('PanelShortcuts',_vm._b({on:{"itemClick":_vm.onShortcutClick,"itemMouseEnter":_vm.onShortcutMouseEnter,"itemMouseLeave":_vm.onShortcutMouseLeave,"nowClick":_vm.onTodayBtnClick}},'PanelShortcuts',_vm.shortcutsProps,false)):_vm._e(),_vm._v(" "),_c('div',{class:(_vm.prefixCls + "-panel-wrapper")},[(_vm.headerMode)?[(_vm.headerMode === 'year')?_c('YearPanel',{attrs:{"header-value":_vm.localValue,"show-lunar":_vm.showLunar,"header-operations":_vm.headerPanelHeaderOperations},on:{"select":_vm.onHeaderPanelSelect}}):(_vm.headerMode === 'month')?_c('MonthPanel',{attrs:{"header-value":_vm.localValue,"show-lunar":_vm.showLunar,"header-operations":_vm.headerPanelHeaderOperations,"onHeaderLabelClick":_vm.onMonthHeaderLabelClick},on:{"select":_vm.onHeaderPanelSelect}}):_vm._e()]:[(_vm.mode === 'week')?_c('WeekPanel',_vm._b({attrs:{"day-start-of-week":_vm.dayStartOfWeek},on:{"select":_vm.onPanelSelect}},'WeekPanel',_vm.commonPanelProps,false)):(_vm.mode === 'month')?_c('MonthPanel',_vm._b({on:{"select":_vm.onPanelSelect}},'MonthPanel',_vm.commonPanelProps,false)):(_vm.mode === 'year')?_c('YearPanel',_vm._b({on:{"select":_vm.onPanelSelect}},'YearPanel',_vm.commonPanelProps,false)):(_vm.mode === 'quarter')?_c('QuarterPanel',_vm._b({on:{"select":_vm.onPanelSelect}},'QuarterPanel',_vm.commonPanelProps,false)):_c('DatePanel',_vm._b({attrs:{"mode":"date","show-time":_vm.showTime,"time-picker-props":_vm.timePickerProps,"day-start-of-week":_vm.dayStartOfWeek,"footer-value":_vm.footerValue,"time-picker-value":_vm.timePickerValue,"disabled-time":_vm.disabledTime},on:{"select":_vm.onPanelSelect,"timePickerSelect":_vm.onTimePickerSelect}},'DatePanel',_vm.commonPanelProps,false)),_vm._v(" "),_c('PanelFooter',{attrs:{"prefix-cls":_vm.prefixCls,"show-today-btn":_vm.showNowBtn && !(_vm.showConfirmBtn || _vm.showShortcutsInBottom),"show-confirm-btn":_vm.showConfirmBtn,"confirm-btn-disabled":_vm.confirmBtnDisabled},on:{"todayBtnClick":_vm.onTodayBtnClick,"confirmBtnClick":_vm.onConfirmBtnClick},scopedSlots:_vm._u([(_vm.extra)?{key:"extra",fn:function(){return [(_vm.extra)?_c('RenderFunction',{attrs:{"render-func":_vm.extra}}):_vm._e()]},proxy:true}:null,(_vm.showShortcutsInBottom)?{key:"btn",fn:function(){return [_c('PanelShortcuts',_vm._b({on:{"itemClick":_vm.onShortcutClick,"itemMouseEnter":_vm.onShortcutMouseEnter,"itemMouseLeave":_vm.onShortcutMouseLeave,"nowClick":_vm.onTodayBtnClick}},'PanelShortcuts',_vm.shortcutsProps,false))]},proxy:true}:null],null,true)})]],2),_vm._v(" "),(_vm.showShortcutsInRight)?_c('PanelShortcuts',_vm._b({on:{"itemClick":_vm.onShortcutClick,"itemMouseEnter":_vm.onShortcutMouseEnter,"itemMouseLeave":_vm.onShortcutMouseLeave,"nowClick":_vm.onTodayBtnClick}},'PanelShortcuts',_vm.shortcutsProps,false)):_vm._e()],1)};
-  var __vue_staticRenderFns__$1 = [];
-
-    /* style */
-    const __vue_inject_styles__$1 = undefined;
-    /* scoped */
-    const __vue_scope_id__$1 = undefined;
-    /* module identifier */
-    const __vue_module_identifier__$1 = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$1 = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-    /* style inject shadow dom */
-    
-
-    
-    const __vue_component__$1 = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$1, staticRenderFns: __vue_staticRenderFns__$1 },
-      __vue_inject_styles__$1,
-      __vue_script__$1,
-      __vue_scope_id__$1,
-      __vue_is_functional_template__$1,
-      __vue_module_identifier__$1,
-      false,
-      undefined,
-      undefined,
-      undefined
-    );
-
   var placeholder = {
     date: '请选择日期',
     year: '选择年',
@@ -6087,12 +5520,20 @@
     week: '选择周',
     quarter: '选择季度'
   };
+  var rangePlaceholder = {
+    date: ['开始日期', '结束日期'],
+    week: ['开始周', '结束周'],
+    month: ['开始月份', '结束月份'],
+    year: ['开始年份', '结束年份'],
+    quarter: ['开始季度', '结束季度'],
+    time: ['开始时间', '结束时间']
+  };
 
-  //
-
-  var script = {
+  var DatePickerPro = {
+  render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return (!_vm.hideTrigger)?_c('Popper',{attrs:{"animation":"slide-dynamic-origin","offset":_vm.offset,"trigger":_vm.trigger,"position":_vm.position,"disabled":_vm.disabled || _vm.readonly,"popup-visible":_vm.panelVisible,"unmount-on-close":_vm.unmountOnClose,"popup-container":_vm.popupContainer,"renderToBody":_vm.renderToBody},on:{"popupVisibleChange":_vm.onPanelVisibleChange}},[_c('DateInput',_vm._b({ref:"refInput",attrs:{"size":_vm.size,"focused":_vm.panelVisible,"visible":_vm.panelVisible,"error":_vm.error,"disabled":_vm.disabled,"readonly":!_vm.inputEditable,"allow-clear":_vm.allowClear && !_vm.readonly,"placeholder":_vm.computedPlaceholder,"input-value":_vm.inputValue,"value":_vm.needConfirm ? _vm.panelValue : _vm.selectedValue,"format":_vm.inputFormat},on:{"clear":_vm.onInputClear,"change":_vm.onInputChange,"pressEnter":_vm.onInputPressEnter}},'DateInput',_vm.$attrs,false),[_c('template',{slot:"suffix-icon"},[_vm._t("suffix-icon",function(){return [_c('IconCommon',{attrs:{"use":"calendar"}})]})],2)],2),_vm._v(" "),_c('template',{slot:"content"},[_c('PickerPanel',_vm._g(_vm._b({on:{"click":_vm.onPanelClick}},'PickerPanel',_vm.panelProps,false),_vm.panelOn))],1)],2):_c('PickerPanel',_vm._g(_vm._b({},'PickerPanel',Object.assign({}, _vm.$attrs, _vm.panelProps),false),_vm.panelOn))},
+  staticRenderFns: [],
     name: 'DatePickerPro',
-    components: { Popper: __vue_component__$j, DateInput: __vue_component__$g, IconCommon: __vue_component__$i, PickerPanel: __vue_component__$1 },
+    components: { Popper, DateInput, IconCommon, PickerPanel },
     data() {
       return {
         panelVisible: false,
@@ -6101,18 +5542,17 @@
         processValue: undefined, // 操作过程中的选中值
         previewValue: undefined, // 预览用的值：悬浮
         headerMode: undefined,
-        localValue: this.computedDefaultValue || getNow(),
+        localValue: this.computedDefaultPickerValue || getNow(),
         timePickerValue: this.getDefaultValue(),
         clearPreviewTimer: null,
-        setSelectedValue: !isUndefined(this.computedModelValue)
-          ? this.computedModelValue
-          : !isUndefined(this.computedDefaultValue)
-          ? this.computedDefaultValue
-          : undefined,
       };
     },
     props: {
-      toBody: {
+      offset: {
+        type: Number,
+        default: 4,
+      },
+      renderToBody: {
         type: Boolean,
         default: true,
       },
@@ -6246,9 +5686,6 @@
       value: {
         type: [Object, String, Number],
       },
-      modelValue: {
-        type: [Object, String, Number],
-      },
       defaultValue: {
         type: [Object, String, Number],
       },
@@ -6278,11 +5715,6 @@
         // close
         if (!newVisible) {
           this.inputValue = undefined;
-        }
-      },
-      computedModelValue(val) {
-        if (isUndefined(val)) {
-          this.setSelectedValue = undefined;
         }
       },
     },
@@ -6315,9 +5747,6 @@
           ? (value) => this.format(getDateValue(value))
           : defaultFormat;
       },
-      mergedDisabled() {
-        return this.disabled;
-      },
       inputEditable() {
         return !this.readonly && !isFunction(this.inputFormat);
       },
@@ -6333,17 +5762,14 @@
       },
       // panel 展示用的值
       panelValue() {
-        return this.previewValue ?? this.processValue ?? this.selectedValue;
+        return this.previewValue || this.processValue || this.selectedValue;
       },
       // 待确认的值
       forSelectedValue() {
-        return this.processValue ?? this.selectedValue;
+        return this.processValue || this.selectedValue;
       },
       computedModelValue() {
-        return getDayjsValue(
-          this.value || this.modelValue,
-          this.parseValueFormat
-        );
+        return getDayjsValue(this.value, this.parseValueFormat);
       },
       computedTimePickerProps() {
         return {
@@ -6371,8 +5797,11 @@
       computedDefaultValue() {
         return getDayjsValue(this.defaultValue, this.parseValueFormat);
       },
+      computedDefaultPickerValue() {
+        return getDayjsValue(this.defaultPickerValue, this.parseValueFormat);
+      },
       selectedValue() {
-        return this.computedModelValue || this.setSelectedValue;
+        return this.computedModelValue || this.computedDefaultValue || undefined;
       },
       headerValue() {
         return this.computedValue || this.localValue;
@@ -6409,11 +5838,18 @@
         };
       },
       defaultTimePickerValue() {
-        let format = this.timePickerProps?.format || undefined;
+        let format =
+          (this.timePickerProps && this.timePickerProps.format) || undefined;
         if (!format || !getColumnsFromFormat(format).list.length) {
-          format = this.timePickerProps?.use12Hours ? 'hh:mm:ss a' : 'HH:mm:ss';
+          format =
+            this.timePickerProps && this.timePickerProps.use12Hours
+              ? 'hh:mm:ss a'
+              : 'HH:mm:ss';
         }
-        return getDayjsValue(this.timePickerProps?.defaultValue, format);
+        return getDayjsValue(
+          this.timePickerProps && this.timePickerProps.defaultValue,
+          format
+        );
       },
       /**
        * 面板属性
@@ -6438,7 +5874,7 @@
           showConfirmBtn: this.needConfirm,
           confirmBtnDisabled: this.confirmBtnDisabled,
           timePickerProps: this.computedTimePickerProps,
-          extra: this.$slots?.extra?.[0],
+          extra: this.$slots.extra && this.$slots.extra[0],
           dateRender: this.$slots.cell,
           headerValue: this.headerValue,
           headerOperations: this.headerOperations,
@@ -6604,7 +6040,7 @@
         this.headerMode = 'date';
       },
       onPanelVisibleChange(visible) {
-        if (this.mergedDisabled) return;
+        if (this.disabled) return;
         this.setPanelVisible(visible);
       },
       onPanelHeaderSelect(date) {
@@ -6629,7 +6065,7 @@
       getMergedOpValue(date, time) {
         if (
           !(this.mode === 'date' && this.showTime) &&
-          !this.timePickerProps?.value
+          !(this.timePickerProps && this.timePickerProps.value)
         )
           return date;
         return mergeValueWithTime(getNow(), date, time);
@@ -6670,7 +6106,7 @@
         this.setLocalValue(newVal);
       },
       getDefaultLocalValue() {
-        return this.panelValue || this.computedDefaultValue || getNow();
+        return this.panelValue || this.computedDefaultPickerValue || getNow();
       },
       resetHeaderValue(emitChange = true) {
         const defaultLocalValue = this.getDefaultLocalValue();
@@ -6694,7 +6130,6 @@
         const dateValue = getDateValue(value);
         if (isValueChange(value, this.selectedValue)) {
           this.$emit('input', returnValue);
-          this.$emit('update:modelValue', returnValue);
           this.$emit('change', returnValue, dateValue, formattedValue);
           // eventHandlers.onChange()
         }
@@ -6714,7 +6149,6 @@
           return;
         }
         this.emitChange(value, emitOk);
-        this.setSelectedValue = value;
         this.processValue = undefined;
         this.previewValue = undefined;
         this.inputValue = undefined;
@@ -6743,73 +6177,1436 @@
     },
   };
 
-  /* script */
-  const __vue_script__ = script;
-
-  /* template */
-  var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return (!_vm.hideTrigger)?_c('Popper',{attrs:{"animation":"slide-dynamic-origin","offset":4,"trigger":_vm.trigger,"position":_vm.position,"disabled":_vm.mergedDisabled || _vm.readonly,"popup-visible":_vm.panelVisible,"unmount-on-close":_vm.unmountOnClose,"popup-container":_vm.popupContainer},on:{"popupVisibleChange":_vm.onPanelVisibleChange}},[_c('DateInput',_vm._b({ref:"refInput",attrs:{"size":_vm.size,"focused":_vm.panelVisible,"visible":_vm.panelVisible,"error":_vm.error,"disabled":_vm.mergedDisabled,"readonly":!_vm.inputEditable,"allow-clear":_vm.allowClear && !_vm.readonly,"placeholder":_vm.computedPlaceholder,"input-value":_vm.inputValue,"value":_vm.needConfirm ? _vm.panelValue : _vm.selectedValue,"format":_vm.inputFormat},on:{"clear":_vm.onInputClear,"change":_vm.onInputChange,"pressEnter":_vm.onInputPressEnter}},'DateInput',_vm.$attrs,false),[_c('template',{slot:"suffix-icon"},[_vm._t("suffix-icon",function(){return [_c('IconCommon',{attrs:{"use":"calendar"}})]})],2)],2),_vm._v(" "),_c('template',{slot:"content"},[_c('PickerPanel',_vm._g(_vm._b({on:{"click":_vm.onPanelClick}},'PickerPanel',_vm.panelProps,false),_vm.panelOn))],1)],2):_vm._e()};
-  var __vue_staticRenderFns__ = [];
-
-    /* style */
-    const __vue_inject_styles__ = undefined;
-    /* scoped */
-    const __vue_scope_id__ = undefined;
-    /* module identifier */
-    const __vue_module_identifier__ = undefined;
-    /* functional template */
-    const __vue_is_functional_template__ = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-    /* style inject shadow dom */
-    
-
-    
-    const __vue_component__ = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__, staticRenderFns: __vue_staticRenderFns__ },
-      __vue_inject_styles__,
-      __vue_script__,
-      __vue_scope_id__,
-      __vue_is_functional_template__,
-      __vue_module_identifier__,
-      false,
-      undefined,
-      undefined,
-      undefined
-    );
-
   // eslint-disable-next-line func-names
-  __vue_component__.install = function (Vue) {
-    Vue.component(__vue_component__.name, __vue_component__);
+  DatePickerPro.install = function (Vue) {
+    Vue.component(DatePickerPro.name, DatePickerPro);
   };
 
-  function styleInject(css, ref) {
-    if ( ref === void 0 ) ref = {};
-    var insertAt = ref.insertAt;
+  var RangePickerPanel = {
+  render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:_vm.classNames},[(_vm.showShortcuts && _vm.shortcutsPosition === 'left')?_c('PanelShortcuts',{attrs:{"prefixCls":_vm.prefixCls,"shortcuts":_vm.shortcuts},on:{"itemClick":_vm.onShortcutClick,"itemMouseEnter":_vm.onShortcutMouseEnter,"itemMouseLeave":_vm.onShortcutMouseLeave}}):_vm._e(),_vm._v(" "),_c('div',{class:(_vm.prefixCls + "-range-panel-wrapper")},[_c('div',{class:(_vm.prefixCls + "-range")},[_c('div',{class:(_vm.prefixCls + "-range-wrapper")},[(_vm.startHeaderMode || _vm.endHeaderMode)?[(_vm.startHeaderMode === 'year')?_c('YearPanel',_vm._g(_vm._b({attrs:{"onHeaderLabelClick":_vm.onStartPanelHeaderLabelClick}},'YearPanel',_vm.startPanelProps,false),_vm.startPanelOn)):_vm._e(),_vm._v(" "),(_vm.endHeaderMode === 'year')?_c('YearPanel',_vm._g(_vm._b({attrs:{"onHeaderLabelClick":_vm.onEndPanelHeaderLabelClick}},'YearPanel',_vm.endPanelProps,false),_vm.endPanelOn)):(_vm.startHeaderMode === 'month')?_c('MonthPanel',_vm._g(_vm._b({attrs:{"onHeaderLabelClick":_vm.onStartPanelHeaderLabelClick}},'MonthPanel',_vm.startPanelProps,false),_vm.startPanelOn)):(_vm.endHeaderMode === 'month')?_c('MonthPanel',_vm._g(_vm._b({attrs:{"onHeaderLabelClick":_vm.onEndPanelHeaderLabelClick}},'MonthPanel',_vm.endPanelProps,false),_vm.endPanelOn)):_vm._e()]:[(_vm.mode === 'week')?[_c('WeekPanel',_vm._g(_vm._b({attrs:{"onHeaderLabelClick":_vm.onStartPanelHeaderLabelClick,"day-start-of-week":_vm.dayStartOfWeek}},'WeekPanel',_vm.startPanelProps,false),_vm.startPanelOn)),_vm._v(" "),_c('WeekPanel',_vm._g(_vm._b({attrs:{"onHeaderLabelClick":_vm.onEndPanelHeaderLabelClick,"day-start-of-week":_vm.dayStartOfWeek}},'WeekPanel',_vm.endPanelProps,false),_vm.endPanelOn))]:(_vm.mode === 'month')?[_c('MonthPanel',_vm._g(_vm._b({attrs:{"onHeaderLabelClick":_vm.onStartPanelHeaderLabelClick}},'MonthPanel',_vm.startPanelProps,false),_vm.startPanelOn)),_vm._v(" "),_c('MonthPanel',_vm._g(_vm._b({attrs:{"onHeaderLabelClick":_vm.onEndPanelHeaderLabelClick}},'MonthPanel',_vm.endPanelProps,false),_vm.endPanelOn))]:(_vm.mode === 'year')?[_c('YearPanel',_vm._g(_vm._b({attrs:{"onHeaderLabelClick":_vm.onStartPanelHeaderLabelClick}},'YearPanel',_vm.startPanelProps,false),_vm.startPanelOn)),_vm._v(" "),_c('YearPanel',_vm._g(_vm._b({attrs:{"onHeaderLabelClick":_vm.onEndPanelHeaderLabelClick}},'YearPanel',_vm.endPanelProps,false),_vm.endPanelOn))]:(_vm.mode === 'quarter')?[_c('QuarterPanel',_vm._g(_vm._b({attrs:{"onHeaderLabelClick":_vm.onStartPanelHeaderLabelClick}},'QuarterPanel',_vm.startPanelProps,false),_vm.startPanelOn)),_vm._v(" "),_c('QuarterPanel',_vm._g(_vm._b({attrs:{"onHeaderLabelClick":_vm.onEndPanelHeaderLabelClick}},'QuarterPanel',_vm.endPanelProps,false),_vm.endPanelOn))]:[_c('DatePanel',_vm._g(_vm._b({attrs:{"onHeaderLabelClick":_vm.onStartPanelHeaderLabelClick,"is-range":"","currentView":_vm.currentDateView,"value":_vm.value && _vm.value[0],"footer-value":_vm.footerValue && _vm.footerValue[0],"time-picker-value":_vm.timePickerValue && _vm.timePickerValue[0],"day-start-of-week":_vm.dayStartOfWeek,"show-time":_vm.showTime,"time-picker-props":_vm.timePickerProps,"disabled-time":_vm.getDisabledTimeFunc(0),"disabled":_vm.disabled[0]},on:{"update:currentView":function($event){_vm.currentDateView=$event;},"update:current-view":function($event){_vm.currentDateView=$event;},"timePickerSelect":_vm.onStartTimePickerSelect}},'DatePanel',_vm.startPanelProps,false),_vm.startPanelOn)),_vm._v(" "),_c('DatePanel',_vm._g(_vm._b({attrs:{"is-range":"","onHeaderLabelClick":_vm.onEndPanelHeaderLabelClick,"value":_vm.value && _vm.value[1],"currentView":_vm.currentDateView,"footer-value":_vm.footerValue && _vm.footerValue[1],"time-picker-value":_vm.timePickerValue && _vm.timePickerValue[1],"day-start-of-week":_vm.dayStartOfWeek,"show-time":_vm.showTime,"time-picker-props":_vm.timePickerProps,"disabled-time":_vm.getDisabledTimeFunc(1),"disabled":_vm.disabled[1]},on:{"update:currentView":function($event){_vm.currentDateView=$event;},"update:current-view":function($event){_vm.currentDateView=$event;},"timePickerSelect":_vm.onEndTimePickerSelect}},'DatePanel',_vm.endPanelProps,false),_vm.endPanelOn))]]],2)]),_vm._v(" "),_c('PanelFooter',{attrs:{"prefix-cls":_vm.prefixCls,"show-today-btn":false,"show-confirm-btn":_vm.showConfirmBtn,"confirm-btn-disabled":_vm.confirmBtnDisabled},on:{"confirmBtnClick":_vm.onConfirmBtnClick},scopedSlots:_vm._u([(_vm.extra || _vm.$slots.extra)?{key:"extra",fn:function(){return [(_vm.$slots.extra)?_vm._t("extra"):_c('RenderFunction',{attrs:{"render-func":_vm.extra}})]},proxy:true}:null,(_vm.showShortcuts && _vm.shortcutsPosition === 'bottom')?{key:"btn",fn:function(){return [_c('PanelShortcuts',{attrs:{"prefixCls":_vm.prefixCls,"shortcuts":_vm.shortcuts},on:{"itemClick":_vm.onShortcutClick,"itemMouseEnter":_vm.onShortcutMouseEnter,"itemMouseLeave":_vm.onShortcutMouseLeave}})]},proxy:true}:null],null,true)})],1),_vm._v(" "),(_vm.showShortcuts && _vm.shortcutsPosition === 'right')?_c('PanelShortcuts',{attrs:{"prefixCls":_vm.prefixCls,"shortcuts":_vm.shortcuts},on:{"itemClick":_vm.onShortcutClick,"itemMouseEnter":_vm.onShortcutMouseEnter,"itemMouseLeave":_vm.onShortcutMouseLeave}}):_vm._e()],1)},
+  staticRenderFns: [],
+    name: 'DateRangePikerPanel',
+    components: {
+      PanelShortcuts,
+      PanelFooter,
+      RenderFunction,
+      DatePanel,
+      WeekPanel,
+      MonthPanel,
+      YearPanel,
+      QuarterPanel,
+    },
+    props: {
+      mode: {
+        type: String,
+        default: 'date',
+      },
+      value: {
+        type: Array,
+        default: () => [],
+      },
+      footerValue: {
+        type: Array,
+      },
+      timePickerValue: {
+        type: Array,
+      },
+      showTime: {
+        type: Boolean,
+      },
+      showConfirmBtn: {
+        type: Boolean,
+      },
+      prefixCls: {
+        type: String,
+        required: true,
+      },
+      shortcuts: {
+        type: Array,
+        default: () => [],
+      },
+      shortcutsPosition: {
+        type: String,
+        default: 'bottom',
+      },
+      format: {
+        type: String,
+        required: true,
+      },
+      dayStartOfWeek: {
+        type: Number,
+        default: 0,
+      },
+      disabledDate: {
+        type: Function,
+      },
+      disabledTime: {
+        type: Function,
+      },
+      timePickerProps: {
+        type: Object,
+      },
+      extra: {
+        type: Function,
+      },
+      dateRender: {
+        type: Function,
+      },
+      hideTrigger: {
+        type: Boolean,
+      },
+      startHeaderProps: {
+        type: Object,
+        default: () => ({}),
+      },
+      endHeaderProps: {
+        type: Object,
+        default: () => ({}),
+      },
+      confirmBtnDisabled: {
+        type: Boolean,
+      },
+      disabled: {
+        type: Array,
+        default: () => [false, false],
+      },
+      visible: {
+        type: Boolean,
+      },
+      startHeaderMode: {
+        type: String,
+      },
+      endHeaderMode: {
+        type: String,
+      },
+      showLunar: {
+        type: Boolean,
+      },
+    },
+    data() {
+      return {
+        currentDateView: 'date',
+      };
+    },
+    watch: {
+      visible(newVal, oldVal) {
+        if (newVal && !oldVal) {
+          this.currentDateView = 'date';
+        }
+      },
+    },
+    computed: {
+      showShortcuts() {
+        return isArray(this.shortcuts) && this.shortcuts.length;
+      },
+      classNames() {
+        return [
+          `${this.prefixCls}-range-container`,
+          {
+            [`${this.prefixCls}-range-container-panel-only`]: this.hideTrigger,
+            [`${this.prefixCls}-range-container-shortcuts-placement-left`]:
+              this.showShortcuts && this.shortcutsPosition === 'left',
+            [`${this.prefixCls}-range-container-shortcuts-placement-right`]:
+              this.showShortcuts && this.shortcutsPosition === 'right',
+          },
+        ];
+      },
+      startPanelProps() {
+        return {
+          ...this.startHeaderProps,
+          rangeValues: this.value,
+          disabledDate: this.getDisabledDateFunc(0),
+          dateRender: this.getDateRenderFunc(0),
+          showLunar: this.showLunar,
+        };
+      },
+      startPanelOn() {
+        return {
+          select: this.startHeaderMode
+            ? this.onStartHeaderPanelSelect
+            : this.onPanelCellClick,
+          cellMouseEnter: this.onPanelCellMouseEnter,
+        };
+      },
+      endPanelProps() {
+        return {
+          ...this.endHeaderProps,
+          rangeValues: this.value,
+          disabledDate: this.getDisabledDateFunc(1),
+          dateRender: this.getDateRenderFunc(1),
+          showLunar: this.showLunar,
+        };
+      },
+      endPanelOn() {
+        return {
+          select: this.endHeaderMode
+            ? this.onEndHeaderPanelSelect
+            : this.onPanelCellClick,
+          cellMouseEnter: this.onPanelCellMouseEnter,
+        };
+      },
+    },
+    methods: {
+      getShortcutValue(shortcut) {
+        return getDayjsValue(
+          normalizeRangeValue(
+            isFunction(shortcut.value) ? shortcut.value() : shortcut.value
+          ),
+          shortcut.format || this.format
+        );
+      },
+      getDisabledDateFunc(index) {
+        return isFunction(this.disabledDate)
+          ? (current) =>
+              this.disabledDate(current, index === 0 ? 'start' : 'end') || false
+          : undefined;
+      },
+      getDisabledTimeFunc(index) {
+        return isFunction(this.disabledTime)
+          ? (current) =>
+              this.disabledTime(current, index === 0 ? 'start' : 'end') || false
+          : undefined;
+      },
+      getDateRenderFunc(index) {
+        return isFunction(this.dateRender)
+          ? (props) => {
+              const mergeProps = {
+                ...props,
+                type: index === 0 ? 'start' : 'end',
+              };
+              return this.dateRender(mergeProps);
+            }
+          : undefined;
+      },
 
-    if (!css || typeof document === 'undefined') { return; }
+      onShortcutClick(shortcut) {
+        this.$emit('onShortcutClick', this.getShortcutValue(shortcut), shortcut);
+      },
+      onShortcutMouseEnter(shortcut) {
+        this.$emit('onShortcutMouseEnter', this.getShortcutValue(shortcut));
+      },
+      onShortcutMouseLeave(shortcut) {
+        this.$emit('onShortcutMouseLeave', this.getShortcutValue(shortcut));
+      },
+      onPanelCellClick(date) {
+        this.$emit('onCellClick', date);
+      },
 
-    var head = document.head || document.getElementsByTagName('head')[0];
-    var style = document.createElement('style');
-    style.type = 'text/css';
+      onPanelCellMouseEnter(date) {
+        this.$emit('onCellMouseEnter', date);
+      },
 
-    if (insertAt === 'top') {
-      if (head.firstChild) {
-        head.insertBefore(style, head.firstChild);
-      } else {
-        head.appendChild(style);
-      }
-    } else {
-      head.appendChild(style);
-    }
+      onConfirmBtnClick() {
+        this.$emit('onConfirm');
+      },
 
-    if (style.styleSheet) {
-      style.styleSheet.cssText = css;
-    } else {
-      style.appendChild(document.createTextNode(css));
-    }
-  }
+      onStartTimePickerSelect(time) {
+        this.$emit('onTimePickerSelect', time, 'start');
+      },
+
+      onEndTimePickerSelect(time) {
+        this.$emit('onTimePickerSelect', time, 'end');
+      },
+
+      onStartPanelHeaderLabelClick(type) {
+        this.$emit('onStartHeaderLabelClick', type);
+      },
+
+      onEndPanelHeaderLabelClick(type) {
+        this.$emit('onEndHeaderLabelClick', type);
+      },
+
+      onStartHeaderPanelSelect(date) {
+        this.$emit('onStartHeaderSelect', date);
+      },
+
+      onEndHeaderPanelSelect(date) {
+        this.$emit('onEndHeaderSelect', date);
+      },
+    },
+  };
+
+  var css_248z$7 = "";
+  styleInject(css_248z$7);
+
+  var DateRangeInput = {
+  render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:_vm.classNames},[_c('div',{class:_vm.getInputWrapClassName(0)},[_c('input',_vm._b({ref:"refInput0",attrs:{"disabled":_vm.disabled0,"placeholder":_vm.placeholder[0]},domProps:{"value":_vm.displayValue0},on:{"input":_vm.onChange,"keydown":[function($event){if(!$event.type.indexOf('key')&&_vm._k($event.keyCode,"enter",13,$event.key,"Enter")){ return null; }return _vm.onPressEnter.apply(null, arguments)},function($event){if(!$event.type.indexOf('key')&&_vm._k($event.keyCode,"tab",9,$event.key,"Tab")){ return null; }return _vm.onPressTab.apply(null, arguments)}],"click":function($event){return _vm.changeFocusedInput(0)}}},'input',_vm.readonly ? { readonly: true } : {},false))]),_vm._v(" "),_c('span',{class:(_vm.prefixCls + "-separator")},[_vm._t("separator",function(){return [_vm._v(" - ")]})],2),_vm._v(" "),_c('div',{class:_vm.getInputWrapClassName(1)},[_c('input',_vm._b({ref:"refInput1",attrs:{"disabled":_vm.disabled1,"placeholder":_vm.placeholder[1]},domProps:{"value":_vm.displayValue1},on:{"input":_vm.onChange,"keydown":[function($event){if(!$event.type.indexOf('key')&&_vm._k($event.keyCode,"enter",13,$event.key,"Enter")){ return null; }return _vm.onPressEnter.apply(null, arguments)},function($event){if(!$event.type.indexOf('key')&&_vm._k($event.keyCode,"tab",9,$event.key,"Tab")){ return null; }return _vm.onPressTab.apply(null, arguments)}],"click":function($event){return _vm.changeFocusedInput(1)}}},'input',_vm.readonly ? { readonly: true } : {},false))]),_vm._v(" "),_c('div',{class:(_vm.prefixCls + "-suffix")},[(_vm.allowClear && !_vm.disabled && _vm.value.length === 2)?_c('IconHover',{class:(_vm.prefixCls + "-clear-icon"),attrs:{"prefix":_vm.prefixCls},on:{"click":_vm.onClear}},[_c('IconCommon',{attrs:{"use":"close"}})],1):_vm._e(),_vm._v(" "),_c('span',{class:(_vm.prefixCls + "-suffix-icon")},[_vm._t("suffix-icon")],2)],1)])},
+  staticRenderFns: [],
+    name: 'DateInputRange',
+    components: {
+      IconHover,
+      IconCommon,
+    },
+    props: {
+      size: {
+        type: String,
+        default: 'medium',
+      },
+      focused: {
+        type: Boolean,
+      },
+      focusedIndex: {
+        type: Number,
+      },
+      error: {
+        type: Boolean,
+      },
+      disabled: {
+        type: [Boolean, Array],
+        default: false,
+      },
+      readonly: {
+        type: Boolean,
+      },
+      allowClear: {
+        type: Boolean,
+      },
+      placeholder: {
+        type: Array,
+        default: () => [],
+      },
+      inputValue: {
+        type: Array,
+      },
+      value: {
+        type: Array,
+        default: () => [],
+      },
+      format: {
+        type: [String, Function],
+        required: true,
+      },
+    },
+    computed: {
+      disabled0() {
+        return this.getDisabled(0);
+      },
+      disabled1() {
+        return this.getDisabled(1);
+      },
+      classNames() {
+        return [
+          this.prefixCls,
+          `${this.prefixCls}-range`,
+          `${this.prefixCls}-size-${this.size}`,
+          {
+            [`${this.prefixCls}-focused`]: this.focused,
+            [`${this.prefixCls}-disabled`]: this.disabled0 && this.disabled1,
+            [`${this.prefixCls}-error`]: this.error,
+          },
+        ];
+      },
+      displayValue0() {
+        return this.getDisplayValue(0);
+      },
+      displayValue1() {
+        return this.getDisplayValue(1);
+      },
+    },
+    data() {
+      return {
+        prefixCls: getPrefixCls('picker'),
+      };
+    },
+    methods: {
+      getDisabled(index) {
+        return isArray(this.disabled) ? this.disabled[index] : this.disabled;
+      },
+      getInputWrapClassName(index) {
+        return [
+          `${this.prefixCls}-input`,
+          {
+            [`${this.prefixCls}-input-active`]: index === this.focusedIndex,
+          },
+        ];
+      },
+      getDisplayValue(index) {
+        if (this.inputValue) {
+          return this.inputValue[index];
+        }
+        const targetValue = this.value && this.value[index];
+        if (targetValue && isDayjs(targetValue)) {
+          return isFunction(this.format)
+            ? this.format(targetValue)
+            : targetValue.format(this.format);
+        }
+        return undefined;
+      },
+      changeFocusedInput(index) {
+        this.$emit('focused-index-change', index);
+        this.$emit('update:focusedIndex', index);
+      },
+      onChange(e) {
+        e.stopPropagation();
+        this.$emit('change', e);
+      },
+      onPressEnter() {
+        this.$emit('press-enter');
+      },
+      onPressTab(e) {
+        e.preventDefault();
+      },
+      onClear(e) {
+        this.$emit('clear', e);
+      },
+      focus(index) {
+        const targetIndex = isNumber(index) ? index : this.focusedIndex;
+        const targetElement =
+          targetIndex === 0 ? this.$refs.refInput0 : this.$refs.refInput1;
+        !isUndefined(targetIndex) &&
+          !this.getDisabled(targetIndex) &&
+          targetElement.focus();
+      },
+      blur() {
+        const targetElement =
+          this.focusedIndex === 0 ? this.$refs.refInput0 : this.$refs.refInput1;
+        targetElement && targetElement.blur && targetElement.blur();
+      },
+    },
+  };
+
+  let clearShortcutPreviewTimer = null;
+
+  var RangePickerPro = {
+  render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return (!_vm.hideTrigger)?_c('Popper',{attrs:{"trigger":"click","animation":"slide-dynamic-origin","offset":4,"position":_vm.position,"disabled":_vm.triggerDisabled || _vm.readonly,"popup-visible":_vm.panelVisible,"unmount-on-close":_vm.unmountOnClose,"popup-container":_vm.popupContainer},on:{"popupVisibleChange":_vm.setPanelVisible},scopedSlots:_vm._u([{key:"content",fn:function(){return [_c('RangePickerPanel',_vm._g(_vm._b({},'RangePickerPanel',_vm.rangePanelProps,false),_vm.rangePanelOn))]},proxy:true}],null,false,2694470268)},[_vm._t("default",function(){return [_c('DateRangeInput',_vm._b({ref:"refInput",attrs:{"size":_vm.size,"focused":_vm.panelVisible,"visible":_vm.panelVisible,"error":_vm.error,"disabled":_vm.disabled,"readonly":_vm.readonly,"allow-clear":_vm.allowClear && !_vm.readonly,"placeholder":_vm.computedPlaceholder,"input-value":_vm.inputValue,"value":_vm.panelValue,"focusedIndex":_vm.focusedIndex,"format":_vm.computedFormat},on:{"update:focusedIndex":function($event){_vm.focusedIndex=$event;},"update:focused-index":function($event){_vm.focusedIndex=$event;},"clear":_vm.onInputClear,"change":_vm.onInputChange,"pressEnter":_vm.onInputPressEnter},scopedSlots:_vm._u([{key:"suffix-icon",fn:function(){return [_vm._t("suffix-icon",function(){return [_c('IconCommon',{attrs:{"use":"calendar"}})]})]},proxy:true},{key:"separator",fn:function(){return [_vm._t("separator",function(){return [_vm._v("\n          "+_vm._s(_vm.separator || '-')+"\n        ")]})]},proxy:true}],null,true)},'DateRangeInput',_vm.$attrs,false))]})],2):_vm._e()},
+  staticRenderFns: [],
+    name: 'RangePickerPro',
+    components: {
+      RangePickerPanel,
+      DateRangeInput,
+      Popper,
+      IconCommon,
+    },
+    inheritAttrs: false,
+    props: {
+      /**
+       * 范围选择器的类型
+       * */
+      mode: {
+        type: String,
+        default: 'date',
+      },
+      /**
+       * 绑定值
+       */
+      modelValue: {
+        type: Array,
+      },
+      /**
+       * 默认值
+       */
+      defaultValue: {
+        type: Array,
+      },
+      /**
+       * 默认面板显示的日期
+       * */
+      pickerValue: {
+        type: Array,
+      },
+      /**
+       * 面板显示的日期
+       * */
+      defaultPickerValue: {
+        type: Array,
+      },
+      /**
+       * 是否禁用
+       * */
+      disabled: {
+        type: [Boolean, Array],
+        default: false,
+      },
+      dayStartOfWeek: {
+        type: Number,
+        default: 0,
+      },
+      format: {
+        type: String,
+      },
+      valueFormat: {
+        type: String,
+      },
+      showTime: {
+        type: Boolean,
+      },
+      timePickerProps: {
+        type: Object,
+      },
+      placeholder: {
+        type: Array,
+      },
+      disabledDate: {
+        type: Function,
+      },
+      disabledTime: {
+        type: Function,
+      },
+      separator: {
+        type: String,
+      },
+      // 时间是否会交换，默认情况下时间会影响和参与开始和结束值的排序，如果要固定时间顺序，可将其关闭。
+      exchangeTime: {
+        type: Boolean,
+        default: true,
+      },
+      popupContainer: {
+        type: [String, Object],
+      },
+      locale: {
+        type: Object,
+      },
+      hideTrigger: {
+        type: Boolean,
+      },
+      allowClear: {
+        type: Boolean,
+        default: true,
+      },
+      readonly: {
+        type: Boolean,
+      },
+      error: {
+        type: Boolean,
+      },
+      size: {
+        type: String,
+      },
+      showLunar: {
+        type: Boolean,
+      },
+      shortcuts: {
+        type: Array,
+        default: () => [],
+      },
+      shortcutsPosition: {
+        type: String,
+        default: 'bottom',
+      },
+      position: {
+        type: String,
+        default: 'bottom',
+      },
+      popupVisible: {
+        type: Boolean,
+        default: undefined,
+      },
+      defaultPopupVisible: {
+        type: Boolean,
+      },
+      triggerProps: {
+        type: Object,
+      },
+      unmountOnClose: {
+        type: Boolean,
+      },
+      previewShortcut: {
+        type: Boolean,
+        default: true,
+      },
+      showConfirmBtn: {
+        type: Boolean,
+      },
+    },
+    data() {
+      return {
+        eventHandlers: undefined,
+        prefixCls: getPrefixCls('picker'),
+        refInput: undefined,
+        focusedIndex: this.getFocusedIndex(),
+        localValue: !isUndefined(this.computedModelValue)
+          ? this.computedModelValue
+          : !isUndefined(this.computedDefaultValue)
+          ? this.computedDefaultValue
+          : [],
+        processValue: undefined, // 操作值
+        previewValue: undefined, // 预览值
+        inputValue: undefined, // 输入操作的值
+        startHeaderMode: undefined,
+        endHeaderMode: undefined,
+        localPanelVisible: this.popupVisible || this.defaultPopupVisible,
+
+        startLocalValue: this.computedStartDefaultValue || getNow(),
+        endLocalValue: this.computedEndDefaultValue || getNow(),
+
+        footerValue: [
+          (this.panelValue && this.panelValue[0]) || getNow(),
+          (this.panelValue && this.panelValue[1]) || getNow(),
+        ],
+        startTimeValue:
+          this.sValue || this.startDefaultTimePickerValue || getNow(),
+        endTimeValue: this.eValue || this.endDefaultTimePickerValue || getNow(),
+      };
+    },
+    created() {
+      initializeDateLocale('zh-cn', this.dayStartOfWeek);
+      // 非受控情况
+      const [selected0, selected1] = this.getFormSelectedValue();
+      const [header0, header1] = this.getFixedValue([
+        selected0 || this.startHeaderValue,
+        selected1 || this.endHeaderValue,
+      ]);
+      this.setStartHeaderValue(header0, false);
+      this.setEndHeaderValue(header1, false);
+    },
+    watch: {
+      computedModelValue(val) {
+        if (isUndefined(val)) {
+          this.localValue = [];
+        }
+      },
+      popupVisible(newVal) {
+        if (isUndefined(newVal)) {
+          this.localPanelVisible = undefined;
+        }
+      },
+      panelValue(val) {
+        const [value0, value1] = val;
+        this.footerValue[0] = value0 || this.footerValue[0];
+        this.footerValue[1] = value1 || this.footerValue[1];
+      },
+      sValue(newVal) {
+        if (newVal) {
+          this.startTimeValue = newVal;
+        }
+      },
+      eValue(newVal) {
+        if (newVal) {
+          this.endTimeValue = newVal;
+        }
+      },
+      panelVisible(newVisible) {
+        if (this.mode === 'year') {
+          this.startHeaderMode = 'year';
+          this.endHeaderMode = 'year';
+        } else {
+          this.startHeaderMode = undefined;
+          this.endHeaderMode = undefined;
+        }
+        this.processValue = undefined;
+        this.previewValue = undefined;
+        // open
+        if (newVisible) {
+          this.resetHeaderValue();
+          this.resetTimePickerValue();
+          this.focusedIndex = this.getFocusedIndex(this.focusedIndex);
+          this.$nextTick(() => this.focusInput(this.focusedIndex));
+        }
+        // close
+        if (!newVisible) {
+          this.inputValue = undefined;
+        }
+      },
+      focusedIndex() {
+        this.focusInput(this.focusedIndex);
+        this.inputValue = undefined;
+      },
+    },
+    computed: {
+      startHeaderProps() {
+        return {
+          headerValue: this.startHeaderValue,
+          headerOperations: this.computedStartHeaderOperations,
+        };
+      },
+      endHeaderProps() {
+        return {
+          headerValue: this.endHeaderValue,
+          headerOperations: this.computedEndHeaderOperations,
+        };
+      },
+      mergedSize() {
+        return this.size;
+      },
+      formDisabled() {
+        return this.disabled;
+      },
+      mergedError() {
+        return this.error;
+      },
+      computedPlaceholder() {
+        return (
+          this.placeholder || rangePlaceholder[this.mode] || rangePlaceholder.date
+        );
+      },
+      computedFormat() {
+        return (
+          (!isFunction(this.format) && this.format) ||
+          this.getDefaultFormat(this.mode, this.showTime)
+        );
+      },
+      returnValueFormat() {
+        return this.valueFormat || this.computedFormat;
+      },
+      parseValueFormat() {
+        return ['timestamp', 'Date'].includes(this.returnValueFormat)
+          ? this.computedFormat
+          : this.returnValueFormat;
+      },
+      disabledArray() {
+        const disabled0 =
+          this.disabled === true ||
+          this.formDisabled ||
+          (isArray(this.disabled) && this.disabled[0] === true);
+        const disabled1 =
+          this.disabled === true ||
+          this.formDisabled ||
+          (isArray(this.disabled) && this.disabled[1] === true);
+        return [disabled0, disabled1];
+      },
+      triggerDisabled() {
+        return this.disabledArray[0] && this.disabledArray[1];
+      },
+      nextFocusedIndex() {
+        const cur = this.focusedIndex;
+        const next = cur ^ 1;
+        return this.disabledArray[next] ? cur : next;
+      },
+      isNextDisabled() {
+        return this.disabledArray[this.focusedIndex ^ 1];
+      },
+      computedModelValue() {
+        return getDayjsValue(
+          normalizeRangeValue(this.modelValue),
+          this.parseValueFormat
+        );
+      },
+      computedDefaultValue() {
+        return getDayjsValue(
+          normalizeRangeValue(this.defaultValue),
+          this.parseValueFormat
+        );
+      },
+      // 选中值-混合
+      selectedValue() {
+        return this.computedModelValue || this.localValue;
+      },
+      // 待确认的选中值
+      forSelectedValue() {
+        return this.processValue || this.selectedValue;
+      },
+      // 面板显示的值
+      panelValue() {
+        return this.previewValue || this.processValue || this.selectedValue;
+      },
+      panelVisible() {
+        return !isUndefined(this.popupVisible)
+          ? this.popupVisible
+          : this.localPanelVisible;
+      },
+
+      unit() {
+        return ['date', 'week'].includes(this.mode) ? 'M' : 'y';
+      },
+      span() {
+        return { date: 1, week: 1, year: 10 * 12, quarter: 12, month: 12 }[
+          this.mode
+        ];
+      },
+      superSpan() {
+        return ['year'].includes(this.mode) ? 10 * 12 : 12;
+      },
+      startValue() {
+        return this.pickerValue && this.pickerValue[0];
+      },
+      endValue() {
+        return this.pickerValue && this.pickerValue[1];
+      },
+      startDefaultValue() {
+        return this.defaultPickerValue && this.defaultPickerValue[0];
+      },
+      endDefaultValue() {
+        return this.defaultPickerValue && this.defaultPickerValue[1];
+      },
+      // ----------------------------------------
+      spanStart() {
+        return { date: 1, week: 1, year: 10 * 12, quarter: 12, month: 12 }[
+          this.startHeaderMode || 'date'
+        ];
+      },
+      superSpanStart() {
+        return ['year'].includes(this.startHeaderMode || 'date') ? 10 * 12 : 12;
+      },
+      computedStartDefaultValue() {
+        return getDayjsValue(this.startDefaultValue, this.format);
+      },
+      startHeaderValue() {
+        return (
+          getDayjsValue(this.startValue, this.format) || this.startLocalValue
+        );
+      },
+      showStartSingleBtn() {
+        return this.spanStart !== this.superSpanStart;
+      },
+      startHeaderOperations() {
+        return {
+          onSuperPrev: () => {
+            this.setStartHeaderValue(
+              methods.subtract(this.startHeaderValue, this.superSpanStart, 'M')
+            );
+          },
+          onPrev: this.showStartSingleBtn
+            ? () => {
+                this.setStartHeaderValue(
+                  methods.subtract(this.startHeaderValue, this.spanStart, 'M')
+                );
+              }
+            : undefined,
+          onNext: this.showStartSingleBtn
+            ? () => {
+                this.setStartHeaderValue(
+                  methods.add(this.startHeaderValue, this.spanStart, 'M')
+                );
+              }
+            : undefined,
+          onSuperNext: () => {
+            this.setStartHeaderValue(
+              methods.add(this.startHeaderValue, this.superSpanStart, 'M')
+            );
+          },
+        };
+      },
+      // *******************END******************
+      spanEnd() {
+        return { date: 1, week: 1, year: 10 * 12, quarter: 12, month: 12 }[
+          this.endHeaderMode || 'date'
+        ];
+      },
+      superSpanEnd() {
+        return ['year'].includes(this.endHeaderMode || 'date') ? 10 * 12 : 12;
+      },
+      computedEndDefaultValue() {
+        return getDayjsValue(this.endDefaultValue, this.format);
+      },
+      endHeaderValue() {
+        return getDayjsValue(this.endValue, this.format) || this.endLocalValue;
+      },
+      showSingleBtn() {
+        return this.spanEnd !== this.superSpanEnd;
+      },
+      endHeaderOperations() {
+        return {
+          onSuperPrev: () => {
+            this.setEndHeaderValue(
+              methods.subtract(this.endHeaderValue, this.superSpanEnd, 'M')
+            );
+          },
+          onPrev: this.showSingleBtn
+            ? () => {
+                this.setEndHeaderValue(
+                  methods.subtract(this.endHeaderValue, this.spanEnd, 'M')
+                );
+              }
+            : undefined,
+          onNext: this.showSingleBtn
+            ? () => {
+                this.setEndHeaderValue(
+                  methods.add(this.endHeaderValue, this.spanEnd, 'M')
+                );
+              }
+            : undefined,
+          onSuperNext: () => {
+            this.setEndHeaderValue(
+              methods.add(this.endHeaderValue, this.superSpanEnd, 'M')
+            );
+          },
+        };
+      },
+      /** ************* 以下为操作 ****************** */
+      canShortenMonth() {
+        return methods
+          .add(this.startHeaderValue, this.span, 'M')
+          .isBefore(this.endHeaderValue, this.unit);
+      },
+      canShortenYear() {
+        return methods
+          .add(this.startHeaderValue, this.superSpan, 'M')
+          .isBefore(this.endHeaderValue, this.unit);
+      },
+      computedStartHeaderOperations() {
+        const operations = ['onSuperPrev', 'onPrev'];
+        if (this.canShortenMonth) operations.push('onNext');
+        if (this.canShortenYear) operations.push('onSuperNext');
+        return pick(this.startHeaderOperations, operations);
+      },
+      computedEndHeaderOperations() {
+        const operations = ['onSuperNext', 'onNext'];
+        if (this.canShortenMonth) operations.push('onPrev');
+        if (this.canShortenYear) operations.push('onSuperPrev');
+        return pick(this.endHeaderOperations, operations);
+      },
+      sValue() {
+        return this.panelValue && this.panelValue[0];
+      },
+      eValue() {
+        return this.panelValue && this.panelValue[1];
+      },
+      timePickerDefaultValue() {
+        return this.timePickerProps && this.timePickerProps.defaultValue;
+      },
+      startTimePickerProps() {
+        return isArray(this.timePickerDefaultValue)
+          ? {
+              ...this.timePickerProps,
+              defaultValue: this.timePickerDefaultValue[0],
+            }
+          : this.timePickerProps;
+      },
+      endTimePickerProps() {
+        return isArray(this.timePickerDefaultValue)
+          ? {
+              ...this.timePickerProps,
+              defaultValue: this.timePickerDefaultValue.value[1],
+            }
+          : this.timePickerProps;
+      },
+      startTimePickerPropsFormat() {
+        return this.startTimePickerProps && this.startTimePickerProps.format;
+      },
+      starTimePickerPropsUse12Hours() {
+        return !!(
+          this.startTimePickerProps && this.startTimePickerProps.use12Hours
+        );
+      },
+      startFormat() {
+        let res = this.starTimePickerPropsFormat || undefined;
+        if (!res || !getColumnsFromFormat(res).list.length) {
+          res = this.starTimePickerPropsUse12Hours ? 'hh:mm:ss a' : 'HH:mm:ss';
+        }
+        return res;
+      },
+      startDefaultTimePickerValue() {
+        return getDayjsValue(
+          this.startTimePickerProps && this.startTimePickerProps.defaultValue,
+          this.startFormat
+        );
+      },
+      endTimePickerPropsFormat() {
+        return this.endTimePickerProps && this.endTimePickerProps.format;
+      },
+      endimePickerPropsUse12Hours() {
+        return !!(this.endTimePickerProps && this.endTimePickerProps.use12Hours);
+      },
+      endFormat() {
+        let res = this.endimePickerPropsFormat || undefined;
+        if (!res || !getColumnsFromFormat(res).list.length) {
+          res = this.endimePickerPropsUse12Hours ? 'hh:mm:ss a' : 'HH:mm:ss';
+        }
+        return res;
+      },
+      endDefaultTimePickerValue() {
+        return getDayjsValue(
+          this.endTimePickerProps && this.endTimePickerProps.defaultValue,
+          this.endFormat
+        );
+      },
+      timePickerValue() {
+        return [this.startTimeValue, this.endTimeValue];
+      },
+      isDateTime() {
+        return this.mode === 'date' && this.showTime;
+      },
+      hasTime() {
+        return this.isDateTime || this.timePickerProps;
+      },
+      needCheckTime() {
+        return this.mode === 'date' && this.showTime;
+      },
+      useIsDisabledDate() {
+        return (current, type) => {
+          if (!this.disabledDate) return false;
+          const dateValue = getDateValue(current);
+          return this.disabledDate(dateValue, type);
+        };
+      },
+      useIsDisabledTime() {
+        return (current, type) => {
+          if (!this.needCheckTime) return false;
+          if (!this.disabledTime) return false;
+          const dateValue = getDateValue(current);
+          const disabledTimeProps = this.disabledTime(dateValue, type);
+          return (
+            this.isDisabledItem(
+              current.hour(),
+              disabledTimeProps.disabledHours
+            ) ||
+            this.isDisabledItem(
+              current.minute(),
+              disabledTimeProps.disabledMinutes
+            ) ||
+            this.isDisabledItem(
+              current.second(),
+              disabledTimeProps.disabledSeconds
+            )
+          );
+        };
+      },
+      needConfirm() {
+        return this.isDateTime || this.showConfirmBtn;
+      },
+      confirmBtnDisabled() {
+        return (
+          this.needConfirm &&
+          (!isCompleteRangeValue(this.forSelectedValue) ||
+            this.isDisabledDate(this.forSelectedValue[0], 'start') ||
+            this.isDisabledDate(this.forSelectedValue[1], 'end'))
+        );
+      },
+      computedTimePickerProps() {
+        return {
+          format: this.computedFormat,
+          ...omit(this.timePickerProps || {}, ['defaultValue']),
+          visible: this.panelVisible,
+        };
+      },
+      rangePanelProps() {
+        return {
+          ...pick(this.$props, [
+            'mode',
+            'showTime',
+            'shortcuts',
+            'shortcutsPosition',
+            'dayStartOfWeek',
+            'disabledDate',
+            'disabledTime',
+            'hideTrigger',
+          ]),
+          prefixCls: this.prefixCls,
+          format: this.parseValueFormat,
+          value: this.panelValue,
+          showConfirmBtn: this.needConfirm,
+          confirmBtnDisabled: this.confirmBtnDisabled,
+          timePickerValue: this.timePickerValue,
+          timePickerProps: this.computedTimePickerProps,
+          extra: this.$slots.extra,
+          dateRender: this.$slots.cell,
+          startHeaderProps: this.startHeaderProps,
+          endHeaderProps: this.endHeaderProps,
+          footerValue: this.footerValue,
+          disabled: this.disabledArray,
+          visible: this.panelVisible,
+          startHeaderMode: this.startHeaderMode,
+          endHeaderMode: this.endHeaderMode,
+          showLunar: this.showLunar,
+        };
+      },
+      rangePanelOn() {
+        return {
+          onCellClick: this.onPanelCellClick,
+          onCellMouseEnter: this.onPanelCellMouseEnter,
+          onShortcutClick: this.onPanelShortcutClick,
+          onShortcutMouseEnter: this.previewShortcut
+            ? this.onPanelShortcutMouseEnter
+            : undefined,
+          onShortcutMouseLeave: this.previewShortcut
+            ? this.onPanelShortcutMouseLeave
+            : undefined,
+          onConfirm: this.onPanelConfirm,
+          onTimePickerSelect: this.onTimePickerSelect,
+          onStartHeaderLabelClick: this.onStartPanelHeaderLabelClick,
+          onEndHeaderLabelClick: this.onEndPanelHeaderLabelClick,
+          onStartHeaderSelect: this.onStartPanelHeaderSelect,
+          onEndHeaderSelect: this.onEndPanelHeaderSelect,
+        };
+      },
+    },
+    methods: {
+      getDefaultFormat(mode = 'date', showTime = false) {
+        switch (mode) {
+          case 'date':
+            return showTime ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD';
+          case 'month':
+            return 'YYYY-MM';
+          case 'year':
+            return 'YYYY';
+          case 'week':
+            return 'gggg-wo';
+          case 'quarter':
+            return 'YYYY-[Q]Q';
+          default:
+            return 'YYYY-MM-DD';
+        }
+      },
+      getFocusedIndex(cur = 0) {
+        return this.disabledArray && this.disabledArray[cur] ? cur ^ 1 : cur;
+      },
+      setPanelVisible(newVisible) {
+        if (this.panelVisible !== newVisible) {
+          this.localPanelVisible = newVisible;
+          this.$emit('popup-visible-change', newVisible);
+          this.$emit('update:popupVisible', newVisible);
+        }
+      },
+
+      onChange(newVal) {
+        const returnValue = getReturnRangeValue(newVal, this.returnValueFormat);
+        const formattedValue = getFormattedValue(newVal, this.parseValueFormat);
+        const dateValue = getDateValue(newVal);
+        this.$emit('picker-value-change', returnValue, dateValue, formattedValue);
+        this.$emit('update:pickerValue', returnValue);
+      },
+      // --------------
+      isSameStart(current, target) {
+        const computedMode = this.startHeaderMode || 'date';
+        const unit =
+          computedMode === 'date' || computedMode === 'week' ? 'M' : 'y';
+        return current.isSame(target, unit);
+      },
+      setStartLocalValue(newVal) {
+        if (!newVal) return;
+        this.startLocalValue = newVal;
+      },
+      setStartHeaderValue(newVal, emitChange = true) {
+        if (!newVal) return;
+        if (emitChange && !this.isSameStart(this.startHeaderValue, newVal)) {
+          this.onChange([newVal, this.endHeaderValue]);
+        }
+        this.setStartLocalValue(newVal);
+      },
+      getDefaultStartHeaderValue() {
+        return this.computedStartDefaultValue || getNow();
+      },
+      resetStartHeaderValue(emitChange = true) {
+        const defaultLocalValue = this.getDefaultStartHeaderValue();
+        if (emitChange) {
+          this.setStartHeaderValue(defaultLocalValue);
+        } else {
+          this.setStartLocalValue(defaultLocalValue);
+        }
+      },
+      // ***************END***************
+      isSameEnd(current, target) {
+        const computedMode = this.endHeaderMode || 'date';
+        const unit =
+          computedMode === 'date' || computedMode === 'week' ? 'M' : 'y';
+        return current.isSame(target, unit);
+      },
+      setLocalValue(newVal) {
+        if (!newVal) return;
+        this.endLocalValue = newVal;
+      },
+      setEndHeaderValue(newVal, emitChange = true) {
+        if (!newVal) return;
+        if (emitChange && !this.isSameEnd(this.endHeaderValue, newVal)) {
+          this.onChange([this.startHeaderValue, newVal]);
+        }
+        this.setLocalValue(newVal);
+      },
+      getDefaultEndHeaderValue() {
+        return this.computedEndDefaultValue || getNow();
+      },
+      resetEndHeaderValue(emitChange = true) {
+        const defaultLocalValue = this.getDefaultEndHeaderValue();
+        if (emitChange) {
+          this.setEndHeaderValue(defaultLocalValue);
+        } else {
+          this.setLocalValue(defaultLocalValue);
+        }
+      },
+      // -1-------
+      setHeaderValue(newVal) {
+        const isSameStartValue = this.startHeaderValue.isSame(
+          newVal[0],
+          this.unit
+        );
+        const isSameEndValue = this.endHeaderValue.isSame(newVal[1], this.unit);
+        this.setStartHeaderValue(newVal[0], false);
+        this.setEndHeaderValue(newVal[1], false);
+        if (!isSameStartValue || !isSameEndValue) {
+          this.onChange(newVal);
+        }
+      },
+      getFixedValue(values) {
+        // eslint-disable-next-line prefer-const
+        let [header0, header1] = getSortedDayjsArray(values);
+        const nextHeader = methods.add(header0, this.span, 'M');
+        if (header1.isBefore(nextHeader, this.unit)) {
+          header1 = nextHeader;
+        }
+        return [header0, header1];
+      },
+      getFormSelectedValue() {
+        let selected0 = this.panelValue && this.panelValue[0];
+        let selected1 = this.panelValue && this.panelValue[1];
+        if (selected0 && selected1) {
+          [selected0, selected1] = getSortedDayjsArray([selected0, selected1]);
+        }
+        return [selected0, selected1];
+      },
+      resetHeaderValue() {
+        const defaultStartHeaderValue = this.getDefaultStartHeaderValue();
+        const defaultEndHeaderValue = this.getDefaultEndHeaderValue();
+        this.$nextTick(() => {
+          const [selected0, selected1] = this.getFormSelectedValue();
+          const [header0, header1] = this.getFixedValue([
+            selected0 || defaultStartHeaderValue,
+            selected1 || defaultEndHeaderValue,
+          ]);
+          this.setHeaderValue([header0, header1]);
+        });
+      },
+
+      onStartPanelHeaderLabelClick(type) {
+        this.startHeaderMode = type;
+      },
+      onEndPanelHeaderLabelClick(type) {
+        this.endHeaderMode = type;
+      },
+      onStartPanelHeaderSelect(date) {
+        let newStartValue = this.startHeaderValue;
+        newStartValue = newStartValue.set('year', date.year());
+        if (this.startHeaderMode === 'month') {
+          newStartValue = newStartValue.set('month', date.month());
+        }
+        this.setHeaderValue([newStartValue, this.endHeaderValue]);
+        this.startHeaderMode = undefined;
+      },
+      onEndPanelHeaderSelect(date) {
+        let newEndValue = this.endHeaderValue;
+        newEndValue = newEndValue.set('year', date.year());
+        if (this.endHeaderMode === 'month') {
+          newEndValue = newEndValue.set('month', date.month());
+        }
+        this.setHeaderValue([this.startHeaderValue, newEndValue]);
+        this.endHeaderMode = undefined;
+      },
+      setTimePickerValue(val) {
+        if (!val) return;
+        const [start, end] = val;
+        this.startTimeValue = start;
+        this.endTimeValue = end;
+      },
+      resetTimePickerValue() {
+        this.startTimeValue =
+          this.sValue || this.startDefaultTimePickerValue || getNow();
+        this.endTimeValue =
+          this.eValue || this.endDefaultTimePickerValue || getNow();
+      },
+      isDisabledItem(num, getDisabledList) {
+        const list = (getDisabledList && getDisabledList()) || [];
+        return list.includes(num);
+      },
+      isDisabledDate(value, type) {
+        return (
+          value &&
+          (this.useIsDisabledDate(value, type || 'start') ||
+            this.useIsDisabledTime(value, type || 'start'))
+        );
+      },
+      emitChange(value, emitOk) {
+        const returnValue = value
+          ? getReturnRangeValue(value, this.returnValueFormat)
+          : undefined;
+        const formattedValue = getFormattedValue(value, this.parseValueFormat);
+        const dateValue = getDateValue(value);
+        if (isValueChange(value, this.selectedValue)) {
+          this.$emit('update:modelValue', returnValue);
+          this.$emit('change', returnValue, dateValue, formattedValue);
+          this.eventHandlers && this.eventHandlers.onChange();
+        }
+        if (emitOk) {
+          this.$emit('ok', returnValue, dateValue, formattedValue);
+        }
+      },
+      confirm(value, showPanel, emitOk) {
+        if (
+          this.isDisabledDate(value && value[0], 'start') ||
+          this.isDisabledDate(value && value[1], 'end')
+        ) {
+          return;
+        }
+        let newValue = value ? [...value] : undefined;
+        if (isCompleteRangeValue(newValue)) {
+          let sortedValue = getSortedDayjsArray(newValue);
+          if (this.hasTime && !this.exchangeTime) {
+            sortedValue = [
+              this.getMergedOpValue(sortedValue[0], newValue[0]),
+              this.getMergedOpValue(sortedValue[1], newValue[1]),
+            ];
+          }
+          newValue = sortedValue;
+        }
+        this.emitChange(newValue, emitOk);
+        this.localValue = newValue || [];
+        this.processValue = undefined;
+        this.previewValue = undefined;
+        this.inputValue = undefined;
+        this.startHeaderMode = undefined;
+        this.endHeaderMode = undefined;
+        if (isBoolean(showPanel)) {
+          this.setPanelVisible(showPanel);
+        }
+      },
+      emitSelectEvent(value) {
+        const returnValue = getReturnRangeValue(value, this.returnValueFormat);
+        const formattedValue = getFormattedValue(value, this.parseValueFormat);
+        const dateValue = getDateValue(value);
+        this.$emit('select', returnValue, dateValue, formattedValue);
+      },
+      select(value, options) {
+        const { emitSelect = false, updateHeader = false } = options || {};
+        let newValue = [...value];
+        if (isCompleteRangeValue(newValue)) {
+          newValue = getSortedDayjsArray(newValue);
+        }
+        this.processValue = newValue;
+        this.previewValue = undefined;
+        this.inputValue = undefined;
+        this.startHeaderMode = undefined;
+        this.endHeaderMode = undefined;
+        if (emitSelect) {
+          this.emitSelectEvent(newValue);
+        }
+        if (updateHeader) {
+          this.resetHeaderValue();
+        }
+      },
+      preview(value, options) {
+        const { updateHeader = false } = options || {};
+        this.previewValue = value;
+        this.inputValue = undefined;
+        if (updateHeader) {
+          this.resetHeaderValue();
+        }
+      },
+      focusInput(index) {
+        this.$refs.refInput && this.$refs.refInput.focus(index);
+      },
+      getMergedOpValue(date, time) {
+        if (!this.hasTime) return date;
+        return mergeValueWithTime(getNow(), date, time);
+      },
+      onPanelCellMouseEnter(date) {
+        if (
+          this.processValue &&
+          this.panelValue[this.nextFocusedIndex] &&
+          (!this.needConfirm || !isCompleteRangeValue(this.processValue))
+        ) {
+          const newValue = [...this.panelValue];
+          const mergedOpValue = this.getMergedOpValue(
+            date,
+            this.timePickerValue[this.focusedIndex]
+          );
+          newValue[this.focusedIndex] = mergedOpValue;
+          this.preview(newValue);
+        }
+      },
+      getValueToModify(isTime = false) {
+        if (this.isNextDisabled) return [...this.selectedValue];
+        if (this.processValue) {
+          return isTime || !isCompleteRangeValue(this.processValue)
+            ? [...this.processValue]
+            : [];
+        }
+        return isTime ? [...this.selectedValue] : [];
+      },
+      onPanelCellClick(date) {
+        console.log('单击', date);
+        const newValue = this.getValueToModify();
+        const mergedOpValue = this.getMergedOpValue(
+          date,
+          this.timePickerValue[this.focusedIndex]
+        );
+        newValue[this.focusedIndex] = mergedOpValue;
+        this.emitSelectEvent(newValue);
+        if (!this.needConfirm && isCompleteRangeValue(newValue)) {
+          this.confirm(newValue, false);
+        } else {
+          this.select(newValue);
+          if (!isCompleteRangeValue(newValue)) {
+            this.focusedIndex = this.nextFocusedIndex;
+          }
+        }
+      },
+      onTimePickerSelect(time, type) {
+        const updateIndex = type === 'start' ? 0 : 1;
+        const mergedOpValue = this.getMergedOpValue(
+          this.timePickerValue[updateIndex],
+          time
+        );
+        const newTimeValue = [...this.timePickerValue];
+        newTimeValue[updateIndex] = mergedOpValue;
+        this.setTimePickerValue(newTimeValue);
+
+        const newValue = this.getValueToModify(true);
+        if (newValue[updateIndex]) {
+          newValue[updateIndex] = mergedOpValue;
+          this.select(newValue, { emitSelect: true });
+        }
+      },
+      onPanelShortcutMouseEnter(value) {
+        clearTimeout(clearShortcutPreviewTimer);
+        this.preview(value, { updateHeader: true });
+      },
+      onPanelShortcutMouseLeave() {
+        clearTimeout(clearShortcutPreviewTimer);
+        clearShortcutPreviewTimer = setTimeout(() => {
+          this.previewValue = undefined;
+          this.inputValue = undefined;
+          this.resetHeaderValue();
+        }, 100);
+      },
+      onPanelShortcutClick(value, shortcut) {
+        this.$emit('select-shortcut', shortcut);
+        this.confirm(value, false);
+      },
+      onPanelConfirm() {
+        this.confirm(this.panelValue, false, true);
+      },
+      onInputClear(e) {
+        e.stopPropagation();
+        this.confirm(undefined);
+        this.$emit('clear');
+      },
+      onInputChange(e) {
+        this.setPanelVisible(true);
+        const targetValue = e.target.value;
+        // TODO: Null value should be restored to the current value, invalid when deleted as a whole
+        if (!targetValue) {
+          this.inputValue = undefined;
+          return;
+        }
+        const formattedPanelValue = getFormattedValue(
+          this.panelValue,
+          this.computedFormat
+        );
+        const newInputValue = isArray(this.inputValue)
+          ? [...this.inputValue]
+          : formattedPanelValue || [];
+
+        newInputValue[this.focusedIndex] = targetValue;
+        this.inputValue = newInputValue;
+        if (!isValidInputValue(targetValue, this.computedFormat)) return;
+        const targetValueDayjs = dayjs(targetValue, this.computedFormat);
+        if (
+          this.isDisabledDate(
+            targetValueDayjs,
+            this.focusedIndex === 0 ? 'start' : 'end'
+          )
+        )
+          return;
+
+        const newValue = isArray(this.panelValue) ? [...this.panelValue] : [];
+        newValue[this.focusedIndex] = targetValueDayjs;
+        this.select(newValue, { updateHeader: true });
+      },
+      onInputPressEnter() {
+        if (isValidRangeValue(this.panelValue)) {
+          this.confirm(this.panelValue, false);
+        } else {
+          this.focusedIndex = this.nextFocusedIndex;
+        }
+      },
+    },
+    beforeDestroy() {
+      clearTimeout(clearShortcutPreviewTimer);
+    },
+  };
+
+  // eslint-disable-next-line func-names
+  RangePickerPro.install = function (Vue) {
+    Vue.component(RangePickerPro.name, RangePickerPro);
+  };
 
   var css_248z$6 = ".ljc-input-wrapper{background-color:#f2f3f5;border:1px solid transparent;border-radius:2px;-webkit-box-sizing:border-box;box-sizing:border-box;color:#1d2129;cursor:text;display:-webkit-inline-box;display:-webkit-inline-flex;display:-ms-inline-flexbox;display:inline-flex;font-size:14px;padding-left:12px;padding-right:12px;-webkit-transition:color .1s linear,border-color .1s linear,background-color .1s linear;transition:color .1s linear,border-color .1s linear,background-color .1s linear;width:100%}.ljc-input-wrapper:hover{background-color:#e5e6eb;border-color:transparent}.ljc-input-wrapper.ljc-input-focus,.ljc-input-wrapper:focus-within{background-color:#fff;border-color:#165dff;-webkit-box-shadow:0 0 0 0 #bedaff;box-shadow:0 0 0 0 #bedaff}.ljc-input-wrapper.ljc-input-disabled{cursor:not-allowed}.ljc-input-wrapper.ljc-input-disabled,.ljc-input-wrapper.ljc-input-disabled:hover{background-color:#f2f3f5;border-color:transparent;color:#c9cdd4}.ljc-input-wrapper.ljc-input-disabled .ljc-input-prefix,.ljc-input-wrapper.ljc-input-disabled .ljc-input-suffix{color:inherit}.ljc-input-wrapper.ljc-input-error{background-color:#ffece8;border-color:transparent}.ljc-input-wrapper.ljc-input-error:hover{background-color:#fdcdc5;border-color:transparent}.ljc-input-wrapper.ljc-input-error.ljc-input-wrapper-focus,.ljc-input-wrapper.ljc-input-error:focus-within{background-color:#fff;border-color:#f53f3f;-webkit-box-shadow:0 0 0 0 #fdcdc5;box-shadow:0 0 0 0 #fdcdc5}.ljc-input-wrapper .ljc-input-prefix,.ljc-input-wrapper .ljc-input-suffix{-ms-flex-negative:0;-webkit-box-align:center;-ms-flex-align:center;-webkit-align-items:center;align-items:center;display:-webkit-inline-box;display:-webkit-inline-flex;display:-ms-inline-flexbox;display:inline-flex;-webkit-flex-shrink:0;flex-shrink:0;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;white-space:nowrap}.ljc-input-wrapper .ljc-input-prefix>svg,.ljc-input-wrapper .ljc-input-suffix>svg{font-size:14px}.ljc-input-wrapper .ljc-input-prefix{color:#4e5969;padding-right:12px}.ljc-input-wrapper .ljc-input-suffix{color:#4e5969;padding-left:12px}.ljc-input-wrapper .ljc-input-suffix .ljc-feedback-icon{display:-webkit-inline-box;display:-webkit-inline-flex;display:-ms-inline-flexbox;display:inline-flex}.ljc-input-wrapper .ljc-input-suffix .ljc-feedback-icon-status-validating{color:#165dff}.ljc-input-wrapper .ljc-input-suffix .ljc-feedback-icon-status-success{color:#00b42a}.ljc-input-wrapper .ljc-input-suffix .ljc-feedback-icon-status-warning{color:#ff7d00}.ljc-input-wrapper .ljc-input-suffix .ljc-feedback-icon-status-error{color:#f53f3f}.ljc-input-wrapper .ljc-input-clear-btn{-ms-flex-item-align:center;-webkit-align-self:center;align-self:center;color:#4e5969;cursor:pointer;font-size:12px;visibility:hidden}.ljc-input-wrapper .ljc-input-clear-btn>svg{position:relative;-webkit-transition:color .1s linear;transition:color .1s linear}.ljc-input-wrapper:hover .ljc-input-clear-btn{visibility:visible}.ljc-input-wrapper:not(.ljc-input-focus) .ljc-input-icon-hover:hover:before{background-color:#c9cdd4}.ljc-input-wrapper .ljc-input{-webkit-tap-highlight-color:rgba(0,0,0,0);-webkit-appearance:none;background:none;border:none;border-radius:0;color:inherit;cursor:inherit;line-height:1.5715;outline:none;padding-left:0;padding-right:0;width:100%}.ljc-input-wrapper .ljc-input::-webkit-input-placeholder{color:#86909c}.ljc-input-wrapper .ljc-input::-moz-placeholder{color:#86909c}.ljc-input-wrapper .ljc-input::-ms-input-placeholder{color:#86909c}.ljc-input-wrapper .ljc-input::placeholder{color:#86909c}.ljc-input-wrapper .ljc-input[disabled]::-webkit-input-placeholder{color:#c9cdd4}.ljc-input-wrapper .ljc-input[disabled]::-moz-placeholder{color:#c9cdd4}.ljc-input-wrapper .ljc-input[disabled]::-ms-input-placeholder{color:#c9cdd4}.ljc-input-wrapper .ljc-input[disabled]::placeholder{color:#c9cdd4}.ljc-input-wrapper .ljc-input[disabled]{-webkit-text-fill-color:#c9cdd4}.ljc-input-wrapper .ljc-input.ljc-input-size-mini{font-size:12px;line-height:1.667;padding-bottom:1px;padding-top:1px}.ljc-input-wrapper .ljc-input.ljc-input-size-small{font-size:14px;line-height:1.5715;padding-bottom:2px;padding-top:2px}.ljc-input-wrapper .ljc-input.ljc-input-size-medium{font-size:14px;line-height:1.5715;padding-bottom:4px;padding-top:4px}.ljc-input-wrapper .ljc-input.ljc-input-size-large{font-size:14px;line-height:1.5715;padding-bottom:6px;padding-top:6px}.ljc-input-wrapper .ljc-input-word-limit{color:#86909c;font-size:12px}.ljc-input-outer{display:-webkit-inline-box;display:-webkit-inline-flex;display:-ms-inline-flexbox;display:inline-flex;width:100%}.ljc-input-outer>.ljc-input-wrapper{border-radius:0}.ljc-input-outer>:first-child{border-bottom-left-radius:2px;border-top-left-radius:2px}.ljc-input-outer>:last-child{border-bottom-right-radius:2px;border-top-right-radius:2px}.ljc-input-outer.ljc-input-outer-size-mini .ljc-input-append,.ljc-input-outer.ljc-input-outer-size-mini .ljc-input-append>svg,.ljc-input-outer.ljc-input-outer-size-mini .ljc-input-outer,.ljc-input-outer.ljc-input-outer-size-mini .ljc-input-prepend,.ljc-input-outer.ljc-input-outer-size-mini .ljc-input-prepend>svg,.ljc-input-outer.ljc-input-outer-size-mini .ljc-input-wrapper .ljc-input-prefix,.ljc-input-outer.ljc-input-outer-size-mini .ljc-input-wrapper .ljc-input-prefix>svg,.ljc-input-outer.ljc-input-outer-size-mini .ljc-input-wrapper .ljc-input-suffix,.ljc-input-outer.ljc-input-outer-size-mini .ljc-input-wrapper .ljc-input-suffix>svg{font-size:12px}.ljc-input-outer.ljc-input-outer-size-mini .ljc-input-prepend .ljc-input{border-bottom-left-radius:0;border-color:transparent;border-top-left-radius:0;height:100%;margin:-1px -13px -1px -12px;width:auto}.ljc-input-outer.ljc-input-outer-size-mini .ljc-input-prepend .ljc-select{height:100%;margin:-1px -13px -1px -12px;width:auto}.ljc-input-outer.ljc-input-outer-size-mini .ljc-input-prepend .ljc-select .ljc-select-view{background-color:inherit;border-color:transparent;border-radius:0}.ljc-input-outer.ljc-input-outer-size-mini .ljc-input-prepend .ljc-select.ljc-select-single .ljc-select-view{height:100%}.ljc-input-outer.ljc-input-outer-size-mini .ljc-input-append .ljc-input{border-bottom-right-radius:0;border-color:transparent;border-top-right-radius:0;height:100%;margin:-1px -12px -1px -13px;width:auto}.ljc-input-outer.ljc-input-outer-size-mini .ljc-input-append .ljc-select{height:100%;margin:-1px -12px -1px -13px;width:auto}.ljc-input-outer.ljc-input-outer-size-mini .ljc-input-append .ljc-select .ljc-select-view{background-color:inherit;border-color:transparent;border-radius:0}.ljc-input-outer.ljc-input-outer-size-mini .ljc-input-append .ljc-select.ljc-select-single .ljc-select-view{height:100%}.ljc-input-outer.ljc-input-outer-size-small .ljc-input-append,.ljc-input-outer.ljc-input-outer-size-small .ljc-input-append>svg,.ljc-input-outer.ljc-input-outer-size-small .ljc-input-outer,.ljc-input-outer.ljc-input-outer-size-small .ljc-input-prepend,.ljc-input-outer.ljc-input-outer-size-small .ljc-input-prepend>svg,.ljc-input-outer.ljc-input-outer-size-small .ljc-input-wrapper .ljc-input-prefix,.ljc-input-outer.ljc-input-outer-size-small .ljc-input-wrapper .ljc-input-prefix>svg,.ljc-input-outer.ljc-input-outer-size-small .ljc-input-wrapper .ljc-input-suffix,.ljc-input-outer.ljc-input-outer-size-small .ljc-input-wrapper .ljc-input-suffix>svg{font-size:14px}.ljc-input-outer.ljc-input-outer-size-small .ljc-input-prepend .ljc-input{border-bottom-left-radius:0;border-color:transparent;border-top-left-radius:0;height:100%;margin:-1px -13px -1px -12px;width:auto}.ljc-input-outer.ljc-input-outer-size-small .ljc-input-prepend .ljc-select{height:100%;margin:-1px -13px -1px -12px;width:auto}.ljc-input-outer.ljc-input-outer-size-small .ljc-input-prepend .ljc-select .ljc-select-view{background-color:inherit;border-color:transparent;border-radius:0}.ljc-input-outer.ljc-input-outer-size-small .ljc-input-prepend .ljc-select.ljc-select-single .ljc-select-view{height:100%}.ljc-input-outer.ljc-input-outer-size-small .ljc-input-append .ljc-input{border-bottom-right-radius:0;border-color:transparent;border-top-right-radius:0;height:100%;margin:-1px -12px -1px -13px;width:auto}.ljc-input-outer.ljc-input-outer-size-small .ljc-input-append .ljc-select{height:100%;margin:-1px -12px -1px -13px;width:auto}.ljc-input-outer.ljc-input-outer-size-small .ljc-input-append .ljc-select .ljc-select-view{background-color:inherit;border-color:transparent;border-radius:0}.ljc-input-outer.ljc-input-outer-size-small .ljc-input-append .ljc-select.ljc-select-single .ljc-select-view{height:100%}.ljc-input-outer.ljc-input-outer-size-large .ljc-input-append,.ljc-input-outer.ljc-input-outer-size-large .ljc-input-append>svg,.ljc-input-outer.ljc-input-outer-size-large .ljc-input-outer,.ljc-input-outer.ljc-input-outer-size-large .ljc-input-prepend,.ljc-input-outer.ljc-input-outer-size-large .ljc-input-prepend>svg,.ljc-input-outer.ljc-input-outer-size-large .ljc-input-wrapper .ljc-input-prefix,.ljc-input-outer.ljc-input-outer-size-large .ljc-input-wrapper .ljc-input-prefix>svg,.ljc-input-outer.ljc-input-outer-size-large .ljc-input-wrapper .ljc-input-suffix,.ljc-input-outer.ljc-input-outer-size-large .ljc-input-wrapper .ljc-input-suffix>svg{font-size:14px}.ljc-input-outer.ljc-input-outer-size-large .ljc-input-prepend .ljc-input{border-bottom-left-radius:0;border-color:transparent;border-top-left-radius:0;height:100%;margin:-1px -13px -1px -12px;width:auto}.ljc-input-outer.ljc-input-outer-size-large .ljc-input-prepend .ljc-select{height:100%;margin:-1px -13px -1px -12px;width:auto}.ljc-input-outer.ljc-input-outer-size-large .ljc-input-prepend .ljc-select .ljc-select-view{background-color:inherit;border-color:transparent;border-radius:0}.ljc-input-outer.ljc-input-outer-size-large .ljc-input-prepend .ljc-select.ljc-select-single .ljc-select-view{height:100%}.ljc-input-outer.ljc-input-outer-size-large .ljc-input-append .ljc-input{border-bottom-right-radius:0;border-color:transparent;border-top-right-radius:0;height:100%;margin:-1px -12px -1px -13px;width:auto}.ljc-input-outer.ljc-input-outer-size-large .ljc-input-append .ljc-select{height:100%;margin:-1px -12px -1px -13px;width:auto}.ljc-input-outer.ljc-input-outer-size-large .ljc-input-append .ljc-select .ljc-select-view{background-color:inherit;border-color:transparent;border-radius:0}.ljc-input-outer.ljc-input-outer-size-large .ljc-input-append .ljc-select.ljc-select-single .ljc-select-view{height:100%}.ljc-input-outer-disabled{cursor:not-allowed}.ljc-input-append,.ljc-input-prepend{-ms-flex-negative:0;-webkit-box-align:center;-ms-flex-align:center;-webkit-align-items:center;align-items:center;background-color:#f2f3f5;border:1px solid transparent;-webkit-box-sizing:border-box;box-sizing:border-box;color:#1d2129;display:-webkit-inline-box;display:-webkit-inline-flex;display:-ms-inline-flexbox;display:inline-flex;-webkit-flex-shrink:0;flex-shrink:0;padding:0 12px;white-space:nowrap}.ljc-input-append>svg,.ljc-input-prepend>svg{font-size:14px}.ljc-input-prepend{border-right:1px solid #e5e6eb}.ljc-input-prepend .ljc-input{border-bottom-right-radius:0;border-color:transparent;border-top-right-radius:0}.ljc-input-prepend .ljc-input,.ljc-input-prepend .ljc-select{height:100%;margin:-1px -12px -1px -13px;width:auto}.ljc-input-prepend .ljc-select .ljc-select-view{background-color:inherit;border-color:transparent;border-radius:0}.ljc-input-prepend .ljc-select.ljc-select-single .ljc-select-view{height:100%}.ljc-input-append{border-left:1px solid #e5e6eb}.ljc-input-append .ljc-input{border-bottom-left-radius:0;border-color:transparent;border-top-left-radius:0}.ljc-input-append .ljc-input,.ljc-input-append .ljc-select{height:100%;margin:-1px -13px -1px -12px;width:auto}.ljc-input-append .ljc-select .ljc-select-view{background-color:inherit;border-color:transparent;border-radius:0}.ljc-input-append .ljc-select.ljc-select-single .ljc-select-view{height:100%}.ljc-input-group{-webkit-box-align:center;-ms-flex-align:center;-webkit-align-items:center;align-items:center;display:-webkit-inline-box;display:-webkit-inline-flex;display:-ms-inline-flexbox;display:inline-flex}.ljc-input-group>*,.ljc-input-group>.ljc-input-outer>:first-child,.ljc-input-group>.ljc-input-outer>:last-child{border-radius:0}.ljc-input-group>:not(:last-child){-webkit-box-sizing:border-box;box-sizing:border-box;position:relative}.ljc-input-group>:first-child,.ljc-input-group>:first-child .ljc-input-group>:first-child,.ljc-input-group>:first-child .ljc-input-group>:first-child .ljc-select-view,.ljc-input-group>:first-child .ljc-select-view{border-bottom-left-radius:2px;border-top-left-radius:2px}.ljc-input-group>:last-child,.ljc-input-group>:last-child .ljc-input-outer>:last-child,.ljc-input-group>:last-child .ljc-input-outer>:last-child .ljc-select-view,.ljc-input-group>:last-child .ljc-select-view{border-bottom-right-radius:2px;border-top-right-radius:2px}.ljc-input-group>.ljc-input-outer:not(:last-child),.ljc-input-group>.ljc-input-tag:not(:last-child),.ljc-input-group>.ljc-input-wrapper:not(:last-child),.ljc-input-group>.ljc-select-view:not(:last-child){border-right:1px solid #e5e6eb}.ljc-input-group>.ljc-input-outer:not(:last-child):focus-within,.ljc-input-group>.ljc-input-tag:not(:last-child):focus-within,.ljc-input-group>.ljc-input-wrapper:not(:last-child):focus-within,.ljc-input-group>.ljc-select-view:not(:last-child):focus-within{border-right-color:#165dff}.size-height-size-mini{font-size:12px;line-height:1.667;padding-bottom:1px;padding-top:1px}.size-height-size-small{font-size:14px;padding-bottom:2px;padding-top:2px}.size-height-size-large{font-size:14px;padding-bottom:6px;padding-top:6px}";
   styleInject(css_248z$6);
@@ -6826,13 +7623,13 @@
   var css_248z$2 = ".ljc-picker-link{-webkit-box-align:center;-ms-flex-align:center;-webkit-box-pack:center;-ms-flex-pack:center;-webkit-align-items:center;align-items:center;background-color:transparent;border-radius:2px;color:#165dff;cursor:pointer;display:-webkit-inline-box;display:-webkit-inline-flex;display:-ms-inline-flexbox;display:inline-flex;font-size:14px;-webkit-justify-content:center;justify-content:center;line-height:1.5715;padding:1px 2px;text-decoration:none;-webkit-transition:all .1s linear;transition:all .1s linear}.ljc-picker-link:hover{background-color:#f2f3f5;color:#165dff}.ljc-picker-link:active{background-color:#e5e6eb;color:#165dff;-webkit-transition:none;transition:none}.ljc-picker-link.ljc-picker-link-disabled{background:none;color:#94bfff;cursor:not-allowed}";
   styleInject(css_248z$2);
 
-  var css_248z$1 = ".ljc-picker{-webkit-box-align:center;-ms-flex-align:center;-webkit-align-items:center;align-items:center;background-color:#f2f3f5;border:1px solid transparent;border-radius:2px;-webkit-box-sizing:border-box;box-sizing:border-box;line-height:1.5715;padding:4px 11px 4px 4px;position:relative;-webkit-transition:all .1s linear;transition:all .1s linear}.ljc-picker,.ljc-picker-input{display:-webkit-inline-box;display:-webkit-inline-flex;display:-ms-inline-flexbox;display:inline-flex}.ljc-picker-input{-webkit-box-flex:1;-webkit-flex:1;-ms-flex:1;flex:1}.ljc-picker input{background-color:transparent;border:none;color:#4e5969;line-height:1.5715;outline:none;padding:0 0 0 8px;text-align:left;-webkit-transition:all .1s linear;transition:all .1s linear;width:100%}.ljc-picker input::-webkit-input-placeholder{color:#86909c}.ljc-picker input::-moz-placeholder{color:#86909c}.ljc-picker input::-ms-input-placeholder{color:#86909c}.ljc-picker input::placeholder{color:#86909c}.ljc-picker input[disabled]{-webkit-text-fill-color:#c9cdd4}.ljc-picker-suffix{-webkit-box-align:center;-ms-flex-align:center;-webkit-align-items:center;align-items:center;display:-webkit-inline-box;display:-webkit-inline-flex;display:-ms-inline-flexbox;display:inline-flex;margin-left:4px;width:1em}.ljc-picker-suffix-icon{color:#4e5969}.ljc-picker .ljc-picker-clear-icon{color:#4e5969;display:none;font-size:12px}.ljc-picker:hover{background-color:#e5e6eb;border-color:transparent}.ljc-picker:not(.ljc-picker-disabled):hover .ljc-picker-clear-icon{display:inline-block}.ljc-picker:not(.ljc-picker-disabled):hover .ljc-picker-suffix .ljc-picker-clear-icon+span{display:none}.ljc-picker input[disabled]{color:#c9cdd4;cursor:not-allowed}.ljc-picker input[disabled]::-webkit-input-placeholder{color:#c9cdd4}.ljc-picker input[disabled]::-moz-placeholder{color:#c9cdd4}.ljc-picker input[disabled]::-ms-input-placeholder{color:#c9cdd4}.ljc-picker input[disabled]::placeholder{color:#c9cdd4}.ljc-picker-error,.ljc-picker-error:hover{background-color:#fdcdc5;border-color:transparent}.ljc-picker-focused{-webkit-box-shadow:0 0 0 0 #e8f3ff;box-shadow:0 0 0 0 #e8f3ff}.ljc-picker-focused,.ljc-picker-focused:hover{background-color:#fff;border-color:#165dff}.ljc-picker-focused.ljc-picker-error{border-color:#f53f3f;-webkit-box-shadow:0 0 0 0 #fdcdc5;box-shadow:0 0 0 0 #fdcdc5}.ljc-picker-focused .ljc-picker-input-active input,.ljc-picker-focused:hover .ljc-picker-input-active input{background:#f2f3f5}.ljc-picker-disabled,.ljc-picker-disabled:hover{background-color:#f2f3f5;border-color:transparent;color:#c9cdd4;cursor:not-allowed}.ljc-picker-disabled input[disabled],.ljc-picker-disabled:hover input[disabled]{color:#c9cdd4;cursor:not-allowed}.ljc-picker-disabled input[disabled]::-webkit-input-placeholder,.ljc-picker-disabled:hover input[disabled]::-webkit-input-placeholder{color:#c9cdd4}.ljc-picker-disabled input[disabled]::-moz-placeholder,.ljc-picker-disabled:hover input[disabled]::-moz-placeholder{color:#c9cdd4}.ljc-picker-disabled input[disabled]::-ms-input-placeholder,.ljc-picker-disabled:hover input[disabled]::-ms-input-placeholder{color:#c9cdd4}.ljc-picker-disabled input[disabled]::placeholder,.ljc-picker-disabled:hover input[disabled]::placeholder{color:#c9cdd4}.ljc-picker-separator{color:#86909c;min-width:10px;padding:0 8px}.ljc-picker-disabled .ljc-picker-separator,.ljc-picker-disabled .ljc-picker-suffix-icon{color:#c9cdd4}.ljc-picker-size-mini{height:24px}.ljc-picker-size-mini input{font-size:12px}.ljc-picker-size-small{height:28px}.ljc-picker-size-small input{font-size:14px}.ljc-picker-size-medium{height:32px}.ljc-picker-size-medium input{font-size:14px}.ljc-picker-size-large{height:36px}.ljc-picker-size-large input{font-size:14px}";
+  var css_248z$1 = ".ljc-picker{-webkit-box-align:center;-ms-flex-align:center;-webkit-align-items:center;align-items:center;background-color:#f2f3f5;border:1px solid transparent;border-radius:2px;-webkit-box-sizing:border-box;box-sizing:border-box;line-height:1.5715;padding:4px 11px 4px 4px;position:relative;-webkit-transition:all .1s linear;transition:all .1s linear;width:inherit}.ljc-picker,.ljc-picker-input{display:-webkit-inline-box;display:-webkit-inline-flex;display:-ms-inline-flexbox;display:inline-flex}.ljc-picker-input{-webkit-box-flex:1;-webkit-flex:1;-ms-flex:1;flex:1}.ljc-picker input{background-color:transparent;border:none;color:#4e5969;line-height:1.5715;outline:none;padding:0 0 0 8px;text-align:left;-webkit-transition:all .1s linear;transition:all .1s linear;width:100%}.ljc-picker input::-webkit-input-placeholder{color:#86909c}.ljc-picker input::-moz-placeholder{color:#86909c}.ljc-picker input::-ms-input-placeholder{color:#86909c}.ljc-picker input::placeholder{color:#86909c}.ljc-picker input[disabled]{-webkit-text-fill-color:#c9cdd4}.ljc-picker-suffix{-webkit-box-align:center;-ms-flex-align:center;-webkit-align-items:center;align-items:center;display:-webkit-inline-box;display:-webkit-inline-flex;display:-ms-inline-flexbox;display:inline-flex;margin-left:4px;width:1em}.ljc-picker-suffix-icon{color:#4e5969}.ljc-picker .ljc-picker-clear-icon{color:#4e5969;display:none;font-size:12px}.ljc-picker:hover{background-color:#e5e6eb;border-color:transparent}.ljc-picker:not(.ljc-picker-disabled):hover .ljc-picker-clear-icon{display:inline-block}.ljc-picker:not(.ljc-picker-disabled):hover .ljc-picker-suffix .ljc-picker-clear-icon+span{display:none}.ljc-picker input[disabled]{color:#c9cdd4;cursor:not-allowed}.ljc-picker input[disabled]::-webkit-input-placeholder{color:#c9cdd4}.ljc-picker input[disabled]::-moz-placeholder{color:#c9cdd4}.ljc-picker input[disabled]::-ms-input-placeholder{color:#c9cdd4}.ljc-picker input[disabled]::placeholder{color:#c9cdd4}.ljc-picker-error,.ljc-picker-error:hover{background-color:#fdcdc5;border-color:transparent}.ljc-picker-focused{-webkit-box-shadow:0 0 0 0 #e8f3ff;box-shadow:0 0 0 0 #e8f3ff}.ljc-picker-focused,.ljc-picker-focused:hover{background-color:#fff;border-color:#165dff}.ljc-picker-focused.ljc-picker-error{border-color:#f53f3f;-webkit-box-shadow:0 0 0 0 #fdcdc5;box-shadow:0 0 0 0 #fdcdc5}.ljc-picker-focused .ljc-picker-input-active input,.ljc-picker-focused:hover .ljc-picker-input-active input{background:#f2f3f5}.ljc-picker-disabled,.ljc-picker-disabled:hover{background-color:#f2f3f5;border-color:transparent;color:#c9cdd4;cursor:not-allowed}.ljc-picker-disabled input[disabled],.ljc-picker-disabled:hover input[disabled]{color:#c9cdd4;cursor:not-allowed}.ljc-picker-disabled input[disabled]::-webkit-input-placeholder,.ljc-picker-disabled:hover input[disabled]::-webkit-input-placeholder{color:#c9cdd4}.ljc-picker-disabled input[disabled]::-moz-placeholder,.ljc-picker-disabled:hover input[disabled]::-moz-placeholder{color:#c9cdd4}.ljc-picker-disabled input[disabled]::-ms-input-placeholder,.ljc-picker-disabled:hover input[disabled]::-ms-input-placeholder{color:#c9cdd4}.ljc-picker-disabled input[disabled]::placeholder,.ljc-picker-disabled:hover input[disabled]::placeholder{color:#c9cdd4}.ljc-picker-separator{color:#86909c;min-width:10px;padding:0 8px}.ljc-picker-disabled .ljc-picker-separator,.ljc-picker-disabled .ljc-picker-suffix-icon{color:#c9cdd4}.ljc-picker-size-mini{height:24px}.ljc-picker-size-mini input{font-size:12px}.ljc-picker-size-small{height:28px}.ljc-picker-size-small input{font-size:14px}.ljc-picker-size-medium{height:32px}.ljc-picker-size-medium input{font-size:14px}.ljc-picker-size-large{height:36px}.ljc-picker-size-large input{font-size:14px}";
   styleInject(css_248z$1);
 
-  var css_248z = ".ljc-picker-container,.ljc-picker-range-container{background-color:#fff;border:1px solid #e5e6eb;border-radius:4px;-webkit-box-shadow:0 2px 5px rgba(0,0,0,.1);box-shadow:0 2px 5px rgba(0,0,0,.1);-webkit-box-sizing:border-box;box-sizing:border-box;min-height:60px;overflow:hidden;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.ljc-picker-container-shortcuts-placement-left,.ljc-picker-container-shortcuts-placement-right,.ljc-picker-range-container-shortcuts-placement-left,.ljc-picker-range-container-shortcuts-placement-right{-webkit-box-align:start;-ms-flex-align:start;-webkit-align-items:flex-start;align-items:flex-start;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex}.ljc-picker-container-shortcuts-placement-left>.ljc-picker-shortcuts,.ljc-picker-container-shortcuts-placement-right>.ljc-picker-shortcuts,.ljc-picker-range-container-shortcuts-placement-left>.ljc-picker-shortcuts,.ljc-picker-range-container-shortcuts-placement-right>.ljc-picker-shortcuts{-webkit-box-orient:vertical;-webkit-box-direction:normal;-webkit-box-sizing:border-box;box-sizing:border-box;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column;overflow-x:hidden;overflow-y:auto;padding:5px 8px}.ljc-picker-container-shortcuts-placement-left>.ljc-picker-shortcuts>*,.ljc-picker-container-shortcuts-placement-right>.ljc-picker-shortcuts>*,.ljc-picker-range-container-shortcuts-placement-left>.ljc-picker-shortcuts>*,.ljc-picker-range-container-shortcuts-placement-right>.ljc-picker-shortcuts>*{margin:5px 0}.ljc-picker-container-shortcuts-placement-left .ljc-picker-panel-wrapper,.ljc-picker-container-shortcuts-placement-left .ljc-picker-range-panel-wrapper,.ljc-picker-range-container-shortcuts-placement-left .ljc-picker-panel-wrapper,.ljc-picker-range-container-shortcuts-placement-left .ljc-picker-range-panel-wrapper{border-left:1px solid #e5e6eb}.ljc-picker-container-shortcuts-placement-right .ljc-picker-panel-wrapper,.ljc-picker-container-shortcuts-placement-right .ljc-picker-range-panel-wrapper,.ljc-picker-range-container-shortcuts-placement-right .ljc-picker-panel-wrapper,.ljc-picker-range-container-shortcuts-placement-right .ljc-picker-range-panel-wrapper{border-right:1px solid #e5e6eb}.ljc-picker-panel-only,.ljc-picker-range-panel-only{-webkit-box-shadow:none;box-shadow:none}.ljc-picker-panel-only .ljc-panel-date-inner,.ljc-picker-range-panel-only .ljc-panel-date,.ljc-picker-range-panel-only .ljc-panel-date-inner{width:100%}.ljc-picker-header{border-bottom:1px solid #e5e6eb;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;padding:8px 16px}.ljc-picker-header-title{-webkit-box-flex:1;color:#1d2129;cursor:pointer;-webkit-flex:1;-ms-flex:1;flex:1;font-size:14px;line-height:24px;text-align:center}.ljc-picker-header-icon{background-color:#fff;border-radius:50%;color:#4e5969;font-size:12px;height:24px;line-height:24px;margin-left:2px;margin-right:2px;text-align:center;-webkit-transition:all .1s linear;transition:all .1s linear;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;width:24px}.ljc-picker-header-icon:not(.ljc-picker-header-icon-hidden){cursor:pointer}.ljc-picker-header-icon:not(.ljc-picker-header-icon-hidden):hover{background-color:#e5e6eb}.ljc-picker-header-label{border-radius:2px;cursor:pointer;padding:2px;-webkit-transition:all .1s;transition:all .1s}.ljc-picker-header-label:hover{background-color:#e5e6eb}.ljc-picker-body{padding:9px 16px}.ljc-picker-week-list{-webkit-box-sizing:border-box;box-sizing:border-box;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;font-size:14px;padding:9px 16px 0;width:100%}.ljc-picker-week-list-item{-webkit-box-flex:1;color:#7d7d7f;-webkit-flex:1;-ms-flex:1;flex:1;font-weight:400;height:32px;line-height:32px;padding:0;text-align:center}.ljc-picker-row{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;padding:2px 0}.ljc-picker-cell{-webkit-box-flex:1;-webkit-flex:1;-ms-flex:1;flex:1}.ljc-picker-cell .ljc-picker-date{-webkit-box-orient:vertical;-webkit-box-direction:normal;-webkit-box-align:center;-ms-flex-align:center;-webkit-box-pack:center;-ms-flex-pack:center;-webkit-align-items:center;align-items:center;-webkit-box-sizing:border-box;box-sizing:border-box;cursor:pointer;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column;height:100%;-webkit-justify-content:center;justify-content:center;padding:4px 0;width:100%}.ljc-picker-date-value{border-radius:50%;color:#c9cdd4;cursor:pointer;font-size:14px;height:24px;line-height:24px;min-width:24px;text-align:center}.ljc-picker-date-lunar{color:#c9cdd4;font-size:12px;margin-top:-5px;-webkit-transform:scale(.8);transform:scale(.8);white-space:nowrap}.ljc-picker-cell-in-view .ljc-picker-date-value{color:#1d2129;font-weight:500}.ljc-picker-cell-in-view .ljc-picker-date-lunar{color:#86909c}.ljc-picker-cell-selected:not(.ljc-picker-cell-lunar) .ljc-picker-date-value{background-color:#165dff;color:#fff;-webkit-transition:background-color .1s linear;transition:background-color .1s linear}.ljc-picker-cell-lunar .ljc-picker-date{padding:0}.ljc-picker-cell-lunar:is(.ljc-picker-cell-selected) .ljc-picker-date{background-color:#165dff;border-radius:4px;-webkit-transition:background-color .1s linear;transition:background-color .1s linear}.ljc-picker-cell-lunar:is(.ljc-picker-cell-selected) .ljc-picker-date-lunar,.ljc-picker-cell-lunar:is(.ljc-picker-cell-selected) .ljc-picker-date-value{color:#fff}.ljc-picker-cell-in-view:not(.ljc-picker-cell-selected):not(.ljc-picker-cell-range-start):not(.ljc-picker-cell-range-end):not(.ljc-picker-cell-disabled):not(.ljc-picker-cell-week):not(.ljc-picker-cell-lunar) .ljc-picker-date-value:hover{background-color:#e5e6eb;color:#1d2129}.ljc-picker-cell-in-view:not(.ljc-picker-cell-selected):not(.ljc-picker-cell-range-start):not(.ljc-picker-cell-range-end):not(.ljc-picker-cell-disabled):not(.ljc-picker-cell-week):is(.ljc-picker-cell-lunar) .ljc-picker-date:hover{background-color:#e5e6eb;border-radius:4px;color:#1d2129}.ljc-picker-cell-today{position:relative}.ljc-picker-cell-today:after{background-color:#165dff;border-radius:50%;bottom:-2px;content:\"\";display:block;height:4px;left:50%;margin-left:-2px;position:absolute;width:4px}.ljc-picker-cell-in-range .ljc-picker-date{background-color:#e8f3ff}.ljc-picker-cell-range-start .ljc-picker-date{border-bottom-left-radius:24px;border-top-left-radius:24px}.ljc-picker-cell-range-end .ljc-picker-date{border-bottom-right-radius:24px;border-top-right-radius:24px}.ljc-picker-cell-in-range-near-hover .ljc-picker-date{border-radius:0}.ljc-picker-cell-range-end .ljc-picker-date-value,.ljc-picker-cell-range-start .ljc-picker-date-value{background-color:#165dff;border-radius:50%;color:#fff}.ljc-picker-cell-hover-in-range .ljc-picker-date{background-color:#e8f3ff}.ljc-picker-cell-hover-range-start .ljc-picker-date{border-radius:24px 0 0 24px}.ljc-picker-cell-hover-range-end .ljc-picker-date{border-radius:0 24px 24px 0}.ljc-picker-cell-hover-range-end .ljc-picker-date-value,.ljc-picker-cell-hover-range-start .ljc-picker-date-value{background-color:#bedaff;border-radius:50%;color:#1d2129}.ljc-picker-cell-disabled .ljc-picker-date{background-color:#f7f8fa;cursor:not-allowed}.ljc-picker-cell-disabled .ljc-picker-date-value{background-color:transparent;color:#c9cdd4;cursor:not-allowed}.ljc-picker-footer{min-width:100%;width:-webkit-min-content;width:-moz-min-content;width:min-content}.ljc-picker-footer-btn-wrapper{-webkit-box-align:center;-ms-flex-align:center;-webkit-box-pack:justify;-ms-flex-pack:justify;-webkit-align-items:center;align-items:center;border-top:1px solid #e5e6eb;-webkit-box-sizing:border-box;box-sizing:border-box;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-justify-content:space-between;justify-content:space-between;padding:3px 8px}.ljc-picker-footer-btn-wrapper :only-child{margin-left:auto}.ljc-picker-footer-extra-wrapper{color:#1d2129;font-size:12px;padding:8px 24px}.ljc-picker-footer-extra-wrapper,.ljc-picker-footer-now-wrapper{border-top:1px solid #e5e6eb;-webkit-box-sizing:border-box;box-sizing:border-box}.ljc-picker-footer-now-wrapper{height:36px;line-height:36px;text-align:center}.ljc-picker-btn-confirm{margin:5px 0}.ljc-picker-shortcuts{-webkit-box-flex:1;-webkit-flex:1;-ms-flex:1;flex:1}.ljc-picker-shortcuts>*{margin:5px 10px 5px 0}.slide-dynamic-origin-appear-from,.slide-dynamic-origin-enter-from{opacity:0;-webkit-transform:scaleY(.9);transform:scaleY(.9);-webkit-transform-origin:0 0;transform-origin:0 0}.slide-dynamic-origin-appear-to,.slide-dynamic-origin-enter-to{opacity:1;-webkit-transform:scaleY(1);transform:scaleY(1);-webkit-transform-origin:0 0;transform-origin:0 0}.slide-dynamic-origin-appear-active,.slide-dynamic-origin-enter-active{-webkit-transition:opacity .2s cubic-bezier(.34,.69,.1,1),-webkit-transform .2s cubic-bezier(.34,.69,.1,1);transition:opacity .2s cubic-bezier(.34,.69,.1,1),-webkit-transform .2s cubic-bezier(.34,.69,.1,1);transition:transform .2s cubic-bezier(.34,.69,.1,1),opacity .2s cubic-bezier(.34,.69,.1,1);transition:transform .2s cubic-bezier(.34,.69,.1,1),opacity .2s cubic-bezier(.34,.69,.1,1),-webkit-transform .2s cubic-bezier(.34,.69,.1,1)}.slide-dynamic-origin-leave-from{opacity:1;-webkit-transform:scaleY(1);transform:scaleY(1);-webkit-transform-origin:0 0;transform-origin:0 0}.slide-dynamic-origin-leave-to{opacity:0;-webkit-transform:scaleY(.9);transform:scaleY(.9);-webkit-transform-origin:0 0;transform-origin:0 0}.slide-dynamic-origin-leave-active{-webkit-transition:opacity .2s cubic-bezier(.34,.69,.1,1),-webkit-transform .2s cubic-bezier(.34,.69,.1,1);transition:opacity .2s cubic-bezier(.34,.69,.1,1),-webkit-transform .2s cubic-bezier(.34,.69,.1,1);transition:transform .2s cubic-bezier(.34,.69,.1,1),opacity .2s cubic-bezier(.34,.69,.1,1);transition:transform .2s cubic-bezier(.34,.69,.1,1),opacity .2s cubic-bezier(.34,.69,.1,1),-webkit-transform .2s cubic-bezier(.34,.69,.1,1)}.ljc-panel-date{-webkit-box-sizing:border-box;box-sizing:border-box;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex}.ljc-panel-date-inner{width:265px}.ljc-panel-date-inner .ljc-picker-body{padding-top:0}.ljc-panel-date-timepicker{-webkit-box-orient:vertical;-webkit-box-direction:normal;border-left:1px solid #e5e6eb;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column}.ljc-panel-date-timepicker-title{border-bottom:1px solid #e5e6eb;color:#1d2129;font-size:14px;font-weight:400;height:40px;line-height:40px;text-align:center;width:100%}.ljc-panel-date-timepicker .ljc-timepicker{height:276px;overflow:hidden;padding:0 6px}.ljc-panel-date-timepicker .ljc-timepicker-column{-webkit-box-sizing:border-box;box-sizing:border-box;height:100%;padding:0 4px;width:auto}.ljc-panel-date-timepicker .ljc-timepicker-column::-webkit-scrollbar{width:0}.ljc-panel-date-timepicker .ljc-timepicker-column:not(:last-child){border-right:0}.ljc-panel-date-timepicker .ljc-timepicker ul:after{height:244px}.ljc-panel-date-timepicker .ljc-timepicker-cell{width:36px}.ljc-panel-date-timepicker .ljc-timepicker-cell-inner{padding-left:10px}.ljc-panel-date-footer{border-right:1px solid #e5e6eb}.ljc-panel-date-with-view-tabs{-webkit-box-orient:vertical;-webkit-box-direction:normal;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column;min-width:265px}.ljc-panel-date-with-view-tabs .ljc-panel-date-timepicker .ljc-timepicker-column{-webkit-box-flex:1;-webkit-flex:1;-ms-flex:1;flex:1}.ljc-panel-date-with-view-tabs .ljc-panel-date-timepicker .ljc-timepicker-column::-webkit-scrollbar{width:0}.ljc-panel-date-with-view-tabs .ljc-panel-date-timepicker .ljc-timepicker-cell{text-align:center;width:100%}.ljc-panel-date-with-view-tabs .ljc-panel-date-timepicker .ljc-timepicker-cell-inner{padding-left:0}.ljc-panel-date-view-tabs{border-top:1px solid #e5e6eb;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex}.ljc-panel-date-view-tab-pane{-webkit-box-flex:1;border-right:1px solid #e5e6eb;color:#c9cdd4;cursor:pointer;-webkit-flex:1;-ms-flex:1;flex:1;font-size:14px;height:50px;line-height:50px;text-align:center}.ljc-panel-date-view-tab-pane:last-child{border-right:none}.ljc-panel-date-view-tab-pane-text{margin-left:8px}.ljc-panel-date-view-tab-pane-active{color:#1d2129}.ljc-panel-month,.ljc-panel-quarter,.ljc-panel-year{-webkit-box-sizing:border-box;box-sizing:border-box;width:265px}.ljc-panel-month .ljc-picker-date,.ljc-panel-quarter .ljc-picker-date,.ljc-panel-year .ljc-picker-date{padding:4px}.ljc-panel-month .ljc-picker-date-value,.ljc-panel-quarter .ljc-picker-date-value,.ljc-panel-year .ljc-picker-date-value{border-radius:24px;width:100%}.ljc-panel-month .ljc-picker-cell:not(.ljc-picker-cell-selected):not(.ljc-picker-cell-range-start):not(.ljc-picker-cell-range-end):not(.ljc-picker-cell-disabled):not(.ljc-picker-cell-week) .ljc-picker-date-value:hover,.ljc-panel-quarter .ljc-picker-cell:not(.ljc-picker-cell-selected):not(.ljc-picker-cell-range-start):not(.ljc-picker-cell-range-end):not(.ljc-picker-cell-disabled):not(.ljc-picker-cell-week) .ljc-picker-date-value:hover,.ljc-panel-year .ljc-picker-cell:not(.ljc-picker-cell-selected):not(.ljc-picker-cell-range-start):not(.ljc-picker-cell-range-end):not(.ljc-picker-cell-disabled):not(.ljc-picker-cell-week) .ljc-picker-date-value:hover{border-radius:24px}.ljc-panel-year{width:265px}.ljc-panel-week,.ljc-panel-year{-webkit-box-sizing:border-box;box-sizing:border-box}.ljc-panel-week-wrapper{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex}.ljc-panel-week-inner{width:298px}.ljc-panel-week-inner .ljc-picker-body{padding-top:0}.ljc-panel-week .ljc-picker-row-week{cursor:pointer}.ljc-panel-week .ljc-picker-row-week .ljc-picker-date-value{border-radius:0;width:100%}.ljc-panel-week .ljc-picker-cell .ljc-picker-date{border-radius:0}.ljc-panel-week .ljc-picker-cell:nth-child(2) .ljc-picker-date{border-bottom-left-radius:24px;border-top-left-radius:24px;padding-left:4px}.ljc-panel-week .ljc-picker-cell:nth-child(2) .ljc-picker-date .ljc-picker-date-value{border-bottom-left-radius:24px;border-top-left-radius:24px}.ljc-panel-week .ljc-picker-cell:nth-child(8) .ljc-picker-date{border-bottom-right-radius:24px;border-top-right-radius:24px;padding-right:4px}.ljc-panel-week .ljc-picker-cell:nth-child(8) .ljc-picker-date .ljc-picker-date-value{border-bottom-right-radius:24px;border-top-right-radius:24px}.ljc-panel-week .ljc-picker-row-week:hover .ljc-picker-cell:not(.ljc-picker-cell-week):not(.ljc-picker-cell-selected):not(.ljc-picker-cell-range-start):not(.ljc-picker-cell-range-end) .ljc-picker-date-value{background-color:#e5e6eb}.ljc-panel-quarter{-webkit-box-sizing:border-box;box-sizing:border-box;width:265px}.ljc-picker-range-wrapper{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex}.ljc-datepicker-shortcuts-wrapper{-webkit-box-sizing:border-box;box-sizing:border-box;height:100%;list-style:none;margin:10px 0 0;max-height:300px;overflow-y:auto;padding:0;width:106px}.ljc-datepicker-shortcuts-wrapper>li{-webkit-box-sizing:border-box;box-sizing:border-box;cursor:pointer;padding:6px 16px;width:100%}.ljc-datepicker-shortcuts-wrapper>li:hover{color:#165dff}.ljc-trigger-wrapper{display:inline-block}.ljc-trigger-popup{position:absolute;z-index:5200}.ljc-trigger-arrow{background-color:#fff;-webkit-box-sizing:border-box;box-sizing:border-box;content:\"\";display:block;height:8px;position:absolute;width:8px;z-index:-1}.ljc-trigger-popup[x-placement=tl] .ljc-trigger-arrow,.ljc-trigger-popup[x-placement=top] .ljc-trigger-arrow,.ljc-trigger-popup[x-placement=tr] .ljc-trigger-arrow{border-bottom-right-radius:2px;border-left:none;border-top:none}.ljc-trigger-popup[x-placement=bl] .ljc-trigger-arrow,.ljc-trigger-popup[x-placement=bottom] .ljc-trigger-arrow,.ljc-trigger-popup[x-placement=br] .ljc-trigger-arrow{border-bottom:none;border-right:none;border-top-left-radius:2px}.ljc-trigger-popup[x-placement=lb] .ljc-trigger-arrow,.ljc-trigger-popup[x-placement=left] .ljc-trigger-arrow,.ljc-trigger-popup[x-placement=lt] .ljc-trigger-arrow{border-bottom:none;border-left:none;border-top-right-radius:2px}.ljc-trigger-popup[x-placement=rb] .ljc-trigger-arrow,.ljc-trigger-popup[x-placement=right] .ljc-trigger-arrow,.ljc-trigger-popup[x-placement=rt] .ljc-trigger-arrow{border-bottom-left-radius:2px;border-right:none;border-top:none}";
+  var css_248z = ".datepicke-pro-vue{display:inline}.ljc-picker-container,.ljc-picker-range-container{background-color:#fff;border:1px solid #e5e6eb;border-radius:4px;-webkit-box-shadow:0 2px 5px rgba(0,0,0,.1);box-shadow:0 2px 5px rgba(0,0,0,.1);-webkit-box-sizing:border-box;box-sizing:border-box;min-height:60px;overflow:hidden;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;width:-webkit-max-content;width:-moz-max-content;width:max-content}.ljc-picker-container-shortcuts-placement-left,.ljc-picker-container-shortcuts-placement-right,.ljc-picker-range-container-shortcuts-placement-left,.ljc-picker-range-container-shortcuts-placement-right{-webkit-box-align:start;-ms-flex-align:start;-webkit-align-items:flex-start;align-items:flex-start;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex}.ljc-picker-container-shortcuts-placement-left>.ljc-picker-shortcuts,.ljc-picker-container-shortcuts-placement-right>.ljc-picker-shortcuts,.ljc-picker-range-container-shortcuts-placement-left>.ljc-picker-shortcuts,.ljc-picker-range-container-shortcuts-placement-right>.ljc-picker-shortcuts{-webkit-box-orient:vertical;-webkit-box-direction:normal;-webkit-box-sizing:border-box;box-sizing:border-box;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column;overflow-x:hidden;overflow-y:auto;padding:5px 8px}.ljc-picker-container-shortcuts-placement-left>.ljc-picker-shortcuts>*,.ljc-picker-container-shortcuts-placement-right>.ljc-picker-shortcuts>*,.ljc-picker-range-container-shortcuts-placement-left>.ljc-picker-shortcuts>*,.ljc-picker-range-container-shortcuts-placement-right>.ljc-picker-shortcuts>*{margin:5px 0}.ljc-picker-container-shortcuts-placement-left .ljc-picker-panel-wrapper,.ljc-picker-container-shortcuts-placement-left .ljc-picker-range-panel-wrapper,.ljc-picker-range-container-shortcuts-placement-left .ljc-picker-panel-wrapper,.ljc-picker-range-container-shortcuts-placement-left .ljc-picker-range-panel-wrapper{border-left:1px solid #e5e6eb}.ljc-picker-container-shortcuts-placement-right .ljc-picker-panel-wrapper,.ljc-picker-container-shortcuts-placement-right .ljc-picker-range-panel-wrapper,.ljc-picker-range-container-shortcuts-placement-right .ljc-picker-panel-wrapper,.ljc-picker-range-container-shortcuts-placement-right .ljc-picker-range-panel-wrapper{border-right:1px solid #e5e6eb}.ljc-picker-panel-only,.ljc-picker-range-panel-only{-webkit-box-shadow:none;box-shadow:none}.ljc-picker-panel-only .ljc-panel-date-inner,.ljc-picker-range-panel-only .ljc-panel-date,.ljc-picker-range-panel-only .ljc-panel-date-inner{width:100%}.ljc-picker-header{border-bottom:1px solid #e5e6eb;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;padding:8px 16px}.ljc-picker-header-title{-webkit-box-flex:1;color:#1d2129;cursor:pointer;-webkit-flex:1;-ms-flex:1;flex:1;font-size:14px;line-height:24px;text-align:center}.ljc-picker-header-icon{background-color:#fff;border-radius:50%;color:#4e5969;font-size:12px;height:24px;line-height:24px;margin-left:2px;margin-right:2px;text-align:center;-webkit-transition:all .1s linear;transition:all .1s linear;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;width:24px}.ljc-picker-header-icon:not(.ljc-picker-header-icon-hidden){cursor:pointer}.ljc-picker-header-icon:not(.ljc-picker-header-icon-hidden):hover{background-color:#e5e6eb}.ljc-picker-header-label{border-radius:2px;cursor:pointer;padding:2px;-webkit-transition:all .1s;transition:all .1s}.ljc-picker-header-label:hover{background-color:#e5e6eb}.ljc-picker-body{padding:14px 16px}.ljc-picker-week-list{-webkit-box-sizing:border-box;box-sizing:border-box;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;font-size:14px;padding:14px 16px 0;width:100%}.ljc-picker-week-list-item{-webkit-box-flex:1;color:#7d7d7f;-webkit-flex:1;-ms-flex:1;flex:1;font-weight:400;height:32px;line-height:32px;padding:0;text-align:center}.ljc-picker-row{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;padding:2px 0}.ljc-picker-cell{-webkit-box-flex:1;-webkit-flex:1;-ms-flex:1;flex:1}.ljc-picker-cell .ljc-picker-date{-webkit-box-orient:vertical;-webkit-box-direction:normal;-webkit-box-align:center;-ms-flex-align:center;-webkit-box-pack:center;-ms-flex-pack:center;-webkit-align-items:center;align-items:center;-webkit-box-sizing:border-box;box-sizing:border-box;cursor:pointer;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column;height:100%;-webkit-justify-content:center;justify-content:center;padding:4px 0;width:100%}.ljc-picker-date-value{border-radius:50%;color:#c9cdd4;cursor:pointer;font-size:14px;height:24px;line-height:24px;min-width:24px;text-align:center}.ljc-picker-date-lunar{color:#c9cdd4;font-size:12px;margin-top:-5px;-webkit-transform:scale(.8);transform:scale(.8);white-space:nowrap}.ljc-picker-cell-in-view .ljc-picker-date-value{color:#1d2129;font-weight:500}.ljc-picker-cell-in-view .ljc-picker-date-lunar{color:#86909c}.ljc-picker-cell-selected:not(.ljc-picker-cell-lunar) .ljc-picker-date-value{background-color:#165dff;color:#fff;-webkit-transition:background-color .1s linear;transition:background-color .1s linear}.ljc-picker-cell-lunar .ljc-picker-date{padding:0}.ljc-picker-cell-lunar:is(.ljc-picker-cell-selected) .ljc-picker-date{background-color:#165dff;border-radius:4px;-webkit-transition:background-color .1s linear;transition:background-color .1s linear}.ljc-picker-cell-lunar:is(.ljc-picker-cell-selected) .ljc-picker-date-lunar,.ljc-picker-cell-lunar:is(.ljc-picker-cell-selected) .ljc-picker-date-value{color:#fff}.ljc-picker-cell-in-view:not(.ljc-picker-cell-selected):not(.ljc-picker-cell-range-start):not(.ljc-picker-cell-range-end):not(.ljc-picker-cell-disabled):not(.ljc-picker-cell-week):not(.ljc-picker-cell-lunar) .ljc-picker-date-value:hover{background-color:#e5e6eb;color:#1d2129}.ljc-picker-cell-in-view:not(.ljc-picker-cell-selected):not(.ljc-picker-cell-range-start):not(.ljc-picker-cell-range-end):not(.ljc-picker-cell-disabled):not(.ljc-picker-cell-week):is(.ljc-picker-cell-lunar) .ljc-picker-date:hover{background-color:#e5e6eb;border-radius:4px;color:#1d2129}.ljc-picker-cell-today{position:relative}.ljc-picker-cell-today:after{background-color:#165dff;border-radius:50%;bottom:-2px;content:\"\";display:block;height:4px;left:50%;margin-left:-2px;position:absolute;width:4px}.ljc-picker-cell-in-range .ljc-picker-date{background-color:#e8f3ff}.ljc-picker-cell-range-start .ljc-picker-date{border-bottom-left-radius:24px;border-top-left-radius:24px}.ljc-picker-cell-range-end .ljc-picker-date{border-bottom-right-radius:24px;border-top-right-radius:24px}.ljc-picker-cell-in-range-near-hover .ljc-picker-date{border-radius:0}.ljc-picker-cell-range-end .ljc-picker-date-value,.ljc-picker-cell-range-start .ljc-picker-date-value{background-color:#165dff;border-radius:50%;color:#fff}.ljc-picker-cell-hover-in-range .ljc-picker-date{background-color:#e8f3ff}.ljc-picker-cell-hover-range-start .ljc-picker-date{border-radius:24px 0 0 24px}.ljc-picker-cell-hover-range-end .ljc-picker-date{border-radius:0 24px 24px 0}.ljc-picker-cell-hover-range-end .ljc-picker-date-value,.ljc-picker-cell-hover-range-start .ljc-picker-date-value{background-color:#bedaff;border-radius:50%;color:#1d2129}.ljc-picker-cell-disabled .ljc-picker-date{background-color:#f7f8fa;cursor:not-allowed}.ljc-picker-cell-disabled .ljc-picker-date-value{background-color:transparent;color:#c9cdd4;cursor:not-allowed}.ljc-picker-footer{min-width:100%;width:-webkit-min-content;width:-moz-min-content;width:min-content}.ljc-picker-footer-btn-wrapper{-webkit-box-align:center;-ms-flex-align:center;-webkit-box-pack:justify;-ms-flex-pack:justify;-webkit-align-items:center;align-items:center;border-top:1px solid #e5e6eb;-webkit-box-sizing:border-box;box-sizing:border-box;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-justify-content:space-between;justify-content:space-between;padding:3px 8px}.ljc-picker-footer-btn-wrapper :only-child{margin-left:auto}.ljc-picker-footer-extra-wrapper{color:#1d2129;font-size:12px;padding:8px 24px}.ljc-picker-footer-extra-wrapper,.ljc-picker-footer-now-wrapper{border-top:1px solid #e5e6eb;-webkit-box-sizing:border-box;box-sizing:border-box}.ljc-picker-footer-now-wrapper{height:36px;line-height:36px;text-align:center}.ljc-picker-btn-confirm{margin:5px 0}.ljc-picker-shortcuts{-webkit-box-flex:1;-webkit-flex:1;-ms-flex:1;flex:1}.ljc-picker-shortcuts>*{margin:5px 10px 5px 0}.slide-dynamic-origin-appear-from,.slide-dynamic-origin-enter-from{opacity:0;-webkit-transform:scaleY(.9);transform:scaleY(.9);-webkit-transform-origin:0 0;transform-origin:0 0}.slide-dynamic-origin-appear-to,.slide-dynamic-origin-enter-to{opacity:1;-webkit-transform:scaleY(1);transform:scaleY(1);-webkit-transform-origin:0 0;transform-origin:0 0}.slide-dynamic-origin-appear-active,.slide-dynamic-origin-enter-active{-webkit-transition:opacity .2s cubic-bezier(.34,.69,.1,1),-webkit-transform .2s cubic-bezier(.34,.69,.1,1);transition:opacity .2s cubic-bezier(.34,.69,.1,1),-webkit-transform .2s cubic-bezier(.34,.69,.1,1);transition:transform .2s cubic-bezier(.34,.69,.1,1),opacity .2s cubic-bezier(.34,.69,.1,1);transition:transform .2s cubic-bezier(.34,.69,.1,1),opacity .2s cubic-bezier(.34,.69,.1,1),-webkit-transform .2s cubic-bezier(.34,.69,.1,1)}.slide-dynamic-origin-leave-from{opacity:1;-webkit-transform:scaleY(1);transform:scaleY(1);-webkit-transform-origin:0 0;transform-origin:0 0}.slide-dynamic-origin-leave-to{opacity:0;-webkit-transform:scaleY(.9);transform:scaleY(.9);-webkit-transform-origin:0 0;transform-origin:0 0}.slide-dynamic-origin-leave-active{-webkit-transition:opacity .2s cubic-bezier(.34,.69,.1,1),-webkit-transform .2s cubic-bezier(.34,.69,.1,1);transition:opacity .2s cubic-bezier(.34,.69,.1,1),-webkit-transform .2s cubic-bezier(.34,.69,.1,1);transition:transform .2s cubic-bezier(.34,.69,.1,1),opacity .2s cubic-bezier(.34,.69,.1,1);transition:transform .2s cubic-bezier(.34,.69,.1,1),opacity .2s cubic-bezier(.34,.69,.1,1),-webkit-transform .2s cubic-bezier(.34,.69,.1,1)}.ljc-panel-date{-webkit-box-sizing:border-box;box-sizing:border-box;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex}.ljc-panel-date-inner{width:265px}.ljc-panel-date-inner .ljc-picker-body{padding-top:0}.ljc-panel-date-timepicker{-webkit-box-orient:vertical;-webkit-box-direction:normal;border-left:1px solid #e5e6eb;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column}.ljc-panel-date-timepicker-title{border-bottom:1px solid #e5e6eb;color:#1d2129;font-size:14px;font-weight:400;height:40px;line-height:40px;text-align:center;width:100%}.ljc-panel-date-timepicker .ljc-timepicker{height:276px;overflow:hidden;padding:0 6px}.ljc-panel-date-timepicker .ljc-timepicker-column{-webkit-box-sizing:border-box;box-sizing:border-box;height:100%;padding:0 4px;width:auto}.ljc-panel-date-timepicker .ljc-timepicker-column::-webkit-scrollbar{width:0}.ljc-panel-date-timepicker .ljc-timepicker-column:not(:last-child){border-right:0}.ljc-panel-date-timepicker .ljc-timepicker ul:after{height:244px}.ljc-panel-date-timepicker .ljc-timepicker-cell{width:36px}.ljc-panel-date-timepicker .ljc-timepicker-cell-inner{padding-left:10px}.ljc-panel-date-lunar .ljc-timepicker{height:300px}.ljc-panel-date-lunar .ljc-timepicker ul:after{height:268px}.ljc-panel-date-footer{border-right:1px solid #e5e6eb}.ljc-panel-date-with-view-tabs{-webkit-box-orient:vertical;-webkit-box-direction:normal;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column;min-width:265px}.ljc-panel-date-with-view-tabs .ljc-panel-date-timepicker .ljc-timepicker-column{-webkit-box-flex:1;-webkit-flex:1;-ms-flex:1;flex:1}.ljc-panel-date-with-view-tabs .ljc-panel-date-timepicker .ljc-timepicker-column::-webkit-scrollbar{width:0}.ljc-panel-date-with-view-tabs .ljc-panel-date-timepicker .ljc-timepicker-cell{text-align:center;width:100%}.ljc-panel-date-with-view-tabs .ljc-panel-date-timepicker .ljc-timepicker-cell-inner{padding-left:0}.ljc-panel-date-view-tabs{border-top:1px solid #e5e6eb;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex}.ljc-panel-date-view-tab-pane{-webkit-box-flex:1;border-right:1px solid #e5e6eb;color:#c9cdd4;cursor:pointer;-webkit-flex:1;-ms-flex:1;flex:1;font-size:14px;height:35px;line-height:35px;text-align:center}.ljc-panel-date-view-tab-pane:last-child{border-right:none}.ljc-panel-date-view-tab-pane-text{margin-left:8px}.ljc-panel-date-view-tab-pane-active{color:#1d2129}.ljc-panel-month,.ljc-panel-quarter,.ljc-panel-year{-webkit-box-sizing:border-box;box-sizing:border-box;width:265px}.ljc-panel-month .ljc-picker-date,.ljc-panel-quarter .ljc-picker-date,.ljc-panel-year .ljc-picker-date{padding:4px}.ljc-panel-month .ljc-picker-date-value,.ljc-panel-quarter .ljc-picker-date-value,.ljc-panel-year .ljc-picker-date-value{border-radius:24px;width:100%}.ljc-panel-month .ljc-picker-cell:not(.ljc-picker-cell-selected):not(.ljc-picker-cell-range-start):not(.ljc-picker-cell-range-end):not(.ljc-picker-cell-disabled):not(.ljc-picker-cell-week) .ljc-picker-date-value:hover,.ljc-panel-quarter .ljc-picker-cell:not(.ljc-picker-cell-selected):not(.ljc-picker-cell-range-start):not(.ljc-picker-cell-range-end):not(.ljc-picker-cell-disabled):not(.ljc-picker-cell-week) .ljc-picker-date-value:hover,.ljc-panel-year .ljc-picker-cell:not(.ljc-picker-cell-selected):not(.ljc-picker-cell-range-start):not(.ljc-picker-cell-range-end):not(.ljc-picker-cell-disabled):not(.ljc-picker-cell-week) .ljc-picker-date-value:hover{border-radius:24px}.ljc-panel-year{width:265px}.ljc-panel-week,.ljc-panel-year{-webkit-box-sizing:border-box;box-sizing:border-box}.ljc-panel-week-wrapper{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex}.ljc-panel-week-inner{width:298px}.ljc-panel-week-inner .ljc-picker-body{padding-top:0}.ljc-panel-week .ljc-picker-row-week{cursor:pointer}.ljc-panel-week .ljc-picker-row-week .ljc-picker-date-value{border-radius:0;width:100%}.ljc-panel-week .ljc-picker-cell .ljc-picker-date{border-radius:0}.ljc-panel-week .ljc-picker-cell:nth-child(2) .ljc-picker-date{border-bottom-left-radius:24px;border-top-left-radius:24px;padding-left:4px}.ljc-panel-week .ljc-picker-cell:nth-child(2) .ljc-picker-date .ljc-picker-date-value{border-bottom-left-radius:24px;border-top-left-radius:24px}.ljc-panel-week .ljc-picker-cell:nth-child(8) .ljc-picker-date{border-bottom-right-radius:24px;border-top-right-radius:24px;padding-right:4px}.ljc-panel-week .ljc-picker-cell:nth-child(8) .ljc-picker-date .ljc-picker-date-value{border-bottom-right-radius:24px;border-top-right-radius:24px}.ljc-panel-week .ljc-picker-row-week:hover .ljc-picker-cell:not(.ljc-picker-cell-week):not(.ljc-picker-cell-selected):not(.ljc-picker-cell-range-start):not(.ljc-picker-cell-range-end) .ljc-picker-date-value{background-color:#e5e6eb}.ljc-panel-quarter{-webkit-box-sizing:border-box;box-sizing:border-box;width:265px}.ljc-picker-range-wrapper{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex}.ljc-datepicker-shortcuts-wrapper{-webkit-box-sizing:border-box;box-sizing:border-box;height:100%;list-style:none;margin:10px 0 0;max-height:300px;overflow-y:auto;padding:0;width:106px}.ljc-datepicker-shortcuts-wrapper>li{-webkit-box-sizing:border-box;box-sizing:border-box;cursor:pointer;padding:6px 16px;width:100%}.ljc-datepicker-shortcuts-wrapper>li:hover{color:#165dff}.ljc-trigger-wrapper{display:inline-block}.ljc-trigger-popup{position:absolute;z-index:5200}.ljc-trigger-arrow{background-color:#fff;-webkit-box-sizing:border-box;box-sizing:border-box;content:\"\";display:block;height:8px;position:absolute;width:8px;z-index:-1}.ljc-trigger-popup[x-placement=tl] .ljc-trigger-arrow,.ljc-trigger-popup[x-placement=top] .ljc-trigger-arrow,.ljc-trigger-popup[x-placement=tr] .ljc-trigger-arrow{border-bottom-right-radius:2px;border-left:none;border-top:none}.ljc-trigger-popup[x-placement=bl] .ljc-trigger-arrow,.ljc-trigger-popup[x-placement=bottom] .ljc-trigger-arrow,.ljc-trigger-popup[x-placement=br] .ljc-trigger-arrow{border-bottom:none;border-right:none;border-top-left-radius:2px}.ljc-trigger-popup[x-placement=lb] .ljc-trigger-arrow,.ljc-trigger-popup[x-placement=left] .ljc-trigger-arrow,.ljc-trigger-popup[x-placement=lt] .ljc-trigger-arrow{border-bottom:none;border-left:none;border-top-right-radius:2px}.ljc-trigger-popup[x-placement=rb] .ljc-trigger-arrow,.ljc-trigger-popup[x-placement=right] .ljc-trigger-arrow,.ljc-trigger-popup[x-placement=rt] .ljc-trigger-arrow{border-bottom-left-radius:2px;border-right:none;border-top:none}";
   styleInject(css_248z);
 
-  var components = [__vue_component__];
+  var components = [DatePickerPro, RangePickerPro];
 
   // eslint-disable-next-line func-names
   var install = function install(Vue) {
@@ -6848,10 +7645,12 @@
   }
   var index = {
     install: install,
-    DatePickerPro: __vue_component__
+    DatePickerPro: DatePickerPro,
+    RangePickerPro: RangePickerPro
   };
 
-  exports.DatePickerPro = __vue_component__;
+  exports.DatePickerPro = DatePickerPro;
+  exports.RangePickerPro = RangePickerPro;
   exports.default = index;
   exports.install = install;
 

@@ -1,4 +1,4 @@
-import vue from 'rollup-plugin-vue';
+import vue from 'rollup-plugin-vue2';
 import babel from '@rollup/plugin-babel';
 import nodeResolve from '@rollup/plugin-node-resolve';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
@@ -8,6 +8,7 @@ import postcss from 'rollup-plugin-postcss';
 import autoprefixer from 'autoprefixer';
 import terser from '@rollup/plugin-terser';
 import strip from '@rollup/plugin-strip';
+import filesize from 'rollup-plugin-filesize';
 
 import { name, version, author } from '../package.json';
 
@@ -44,20 +45,20 @@ export default {
     },
   ],
   plugins: [
+    vue({
+      template: {
+        isProduction: false,
+      },
+    }),
     nodePolyfills(),
     nodeResolve({
       browser: true,
+      external: (id) => id.startsWith('dayjs'),
     }),
     commonjs(),
     babel({
       exclude: '**/node_modules/**',
       babelHelpers: 'bundled',
-    }),
-    vue({
-      css: true,
-      template: {
-        isProduction: true,
-      },
     }),
     postcss({
       extensions: ['.css', '.less'],
@@ -74,6 +75,7 @@ export default {
     strip({
       labels: ['unittest'],
     }),
+    filesize(),
   ],
-  external: ['@babel', 'lodash', 'vue'],
+  external: ['vue'],
 };

@@ -23,12 +23,15 @@ export default {
   props: {
     type: {
       type: String,
+      default: 'secondary',
     },
     shape: {
       type: String,
+      default: 'square',
     },
     status: {
       type: String,
+      default: 'normal',
     },
     size: {
       type: String,
@@ -58,10 +61,10 @@ export default {
     cls() {
       return [
         this.prefixCls,
-        `${this.prefixCls}-${this.type ?? 'secondary'}`,
-        `${this.prefixCls}-shape-${this.shape ?? 'square'}`,
+        `${this.prefixCls}-${this.type}`,
+        `${this.prefixCls}-shape-${this.shape}`,
         `${this.prefixCls}-size-${this.size}`,
-        `${this.prefixCls}-status-${this.status ?? 'normal'}`,
+        `${this.prefixCls}-status-${this.status}`,
         {
           [`${this.prefixCls}-long`]: this.long,
           [`${this.prefixCls}-loading`]: this.loading,

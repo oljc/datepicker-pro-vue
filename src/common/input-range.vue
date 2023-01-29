@@ -149,9 +149,9 @@ export default {
     },
     getDisplayValue(index) {
       if (this.inputValue) {
-        return this.inputValue?.[index];
+        return this.inputValue[index];
       }
-      const targetValue = this.value?.[index];
+      const targetValue = this.value && this.value[index];
       if (targetValue && isDayjs(targetValue)) {
         return isFunction(this.format)
           ? this.format(targetValue)
@@ -182,7 +182,7 @@ export default {
         targetIndex === 0 ? this.$refs.refInput0 : this.$refs.refInput1;
       !isUndefined(targetIndex) &&
         !this.getDisabled(targetIndex) &&
-        targetElement?.focus();
+        targetElement.focus();
     },
     blur() {
       const targetElement =

@@ -11,7 +11,7 @@
 @time-picker-prefix-cls: ~'@{prefix}-timepicker';
 
 @datepicker-timepicker-height: 276px;
-@lunar-add-height: 14px;
+@lunar-add-height: 24px;
 
 .@{date-panel-prefix-cls} {
   display: flex;
@@ -81,8 +81,8 @@
       height: @datepicker-timepicker-height + @lunar-add-height;
 
       ul::after {
-        height: @lunar-add-height + @datepicker-timepicker-height - @timepicker-cell-height -
-          @timepicker-cell-spacing * 2;
+        height: @lunar-add-height + @datepicker-timepicker-height -
+          @timepicker-cell-height - @timepicker-cell-spacing * 2;
       }
     }
   }
