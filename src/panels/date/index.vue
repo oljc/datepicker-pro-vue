@@ -167,9 +167,6 @@ export default {
   data() {
     return {
       pickerPrefixCls: getPrefixCls('picker'),
-      localCurrentView: !isUndefined(this.currentView)
-        ? this.currentView
-        : 'date',
     };
   },
   watch: {
@@ -191,13 +188,12 @@ export default {
     },
     showDateView() {
       return (
-        !this.showTime || !this.showViewTabs || this.localCurrentView === 'date'
+        !this.showTime || !this.showViewTabs || this.currentView === 'date'
       );
     },
     showTimeView() {
       return (
-        this.showTime &&
-        (!this.showViewTabs || this.localCurrentView === 'time')
+        this.showTime && (!this.showViewTabs || this.currentView === 'time')
       );
     },
     classNames() {
@@ -295,7 +291,6 @@ export default {
     changeViewTo(newView) {
       this.$emit('currentViewChange', newView);
       this.$emit('update:currentView', newView);
-      this.localCurrentView = newView;
     },
   },
 };
