@@ -31,9 +31,8 @@
       @pressEnter="onInputPressEnter"
     >
       <template slot="suffix-icon">
-        <slot name="suffix-icon">
-          <IconCommon use="calendar" />
-        </slot>
+        <slot name="suffix-icon" v-if="$slots['suffix-icon']"></slot>
+        <IconCommon v-else use="calendar" />
       </template>
     </DateInput>
     <template slot="content">
