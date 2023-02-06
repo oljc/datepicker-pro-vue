@@ -47,7 +47,7 @@ export default {
       if (!this.$refs.refWrapper || isUndefined(this.value) || !this.visible) {
         return;
       }
-      const refSelected = this.$refs[this.value][0];
+      const refSelected = this.$refs[this.value] && this.$refs[this.value][0];
       if (refSelected) {
         scrollTo(
           this.$refs.refWrapper,

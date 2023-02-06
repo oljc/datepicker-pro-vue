@@ -239,10 +239,6 @@ export default {
         this.popperJS.destroy();
         this.popperJS = null;
       }
-
-      if (this.renderToBody) {
-        document.body.removeChild(this.popper);
-      }
     },
 
     createPopper() {
