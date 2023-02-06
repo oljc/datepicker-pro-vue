@@ -1,6 +1,6 @@
 {
   "name": "datepicker-pro-vue",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "A beautiful, concise and fully functional date picker for Vue2. With a clean and intuitive interface, it's easy to use and customize. Supports multiple languages and various date formats.",
   "scripts": {
     "build": "yarn clean && rollup --bundleConfigAsCjs -c build/rollup.config.base.js",

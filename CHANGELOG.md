@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/LIjiAngChen8/datepicker-pro-vue/compare/v1.2.0...v1.2.1) (2023-02-01)
+
+
+### 🐛问题修复
+
+* 左右面板同步 ([c0f0d9f](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/c0f0d9f0eca432ea08ae9d918c366aa04c8cb388))
+
 ## [1.2.0](https://github.com/LIjiAngChen8/datepicker-pro-vue/compare/v1.1.3...v1.2.0) (2023-01-29)
 
 
