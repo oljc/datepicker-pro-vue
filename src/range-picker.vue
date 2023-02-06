@@ -11,39 +11,35 @@
     :popup-container="popupContainer"
     @popupVisibleChange="setPanelVisible"
   >
-    <slot>
-      <DateRangeInput
-        ref="refInput"
-        v-bind="$attrs"
-        :size="size"
-        :focused="panelVisible"
-        :visible="panelVisible"
-        :error="error"
-        :disabled="disabled"
-        :readonly="readonly"
-        :allow-clear="allowClear && !readonly"
-        :placeholder="computedPlaceholder"
-        :input-value="inputValue"
-        :value="panelValue"
-        :focusedIndex.sync="focusedIndex"
-        :format="computedFormat"
-        @clear="onInputClear"
-        @change="onInputChange"
-        @pressEnter="onInputPressEnter"
-      >
-        <template #suffix-icon>
-          <slot name="suffix-icon">
-            <IconCommon use="calendar" />
-          </slot>
-        </template>
-        <template #separator>
-          <slot name="separator">
-            {{ separator || '-' }}
-          </slot>
-        </template>
-      </DateRangeInput>
-    </slot>
-    <template #content>
+    <DateRangeInput
+      ref="refInput"
+      v-bind="$attrs"
+      :size="size"
+      :focused="panelVisible"
+      :visible="panelVisible"
+      :error="error"
+      :disabled="disabled"
+      :readonly="readonly"
+      :allow-clear="allowClear && !readonly"
+      :placeholder="computedPlaceholder"
+      :input-value="inputValue"
+      :value="panelValue"
+      :focusedIndex.sync="focusedIndex"
+      :format="computedFormat"
+      @clear="onInputClear"
+      @change="onInputChange"
+      @pressEnter="onInputPressEnter"
+    >
+      <template slot="suffix-icon">
+        <slot name="suffix-icon" v-if="$slots['suffix-icon']"></slot>
+        <IconCommon v-else use="calendar" />
+      </template>
+      <template slot="separator" v-if="$slots['separator']">
+        <slot name="separator"></slot>
+      </template>
+      <template slot="separator" v-else>{{ separator || '-' }}</template>
+    </DateRangeInput>
+    <template v-slot:content>
       <RangePickerPanel v-bind="rangePanelProps" v-on="rangePanelOn" />
     </template>
   </Popper>
