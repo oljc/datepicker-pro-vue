@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.2.2](https://github.com/LIjiAngChen8/datepicker-pro-vue/compare/v1.2.1...v1.2.2) (2023-02-06)
+
+
+### 🐛问题修复
+
+* renderToBody开启时组件销毁报错 ([98bcc1c](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/98bcc1cdb62f99bb0edda9d8f085fb19023aff63))
+* 修复时间格式化后定位滚动报错问题 ([008b822](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/008b822ae43924afc96739faa3e6b79e8bc7827a))
+* 解决vue-template-compiler版本兼容问题 ([ed8909c](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/ed8909c7970f6d593f6e21d6416345359f9f91c7))
+* 重构写法兼容vue-template-compiler版本问题 ([c9eb0b4](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/c9eb0b458bd1025a105b9b65b41901e4a33228ec))
+
+
+### 🖇️其他
+
+* Update.gitignore to ignore the build output file ([ae379be](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/ae379bed9365b5946fe40d07690e43be879ab69f))
+* Update.gitignore to ignore the build output file ([7200c3b](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/7200c3b88b14a4d216e84c97c1dba45bd7357679))
+
 ## [1.2.1](https://github.com/LIjiAngChen8/datepicker-pro-vue/compare/v1.2.0...v1.2.1) (2023-02-01)
 
 
