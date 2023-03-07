@@ -94,7 +94,6 @@ export default {
       );
     },
     onCellClick(cellData) {
-      console.log('收到', cellData);
       this.$emit('select', cellData.value);
     },
     onCellMouseEnter(cellData) {
