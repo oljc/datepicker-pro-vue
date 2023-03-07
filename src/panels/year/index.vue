@@ -90,7 +90,6 @@ export default {
       const rows = this.newArray(ROW_COUNT).map((_, index) =>
         flatData.slice(index * COL_COUNT, (index + 1) * COL_COUNT)
       );
-      console.log(rows);
       return rows;
     },
     headerTitle() {

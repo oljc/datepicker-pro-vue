@@ -99,8 +99,8 @@ export default {
     /**
      * 绑定值
      */
-    modelValue: {
-      type: Array,
+    value: {
+      type: [Array, Object, String, Number],
     },
     /**
      * 默认值
@@ -377,7 +377,7 @@ export default {
     },
     computedModelValue() {
       return getDayjsValue(
-        normalizeRangeValue(this.modelValue),
+        normalizeRangeValue(this.value),
         this.parseValueFormat
       );
     },
@@ -910,7 +910,7 @@ export default {
       const formattedValue = getFormattedValue(value, this.parseValueFormat);
       const dateValue = getDateValue(value);
       if (isValueChange(value, this.selectedValue)) {
-        this.$emit('update:modelValue', returnValue);
+        this.$emit('input', returnValue);
         this.$emit('change', returnValue, dateValue, formattedValue);
         this.eventHandlers && this.eventHandlers.onChange();
       }
@@ -1011,7 +1011,6 @@ export default {
       return isTime ? [...this.selectedValue] : [];
     },
     onPanelCellClick(date) {
-      console.log('单击', date);
       const newValue = this.getValueToModify();
       const mergedOpValue = this.getMergedOpValue(
         date,
