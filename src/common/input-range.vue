@@ -57,7 +57,6 @@ import {
   isUndefined,
 } from '../utils/is';
 import { getPrefixCls } from '../utils/config';
-import { log } from 'console';
 
 export default {
   name: 'DateInputRange',
