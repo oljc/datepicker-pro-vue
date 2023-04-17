@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.2.4](https://github.com/LIjiAngChen8/datepicker-pro-vue/compare/v1.2.3...v1.2.4) (2023-04-17)
+
+
+### 🐛问题修复
+
+* 修复清除按钮事件不生效 ([57eb5ef](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/57eb5ef50e11010fe49f6b5ae6a762cb05f134ef))
+* 修复清除按钮事件不生效 ([16e76b1](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/16e76b1c3ec2f9747ecf37d4aa51dee8518b4b36))
+* 修复清除按钮事件不生效 ([de1b827](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/de1b827b7ad6f88dbb35af670230b781de4daf1e))
+
 ## [1.2.3](https://github.com/LIjiAngChen8/datepicker-pro-vue/compare/v1.2.2...v1.2.3) (2023-03-07)
 
 
