@@ -34,7 +34,7 @@
         v-if="allowClear && !disabled && value.length === 2"
         :prefix="prefixCls"
         :class="`${prefixCls}-clear-icon`"
-        @click="onClear"
+        @click.native="onClear"
       >
         <IconCommon use="close" />
       </IconHover>
