@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.2.3](https://github.com/LIjiAngChen8/datepicker-pro-vue/compare/v1.2.2...v1.2.3) (2023-03-07)
+
+
+### 🖇️其他
+
+* 移除无用代码 ([1a4cac3](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/1a4cac30e77f247335d01aa16a2b0e5b6291e18b))
+
+
+### 🐛问题修复
+
+* 修复v-model失效问题 ([b806cad](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/b806cad3e5540fe19554c910184c4b41c12a9336))
+* 修复v-model失效问题 ([2691ac7](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/2691ac7e35b33ac5ac16c9fbdbcf497c7defd51d))
+
 ## [1.2.2](https://github.com/LIjiAngChen8/datepicker-pro-vue/compare/v1.2.1...v1.2.2) (2023-02-06)
 
 
