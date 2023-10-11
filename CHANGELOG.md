@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.5](https://github.com/LIjiAngChen8/datepicker-pro-vue/compare/v1.2.4...v1.2.5) (2023-10-11)
+
+
+### 🐛问题修复
+
+* 修复箭头显示错误、范围选择器年份点击错误 ([7019b8f](https://github.com/LIjiAngChen8/datepicker-pro-vue/commit/7019b8f4f12a86e210b11bc6f5806abc4c5c595c))
+
 ## [1.2.4](https://github.com/LIjiAngChen8/datepicker-pro-vue/compare/v1.2.3...v1.2.4) (2023-04-17)
 
 
