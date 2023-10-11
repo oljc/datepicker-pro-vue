@@ -405,8 +405,12 @@ export default {
         : this.localPanelVisible;
     },
 
+    isDateOrWeek() {
+      return ['date', 'week'].includes(this.mode);
+    },
+
     unit() {
-      return ['date', 'week'].includes(this.mode) ? 'M' : 'y';
+      return this.isDateOrWeek ? 'M' : 'y';
     },
     span() {
       return { date: 1, week: 1, year: 10 * 12, quarter: 12, month: 12 }[
@@ -534,14 +538,16 @@ export default {
         .isBefore(this.endHeaderValue, this.unit);
     },
     computedStartHeaderOperations() {
-      const operations = ['onSuperPrev', 'onPrev'];
-      if (this.canShortenMonth) operations.push('onNext');
+      const operations = ['onSuperPrev'];
+      if (this.isDateOrWeek) operations.push('onPrev');
+      if (this.canShortenMonth && this.isDateOrWeek) operations.push('onNext');
       if (this.canShortenYear) operations.push('onSuperNext');
       return pick(this.startHeaderOperations, operations);
     },
     computedEndHeaderOperations() {
-      const operations = ['onSuperNext', 'onNext'];
-      if (this.canShortenMonth) operations.push('onPrev');
+      const operations = ['onSuperNext'];
+      if (this.isDateOrWeek) operations.push('onNext');
+      if (this.canShortenMonth && this.isDateOrWeek) operations.push('onPrev');
       if (this.canShortenYear) operations.push('onSuperPrev');
       return pick(this.endHeaderOperations, operations);
     },

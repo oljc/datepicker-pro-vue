@@ -309,9 +309,10 @@ export default {
     },
     startPanelOn() {
       return {
-        select: this.startHeaderMode
-          ? this.onStartHeaderPanelSelect
-          : this.onPanelCellClick,
+        select:
+          this.startHeaderMode && this.startHeaderMode !== 'year'
+            ? this.onStartHeaderPanelSelect
+            : this.onPanelCellClick,
         cellMouseEnter: this.onPanelCellMouseEnter,
       };
     },
@@ -326,9 +327,10 @@ export default {
     },
     endPanelOn() {
       return {
-        select: this.endHeaderMode
-          ? this.onEndHeaderPanelSelect
-          : this.onPanelCellClick,
+        select:
+          this.endHeaderMode && this.endHeaderMode !== 'year'
+            ? this.onEndHeaderPanelSelect
+            : this.onPanelCellClick,
         cellMouseEnter: this.onPanelCellMouseEnter,
       };
     },
